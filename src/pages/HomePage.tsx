@@ -29,14 +29,14 @@ export function HomePage() {
   return (
     <div className="space-y-24 sm:space-y-32">
       {/* ── Hero ─────────────────────────────────────────────── */}
-      <section className="grid items-center gap-12 lg:grid-cols-[1fr_minmax(0,30rem)] lg:gap-16">
+      <section className="grid items-center gap-12 lg:grid-cols-[1fr_minmax(0,32rem)] lg:gap-16 xl:grid-cols-[1fr_minmax(0,36rem)] xl:gap-24">
         <div>
           <p className="font-mono text-sm text-muted">
             a visual notebook for <span className="text-text">DSA</span> and{' '}
             <span className="text-text">React</span>
           </p>
 
-          <h1 className="mt-5 text-[2.6rem] leading-[1.05] tracking-tight sm:text-6xl lg:text-[4.25rem]">
+          <h1 className="mt-5 text-[2.6rem] leading-[1.05] tracking-tight sm:text-6xl lg:text-[4.25rem] xl:text-[5rem]">
             Notes you can press{' '}
             <span className="inline-flex translate-y-[-0.08em] items-center gap-[0.25em] rounded-[0.22em] border border-b-[0.09em] border-border bg-elevated px-[0.3em] py-[0.02em] align-middle text-[0.62em] font-semibold text-accent-2">
               <svg viewBox="0 0 24 24" className="size-[0.7em]" aria-hidden="true">
@@ -162,7 +162,7 @@ function Section({
       aria-labelledby={headingId}
       className="scroll-mt-24 border-t border-border pt-8"
     >
-      <div className="grid gap-x-16 gap-y-8 lg:grid-cols-[15rem_minmax(0,1fr)]">
+      <div className="grid gap-x-16 gap-y-8 lg:grid-cols-[17rem_minmax(0,1fr)] xl:grid-cols-[20rem_minmax(0,1fr)]">
         <div>
           <h2 id={headingId} className="text-2xl sm:text-3xl">
             {title}
