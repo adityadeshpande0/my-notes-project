@@ -1,6 +1,8 @@
 import type { MDXComponents } from 'mdx/types';
 import { Link } from 'react-router';
 import { Callout } from './Callout';
+import { CodeBlock } from './CodeBlock';
+import { Term } from './Term';
 
 /**
  * Components available inside every .mdx note without importing them,
@@ -8,7 +10,9 @@ import { Callout } from './Callout';
  */
 export const mdxComponents: MDXComponents = {
   Callout,
-  // Internal links ("/dsa/...") use the router (no full page reload); external ones open normally.
+  Term,
+  pre: CodeBlock,
+  // Internal links ("/dsa/...") use the router (no full page reload); external ones open in a new tab.
   a: ({ href = '', ...props }) =>
     href.startsWith('/') ? (
       <Link to={href} {...props} />
@@ -17,7 +21,7 @@ export const mdxComponents: MDXComponents = {
     ),
   // Wide tables scroll sideways instead of stretching the page on phones.
   table: (props) => (
-    <div className="overflow-x-auto">
+    <div className="table-wrap">
       <table {...props} />
     </div>
   ),

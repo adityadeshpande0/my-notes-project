@@ -8,6 +8,7 @@ import remarkFrontmatter from 'remark-frontmatter';
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
 import remarkGfm from 'remark-gfm';
 import rehypeShiki from '@shikijs/rehype';
+import rehypeSlug from 'rehype-slug';
 import { contentManifest } from './plugins/content-manifest.ts';
 
 export default defineConfig({
@@ -24,10 +25,17 @@ export default defineConfig({
         ],
         // Highlight code blocks at build time, so no highlighter ships to the browser.
         // Both themes are emitted as CSS variables; styles/index.css picks one per theme.
+        // rehype-slug gives every heading an id ("## How it works" -> id="how-it-works"),
+        // which the table of contents links to.
         rehypePlugins: [
+          rehypeSlug,
           [
             rehypeShiki,
-            { themes: { light: 'github-light', dark: 'tokyo-night' }, defaultColor: false },
+            {
+              themes: { light: 'github-light', dark: 'tokyo-night' },
+              defaultColor: false,
+              addLanguageClass: true, // lets the code block header show "TypeScript"
+            },
           ],
         ],
       }),

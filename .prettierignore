@@ -1,3 +1,5 @@
 dist
 node_modules
 package-lock.json
+# Prettier's MDX parser mangles inline JSX (e.g. <Term>) at line starts.
+*.mdx

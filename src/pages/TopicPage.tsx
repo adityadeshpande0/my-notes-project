@@ -1,12 +1,20 @@
-import { Suspense } from 'react';
+import { Suspense, useEffect, useRef, useState, type ComponentType, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router';
+import type { MDXProps } from 'mdx/types';
 import { Chip } from '../components/Chip';
 import { LevelChip } from '../components/LevelChip';
 import { mdxComponents } from '../components/mdx-components';
 import { getNote, getTopic, topics } from '../lib/content';
 import { neighbours } from '../lib/topics';
-import { TRACKS, type Track } from '../lib/types';
+import { TRACKS, type TopicMeta, type Track } from '../lib/types';
 import { NotFoundPage } from './NotFoundPage';
+import { ReadingProgress } from './topic/ReadingProgress';
+import { TableOfContents, type Heading } from './topic/TableOfContents';
+
+interface Outline {
+  headings: Heading[];
+  minutes: number;
+}
 
 export function TopicPage({ track }: { track: Track }) {
   // useParams reads the `:slug` part of the URL, e.g. "binary-search".
@@ -16,64 +24,208 @@ export function TopicPage({ track }: { track: Track }) {
 
   if (!topic || !Note) return <NotFoundPage />;
 
-  const { prev, next } = neighbours(topics, track, slug);
+  // `key` makes React start fresh (new state, new effects) when the slug changes.
+  return <TopicLayout key={slug} topic={topic} Note={Note} />;
+}
+
+function TopicLayout({ topic, Note }: { topic: TopicMeta; Note: ComponentType<MDXProps> }) {
+  const articleRef = useRef<HTMLElement>(null);
+  const [outline, setOutline] = useState<Outline>({ headings: [], minutes: 0 });
+  const { prev, next } = neighbours(topics, topic.track, topic.slug);
+  const trackName = TRACKS[topic.track].name;
 
   return (
-    <article className="mx-auto max-w-[70ch]">
-      <nav aria-label="Breadcrumb" className="mb-6 text-sm text-muted">
-        <Link to={`/${track}`} className="hover:text-text">
-          {TRACKS[track].name}
-        </Link>
-        <span aria-hidden="true"> / </span>
-        <span className="text-text">{topic.title}</span>
-      </nav>
+    <>
+      <ReadingProgress target={articleRef} />
 
-      <header className="mb-10">
-        <h1 className="text-4xl sm:text-5xl">{topic.title}</h1>
-        {topic.summary && <p className="mt-4 text-lg text-muted">{topic.summary}</p>}
-        <div className="mt-5 flex flex-wrap gap-2">
-          <LevelChip level={topic.level} />
-          {topic.complexity?.time && <Chip>time {topic.complexity.time}</Chip>}
-          {topic.complexity?.space && <Chip>space {topic.complexity.space}</Chip>}
-        </div>
-      </header>
+      <div className="grid gap-x-12 lg:grid-cols-[13rem_minmax(0,1fr)] xl:grid-cols-[14rem_minmax(0,46rem)_15rem] xl:justify-between">
+        {/* ── Left: table of contents (desktop) ───────────── */}
+        <aside className="hidden lg:block" aria-label="On this page">
+          <div className="sticky top-24">
+            <Link
+              to={`/${topic.track}`}
+              className="mb-8 inline-flex items-center gap-2 text-sm text-muted hover:text-text"
+            >
+              <span aria-hidden="true">←</span> {trackName}
+            </Link>
+            <p className="mb-3 font-mono text-xs tracking-wide text-muted uppercase">
+              On this page
+            </p>
+            <TableOfContents headings={outline.headings} />
+          </div>
+        </aside>
 
-      {/* The note is a lazy component: Suspense shows the fallback while its chunk downloads. */}
-      <Suspense fallback={<p className="text-muted">Loading note…</p>}>
-        <div className="prose">
-          {/* `Note` isn't created here: getNote() returns a React.lazy component built once in
-              lib/content.ts, so React sees the same component on every render. The lint rule
-              can't see that from this file. */}
-          {/* eslint-disable-next-line react-hooks/static-components */}
-          <Note components={mdxComponents} />
-        </div>
-      </Suspense>
+        {/* ── Middle: the note ─────────────────────────────── */}
+        <article ref={articleRef} className="min-w-0">
+          <header className="mb-12 border-b border-border pb-10">
+            <nav aria-label="Breadcrumb" className="mb-6 font-mono text-xs text-muted lg:hidden">
+              <Link to={`/${topic.track}`} className="hover:text-text">
+                {trackName}
+              </Link>
+              <span aria-hidden="true"> / </span>
+              <span className="text-text">{topic.title}</span>
+            </nav>
+            <p className="mb-4 font-mono text-xs text-muted">
+              {topic.track === 'dsa' ? 'DSA' : 'React'} · note{' '}
+              {String(topic.order).padStart(2, '0')}
+              {outline.minutes > 0 && <> · {outline.minutes} min read</>}
+            </p>
+            <h1 className="text-[2.5rem] leading-[1.08] tracking-tight sm:text-[3.25rem]">
+              {topic.title}
+            </h1>
+            {topic.summary && (
+              <p className="mt-5 text-xl leading-relaxed text-muted">{topic.summary}</p>
+            )}
+            <div className="mt-6 flex flex-wrap gap-2 xl:hidden">
+              <LevelChip level={topic.level} />
+              {topic.complexity?.time && <Chip>time {topic.complexity.time}</Chip>}
+              {topic.complexity?.space && <Chip>space {topic.complexity.space}</Chip>}
+            </div>
+          </header>
 
-      <nav
-        aria-label="More topics"
-        className="mt-16 grid gap-4 border-t border-border pt-8 sm:grid-cols-2"
-      >
-        {prev ? (
-          <Link
-            to={`/${track}/${prev.slug}`}
-            className="rounded-card border border-border bg-elevated p-4 hover:border-accent/60"
+          {/* Phones and tablets: the contents list folds away at the top. */}
+          {outline.headings.length > 0 && (
+            <details className="group mb-10 rounded-card border border-border bg-elevated lg:hidden">
+              <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-3.5 font-mono text-xs tracking-wide text-muted uppercase">
+                On this page
+                <span className="transition-transform group-open:rotate-180" aria-hidden="true">
+                  ▾
+                </span>
+              </summary>
+              <div className="px-5 pb-4">
+                <TableOfContents headings={outline.headings} />
+              </div>
+            </details>
+          )}
+
+          {/* The note is a lazy component: Suspense shows the fallback while its chunk downloads. */}
+          <Suspense fallback={<p className="text-muted">Loading note…</p>}>
+            <NoteBody Note={Note} onOutline={setOutline} />
+          </Suspense>
+
+          <nav
+            aria-label="More topics"
+            className="mt-20 grid gap-4 border-t border-border pt-10 sm:grid-cols-2"
           >
-            <span className="block text-xs text-muted">← Previous</span>
-            {prev.title}
-          </Link>
-        ) : (
-          <span />
-        )}
-        {next && (
-          <Link
-            to={`/${track}/${next.slug}`}
-            className="rounded-card border border-border bg-elevated p-4 text-right hover:border-accent/60"
-          >
-            <span className="block text-xs text-muted">Next →</span>
-            {next.title}
-          </Link>
-        )}
-      </nav>
-    </article>
+            {prev ? (
+              <PagerLink to={`/${topic.track}/${prev.slug}`} label="Previous" title={prev.title} />
+            ) : (
+              <span className="hidden sm:block" />
+            )}
+            {next && (
+              <PagerLink
+                to={`/${topic.track}/${next.slug}`}
+                label="Next"
+                title={next.title}
+                alignRight
+              />
+            )}
+          </nav>
+        </article>
+
+        {/* ── Right: at a glance (wide screens) ────────────── */}
+        <aside className="hidden xl:block" aria-label="At a glance">
+          <div className="sticky top-24 space-y-8">
+            <dl className="divide-y divide-border rounded-card border border-border bg-elevated text-sm">
+              <GlanceRow label="Level">
+                <LevelChip level={topic.level} />
+              </GlanceRow>
+              {topic.complexity?.time && (
+                <GlanceRow label="Time">{topic.complexity.time}</GlanceRow>
+              )}
+              {topic.complexity?.space && (
+                <GlanceRow label="Space">{topic.complexity.space}</GlanceRow>
+              )}
+              {outline.minutes > 0 && <GlanceRow label="Reading">{outline.minutes} min</GlanceRow>}
+            </dl>
+
+            {topic.tags.length > 0 && (
+              <div>
+                <p className="mb-3 font-mono text-xs tracking-wide text-muted uppercase">Tags</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {topic.tags.map((tag) => (
+                    <Chip key={tag}>{tag}</Chip>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <p className="text-sm leading-relaxed text-muted">
+              <span className="underline decoration-accent/60 decoration-dotted decoration-[1.5px] underline-offset-4">
+                Dotted words
+              </span>{' '}
+              have a short explanation. Hover, tap, or tab to them.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </>
+  );
+}
+
+/**
+ * Renders the note, then reads its headings and word count from the DOM to
+ * build the table of contents and reading time. The effect only runs once the
+ * lazy note has actually loaded and been put on the page.
+ */
+function NoteBody({
+  Note,
+  onOutline,
+}: {
+  Note: ComponentType<MDXProps>;
+  onOutline: (o: Outline) => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const headings = [...el.querySelectorAll('h2[id]')].map((h) => ({
+      id: h.id,
+      text: h.textContent ?? '',
+    }));
+    const words = (el.textContent ?? '').trim().split(/\s+/).length;
+    onOutline({ headings, minutes: Math.max(1, Math.round(words / 200)) });
+  }, [Note, onOutline]);
+
+  return (
+    <div ref={ref} className="prose">
+      <Note components={mdxComponents} />
+    </div>
+  );
+}
+
+function GlanceRow({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-3 px-4 py-3">
+      <dt className="text-muted">{label}</dt>
+      <dd className="font-mono text-xs text-text">{children}</dd>
+    </div>
+  );
+}
+
+function PagerLink({
+  to,
+  label,
+  title,
+  alignRight,
+}: {
+  to: string;
+  label: string;
+  title: string;
+  alignRight?: boolean;
+}) {
+  return (
+    <Link
+      to={to}
+      className={`group rounded-card border border-border p-5 transition-colors hover:border-accent/60 hover:bg-elevated ${alignRight ? 'text-right' : ''}`}
+    >
+      <span className="block font-mono text-xs text-muted">
+        {alignRight ? `${label} →` : `← ${label}`}
+      </span>
+      <span className="mt-1 block font-heading text-lg font-semibold group-hover:text-accent">
+        {title}
+      </span>
+    </Link>
   );
 }

@@ -10,23 +10,37 @@ complexity: { time: 'O(1) access', space: 'O(n)' }
 
 ## Intuition
 
-An array is a row of numbered lockers in a hallway. If you know the locker number, you walk
-straight to it. You don't need to open the lockers before it. That's why reading `arr[i]` is
-fast no matter how long the hallway is.
+An <Term id="array">array</Term> is a row of numbered lockers in a hallway. If you know the
+locker number, you walk straight to it. You don't open the lockers before it.
+
+That's why reading `arr[i]` is fast however long the hallway is. The locker number is
+called the <Term id="index">index</Term>, and it starts at 0.
 
 <Callout kind="note">
-  Interactive visual coming in Phase 1. This sample note shows the page template and the MDX
-  pipeline: frontmatter, markdown, code highlighting, and a React component (this callout).
+  The interactive visual for this note arrives in Phase 1. For now, the live bubble sort on the home
+  page shows what these will feel like.
 </Callout>
 
 ## How it works
 
-1. The array's items are stored **next to each other** in memory.
-2. To find item `i`, the computer does one calculation: `start + i × itemSize`.
-3. One calculation, whatever the size. We call that **constant time**, written `O(1)`.
+1. The array's items are stored <Term id="contiguous">next to each other</Term> in memory.
+2. To find item `i`, the computer does one sum: `start + i × itemSize`.
+3. One sum, whatever the size of the array. That's called <Term id="constant-time">constant
+   time</Term>, written `O(1)`.
 
-Inserting at the front is different: every item has to shift one place to the right to make room.
-With `n` items that's `n` moves, so it's `O(n)`.
+Inserting at the **front** is a different story. Every item has to shift one place to the right
+to make room. With `n` items that's `n` moves, which is <Term id="linear-time">linear time</Term>,
+written `O(n)`.
+
+### So what is Big-O?
+
+In short, <Term id="big-o">Big-O</Term> describes _how the work grows as the input grows_.
+It isn't a stopwatch. It tells you the shape of the curve:
+
+- `O(1)`: flat. 10 items or 10 million, same work.
+- `O(log n)`: grows very slowly. Doubling the input adds one step.
+- `O(n)`: a straight line. Double the input, double the work.
+- `O(n²)`: grows fast. Double the input, four times the work.
 
 ## Code
 
@@ -47,20 +61,25 @@ function indexOf(arr: number[], target: number): number {
 
 ## Complexity
 
-| Operation         | Time   | Why                                   |
-| ----------------- | ------ | ------------------------------------- |
-| Read `arr[i]`     | `O(1)` | One address calculation               |
-| Push to the end   | `O(1)` | Usually there's spare room at the end |
-| Insert at front   | `O(n)` | Every item shifts right               |
-| Search (unsorted) | `O(n)` | Might have to check every item        |
+| Operation           | Time   | Why                                                                       |
+| ------------------- | ------ | ------------------------------------------------------------------------- |
+| Read `arr[i]`       | `O(1)` | One address calculation                                                   |
+| Push to the end     | `O(1)` | Usually there's spare room. <Term id="amortized">On average</Term>, cheap |
+| Insert at the front | `O(n)` | Every item shifts right                                                   |
+| Search (unsorted)   | `O(n)` | Might have to check every item                                            |
 
 ## Common mistakes
 
-- **Off-by-one errors.** The last index is `arr.length - 1`, not `arr.length`.
-- **Thinking Big-O is seconds.** It describes how cost _grows_ with input size, not exact time.
+- **<Term id="off-by-one">Off-by-one errors.</Term>** The last index is `arr.length - 1`, not
+  `arr.length`.
+- **Thinking Big-O means seconds.** It describes how cost _grows_ with input size, not how long
+  something takes on your laptop.
+- **Inserting at the front in a loop.** Each insert is `O(n)`, so `n` of them is `O(n²)`. Build
+  the array backwards, or push and reverse once at the end.
 
 <Callout kind="tip">
-  Big-O drops constants: `O(2n)` is just `O(n)`. We care about the shape of the growth.
+  Big-O drops constants: `O(2n)` is just `O(n)`. We care about the shape of the growth, not the
+  exact count.
 </Callout>
 
 ## Try it
@@ -68,4 +87,4 @@ function indexOf(arr: number[], target: number): number {
 - [Two Sum](https://leetcode.com/problems/two-sum/) on LeetCode
 - [Best Time to Buy and Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/)
 
-Coming next: **Binary Search**, which shows how a sorted array lets you search in `O(log n)`.
+Coming next: **Binary Search**, which uses a sorted array to find things in <Term id="logarithmic-time">`O(log n)`</Term>.

@@ -30,6 +30,9 @@ Frontmatter: `title`, `track` (must match folder), `level` (beginner|intermediat
 `summary`, `tags`, `complexity: { time, space }`. The build fails on missing or invalid fields.
 Page template: Intuition → Interactive visual → How it works → Code → Complexity → Common mistakes
 → Try it → Quick self-check. `<Callout kind="tip|note|warning">` is available in every note.
+Explain jargon on hover with `<Term id="big-o">Big-O</Term>` (shared definitions in
+`src/content/glossary.ts`) or `<Term tip="...">word</Term>` for one-offs. Never start a line with
+`<Term`: MDX then treats it as a block. Prettier skips `.mdx` for this reason.
 Planned-but-unwritten topics live in `src/lib/roadmap.ts` (shown as "soon" on the landing page).
 Landing page voice: plain, specific, human. No emoji, gradient text, blobs, or generic feature-card grids.
 

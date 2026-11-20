@@ -43,3 +43,35 @@ export function useInView(ref: RefObject<Element | null>): boolean {
   }, [ref]);
   return inView;
 }
+
+/**
+ * Which heading the reader is currently in: the last one whose top has
+ * scrolled past a line just under the sticky header.
+ */
+export function useActiveHeading(ids: string[], offset = 140): string | undefined {
+  const [active, setActive] = useState<string>();
+  useEffect(() => {
+    if (ids.length === 0) return;
+    let frame = 0;
+    const update = () => {
+      let current = ids[0];
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (el && el.getBoundingClientRect().top <= offset) current = id;
+      }
+      setActive(current);
+    };
+    // requestAnimationFrame batches scroll updates to at most once per frame.
+    const onScroll = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(update);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', onScroll);
+    };
+  }, [ids, offset]);
+  return active;
+}
