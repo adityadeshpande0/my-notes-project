@@ -20,7 +20,7 @@ export function Layout() {
       </a>
 
       <header className="sticky top-0 z-40 border-b border-border bg-bg/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-[88rem] flex-wrap items-center gap-x-8 gap-y-2 px-5 py-3 sm:px-8 lg:px-12">
+        <div className="mx-auto flex max-w-[112rem] flex-wrap items-center gap-x-8 gap-y-2 px-5 py-3 sm:px-8 lg:px-12">
           <Link to="/" className="flex items-center gap-2 font-heading text-lg font-bold">
             <Logo />
             Stackscape
@@ -57,13 +57,13 @@ export function Layout() {
 
       <main
         id="main"
-        className="mx-auto w-full max-w-[88rem] flex-1 px-5 py-10 sm:px-8 sm:py-14 lg:px-12"
+        className="mx-auto w-full max-w-[112rem] flex-1 px-5 py-10 sm:px-8 sm:py-14 lg:px-12"
       >
         <Outlet />
       </main>
 
       <footer className="border-t border-border">
-        <div className="mx-auto flex max-w-[88rem] flex-wrap justify-between gap-2 px-5 py-6 text-sm text-muted sm:px-8 lg:px-12">
+        <div className="mx-auto flex max-w-[112rem] flex-wrap justify-between gap-2 px-5 py-6 text-sm text-muted sm:px-8 lg:px-12">
           <p>Stackscape: visual notes for React &amp; DSA. Free for everyone.</p>
           <p>Built by a learner, for learners.</p>
         </div>

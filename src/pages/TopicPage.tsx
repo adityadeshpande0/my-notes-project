@@ -38,7 +38,7 @@ function TopicLayout({ topic, Note }: { topic: TopicMeta; Note: ComponentType<MD
     <>
       <ReadingProgress target={articleRef} />
 
-      <div className="grid gap-x-12 lg:grid-cols-[13rem_minmax(0,1fr)] xl:grid-cols-[14rem_minmax(0,46rem)_15rem] xl:justify-between">
+      <div className="grid gap-x-12 lg:grid-cols-[13rem_minmax(0,1fr)] xl:grid-cols-[14rem_minmax(0,1fr)] xl:gap-x-16 2xl:grid-cols-[15rem_minmax(0,64rem)_17rem] 2xl:justify-between">
         {/* ── Left: table of contents (desktop) ───────────── */}
         <aside className="hidden lg:block" aria-label="On this page">
           <div className="sticky top-24">
@@ -69,13 +69,15 @@ function TopicLayout({ topic, Note }: { topic: TopicMeta; Note: ComponentType<MD
               {TRACKS[topic.track].short} · note {String(topic.order).padStart(2, '0')}
               {outline.minutes > 0 && <> · {outline.minutes} min read</>}
             </p>
-            <h1 className="text-[2.5rem] leading-[1.08] tracking-tight sm:text-[3.25rem]">
+            <h1 className="max-w-[56rem] text-[2.5rem] leading-[1.08] tracking-tight sm:text-[3.25rem] 2xl:text-[3.75rem]">
               {topic.title}
             </h1>
             {topic.summary && (
-              <p className="mt-5 text-xl leading-relaxed text-muted">{topic.summary}</p>
+              <p className="mt-5 max-w-[50rem] text-xl leading-relaxed text-muted">
+                {topic.summary}
+              </p>
             )}
-            <div className="mt-6 flex flex-wrap gap-2 xl:hidden">
+            <div className="mt-6 flex flex-wrap gap-2 2xl:hidden">
               <LevelChip level={topic.level} />
               {topic.complexity?.time && <Chip>time {topic.complexity.time}</Chip>}
               {topic.complexity?.space && <Chip>space {topic.complexity.space}</Chip>}
@@ -123,7 +125,7 @@ function TopicLayout({ topic, Note }: { topic: TopicMeta; Note: ComponentType<MD
         </article>
 
         {/* ── Right: at a glance (wide screens) ────────────── */}
-        <aside className="hidden xl:block" aria-label="At a glance">
+        <aside className="hidden 2xl:block" aria-label="At a glance">
           <div className="sticky top-24 space-y-8">
             <dl className="divide-y divide-border rounded-card border border-border bg-elevated text-sm">
               <GlanceRow label="Level">
