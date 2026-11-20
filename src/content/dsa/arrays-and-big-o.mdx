@@ -1,0 +1,71 @@
+---
+title: Arrays and Big-O
+track: dsa
+level: beginner
+order: 1
+summary: How arrays sit in memory, and how we talk about the cost of an algorithm as the input grows.
+tags: [arrays, complexity, basics]
+complexity: { time: 'O(1) access', space: 'O(n)' }
+---
+
+## Intuition
+
+An array is a row of numbered lockers in a hallway. If you know the locker number, you walk
+straight to it. You don't need to open the lockers before it. That's why reading `arr[i]` is
+fast no matter how long the hallway is.
+
+<Callout kind="note">
+  Interactive visual coming in Phase 1. This sample note shows the page template and the MDX
+  pipeline: frontmatter, markdown, code highlighting, and a React component (this callout).
+</Callout>
+
+## How it works
+
+1. The array's items are stored **next to each other** in memory.
+2. To find item `i`, the computer does one calculation: `start + i × itemSize`.
+3. One calculation, whatever the size. We call that **constant time**, written `O(1)`.
+
+Inserting at the front is different: every item has to shift one place to the right to make room.
+With `n` items that's `n` moves, so it's `O(n)`.
+
+## Code
+
+```ts
+const scores = [42, 17, 99, 8];
+
+// O(1): jump straight to index 2
+const third = scores[2]; // 99
+
+// O(n): look at every item until we find it
+function indexOf(arr: number[], target: number): number {
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i] === target) return i;
+  }
+  return -1;
+}
+```
+
+## Complexity
+
+| Operation         | Time   | Why                                   |
+| ----------------- | ------ | ------------------------------------- |
+| Read `arr[i]`     | `O(1)` | One address calculation               |
+| Push to the end   | `O(1)` | Usually there's spare room at the end |
+| Insert at front   | `O(n)` | Every item shifts right               |
+| Search (unsorted) | `O(n)` | Might have to check every item        |
+
+## Common mistakes
+
+- **Off-by-one errors.** The last index is `arr.length - 1`, not `arr.length`.
+- **Thinking Big-O is seconds.** It describes how cost _grows_ with input size, not exact time.
+
+<Callout kind="tip">
+  Big-O drops constants: `O(2n)` is just `O(n)`. We care about the shape of the growth.
+</Callout>
+
+## Try it
+
+- [Two Sum](https://leetcode.com/problems/two-sum/) on LeetCode
+- [Best Time to Buy and Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/)
+
+Coming next: **Binary Search**, which shows how a sorted array lets you search in `O(log n)`.
