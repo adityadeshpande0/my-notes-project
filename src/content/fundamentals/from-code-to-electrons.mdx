@@ -1,0 +1,344 @@
+---
+title: 'From Code to Electrons: How Your Program Really Runs'
+track: fundamentals
+level: beginner
+order: 1
+summary: Follow one line of code, let total = 5 + 3, all the way down through the compiler, machine code, the CPU, logic gates and transistors, until it becomes electricity.
+tags: [computer-architecture, compilers, cpu, logic-gates, transistors, binary]
+---
+
+import {
+  AbstractionLadder,
+  BinaryBits,
+  CompilerPipeline,
+  CpuCycle,
+  AdderCircuit,
+  LogicGates,
+  TransistorSwitch,
+  HowCodeRunsQuiz,
+} from '../../visualizers/how-code-runs';
+
+You type this:
+
+```js
+let total = 5 + 3;
+```
+
+You press run, and a fraction of a second later the computer "knows" that `total` is `8`.
+
+But a computer is just a slab of silicon with electricity flowing through it. It doesn't know what
+`let` means, and it has never heard of the number 5. So **how does a line of text turn into a
+correct answer?**
+
+In this article we'll follow that single line all the way down, from your editor to electrons
+moving through silicon. There's an interactive visual at every layer, so you can _see_ each step
+instead of just reading about it.
+
+## The big picture: layers of translation
+
+The secret is **layers**. Each layer only has to understand the layer directly above it and turn it
+into something simpler for the layer below. No single part of the computer understands the whole
+journey.
+
+<AbstractionLadder />
+
+Think of it like a relay race. Your code is the baton, and at every handoff it gets rewritten into a
+simpler, more "physical" form. Let's run the race.
+
+## Layer 0: Computers only understand ON and OFF
+
+Before we start, there's one fact you need: **at the bottom, everything is a switch that's either
+on or off.**
+
+- **On** (high voltage) is written as **1**
+- **Off** (low voltage) is written as **0**
+
+One on/off value is called a <Term id="bit">bit</Term>. With one bit you can only say "yes" or "no".
+Put bits side by side, though, and you can count. Each position is worth **double** the one to its
+right (1, 2, 4, 8, 16…), just like decimal positions are worth 1, 10, 100. That way of writing
+numbers is called <Term id="binary">binary</Term>.
+
+Try building the numbers from our example, **5**, **3** and **8**:
+
+<BinaryBits />
+
+So `5` is `0101`, `3` is `0011` and `8` is `1000`. Letters, colors, pixels and even instructions
+are _also_ just numbers in disguise. The letter `A` is stored as 65, for example. **Everything
+becomes bits.**
+
+<Callout kind="tip" title="Key idea">
+  A computer never stores "5". It stores a pattern of high and low voltages that _we agree_ means 5.
+</Callout>
+
+## Layers 1 to 4: From your code to machine code
+
+The CPU can't read `let total = 5 + 3;`. It only understands <Term id="machine-code">machine
+code</Term>: instructions encoded as bits. Something has to
+translate, and that something is a <Term id="compiler">compiler</Term> (or, for JavaScript, an
+engine with a compiler built in, which we'll get to soon).
+
+A compiler is like a very strict translator working through a checklist:
+
+1. **Lexing.** Chop the text into <Term id="token">tokens</Term> (words).
+2. **Parsing.** Check the grammar and build a <Term id="ast">syntax tree</Term> (the meaning).
+3. **Checking.** Make sure it makes sense (types, undefined names).
+4. **Optimizing.** Find shortcuts, like <Term id="constant-folding">constant folding</Term>.
+5. **Code generation.** Turn the tree into simple CPU steps (<Term id="assembly">assembly</Term>).
+6. **Assembling.** Encode those steps as bits (_machine code_).
+
+Step through it:
+
+<CompilerPipeline />
+
+### What is assembly, really?
+
+Assembly is machine code written with names instead of bits, so humans can read it. Each line is
+**one tiny thing the CPU can do**:
+
+| Assembly           | Meaning                             |
+| ------------------ | ----------------------------------- |
+| `LOAD R1, 5`       | Put the number 5 into register R1   |
+| `LOAD R2, 3`       | Put the number 3 into register R2   |
+| `ADD R3, R1, R2`   | Add R1 and R2, put the answer in R3 |
+| `STORE R3, [0x10]` | Copy R3 into memory at address 0x10 |
+
+**<Term id="register">Registers</Term>** are a handful of super-fast storage slots _inside_ the
+CPU, like the CPU's own hands. **Memory (<Term id="ram">RAM</Term>)** is a giant numbered shelf
+outside it. Your variable `total` simply becomes "whatever is on shelf number `0x10`".
+
+<Callout kind="note" title="Real-world check">
+  We're using a made-up "toy CPU" so the bits are easy to read. Real CPUs work the same way, just
+  with more complicated encodings. On an Intel/AMD (x86-64) chip, `mov eax, 5` is the bytes
+  `B8 05 00 00 00`, and `add eax, 3` is `83 C0 03`. Your phone's ARM chip uses a different
+  instruction set entirely, which is why a program compiled for one CPU family won't run on another.
+</Callout>
+
+## What about JavaScript (and Python)?
+
+Languages like C, C++, Rust and Go are usually compiled **ahead of time**. You compile once and get
+an <Term id="executable">executable</Term> file full of machine code that you can run again and
+again.
+
+JavaScript is different. You ship the _source code_ to the browser, and the browser's **JavaScript
+engine** (V8 in Chrome and Node.js, SpiderMonkey in Firefox, JavaScriptCore in Safari) does the
+translating **while the page runs**:
+
+1. **Parse** your code into a syntax tree, the same as a compiler does.
+2. Turn it into <Term id="bytecode">bytecode</Term>, a compact, simplified set of instructions for
+   a _virtual_ machine.
+3. An <Term id="interpreter">interpreter</Term> starts running that bytecode immediately, so your
+   page starts fast.
+4. The engine watches which functions run a lot (they're called "hot"). It then
+   **<Term id="jit">JIT-compiles</Term>** them (_Just-In-Time_) into real, optimized machine code
+   for your exact CPU.
+
+So by the time your JavaScript is doing serious work, it _is_ running as machine code, through the
+same CPU journey you'll see next.
+
+|                        | Compiled (C, Rust, Go) | JIT (JavaScript, Java, C#) | Interpreted (classic Python) |
+| ---------------------- | ---------------------- | -------------------------- | ---------------------------- |
+| When is it translated? | Before running         | While running              | While running, line by line  |
+| Startup                | Fast                   | Fast (interpreter first)   | Fast                         |
+| Top speed              | Very fast              | Very fast for hot code     | Slower                       |
+| What you ship          | Machine code           | Source or bytecode         | Source                       |
+
+Whichever path a language takes, **the CPU only ever executes machine code.** Interpreters are
+themselves programs that were compiled to machine code.
+
+## Layer 5: The CPU runs the instructions
+
+When you launch a program, the **operating system** copies its machine code into RAM and tells the
+CPU where the first instruction is. From then on, the CPU does one thing, over and over, billions of
+times per second:
+
+1. **Fetch** the next instruction from memory.
+2. **Decode** it: figure out what the bits mean, starting with the <Term id="opcode">opcode</Term>.
+3. **Execute** it: do the work, such as adding, moving data, or jumping.
+
+Meet the main parts of the CPU:
+
+- **<Term id="program-counter">Program Counter (PC)</Term>:** a bookmark holding the _address_ of
+  the next instruction.
+- **Instruction Register (IR):** holds the instruction currently being worked on.
+- **Control Unit:** the manager. It reads the opcode and switches on the right circuits.
+- **Registers:** the CPU's tiny, ultra-fast scratch space.
+- **<Term id="alu">ALU</Term> (Arithmetic Logic Unit):** the calculator, which does math and
+  comparisons.
+- **Bus:** the wires that carry bits between the CPU and memory.
+- **<Term id="clock">Clock</Term>:** a metronome. Every tick, everything moves forward one step in
+  sync.
+
+Now watch our 4 instructions run:
+
+<CpuCycle />
+
+Notice that the CPU is _not_ smart. It doesn't know it's computing a "total". It just blindly
+fetches, decodes and executes. All the intelligence lives in the program.
+
+<Callout kind="note" title="How fast is that?">
+  A 3 GHz CPU ticks **3 billion times per second**. In one tick, light itself travels only about
+  10 cm. Real CPUs also use <Term id="pipelining">pipelining</Term>: they fetch the next instruction
+  while decoding the current one and executing the one before, like an assembly line. Modern cores
+  can even work on several instructions at once.
+</Callout>
+
+But wait. When the ALU "added 5 and 3", **how** did it add? There's no tiny person inside doing
+arithmetic. Let's open it up.
+
+## Layer 6: How the ALU adds, using logic gates
+
+Remember: `5 + 3` is really `0101 + 0011`. Adding binary works exactly like the addition you
+learned in school, column by column from the right, carrying when a column overflows. The only
+difference is that in binary, **1 + 1 = 10** (that's "zero, carry one").
+
+For a single column there are only a few possibilities:
+
+| A   | B   | Sum | Carry |
+| --- | --- | --- | ----- |
+| 0   | 0   | 0   | 0     |
+| 0   | 1   | 1   | 0     |
+| 1   | 0   | 1   | 0     |
+| 1   | 1   | 0   | 1     |
+
+Look closely at that table:
+
+- The **Sum** column is 1 only when A and B are _different_.
+- The **Carry** column is 1 only when A _and_ B are both 1.
+
+Those are exactly two <Term id="logic-gate">logic gates</Term>, **XOR** and **AND**. A circuit
+that also handles a carry coming _in_ from the right is called a
+**<Term id="full-adder">full adder</Term>**. Chain four of them together and you can add 4-bit
+numbers:
+
+<AdderCircuit />
+
+Try changing the inputs to `1111 + 0001` and watch the carry ripple all the way across. A real
+64-bit CPU does the same thing with 64 columns, using clever tricks (like <Term id="carry-lookahead">carry-lookahead</Term>)
+so it doesn't have to wait for the carry to
+ripple one column at a time.
+
+## Layer 6½: Logic gates, the tiny decision makers
+
+A **logic gate** takes one or two bits in and gives one bit out, following a fixed rule. There are
+only a handful of types, and **every** digital thing (your CPU, RAM, GPU, phone) is built from
+millions or billions of them.
+
+<LogicGates />
+
+The switch views show the big idea:
+
+- Two switches **in a line (series)** make **AND**: current only flows if A _and_ B are closed.
+- Two switches **side by side (parallel)** make **OR**: current flows if A _or_ B is closed.
+
+So logic is just **switches wired in clever patterns**. Which raises the final question: what's the
+switch?
+
+## Layer 7: The transistor, a switch made of sand
+
+The switch is a <Term id="transistor">transistor</Term>. Specifically, chips use a type called a
+**MOSFET**, made of **silicon** (the main ingredient of sand).
+
+Pure silicon doesn't conduct electricity well. But engineers <Term id="doping">"dope"</Term>
+it by mixing in tiny amounts of other elements:
+
+- Add **phosphorus** and you get **n-type** silicon, with extra free electrons (negative charges)
+  that can move.
+- Add **boron** and you get **p-type** silicon, with a _shortage_ of electrons ("holes").
+
+A transistor has three connections:
+
+- **Source:** where electrons come from.
+- **Drain:** where they want to go.
+- **Gate:** the control knob. It's separated from the silicon by a super-thin insulating layer, so
+  no current flows _into_ the gate. It only pushes and pulls with its electric field.
+
+Between the source and drain sits p-type silicon, which **blocks** the electrons. Put a positive
+voltage on the gate, though, and its electric field **pulls electrons up** just under the
+insulator. Past a certain <Term id="threshold-voltage">threshold voltage</Term>, enough electrons
+gather to form a thin **channel**: a bridge from source to drain. Current flows, and the switch is
+**ON**.
+
+Try it:
+
+<TransistorSwitch />
+
+That's the whole trick. **Voltage on the gate controls whether current flows.** There are no moving
+parts, it switches billions of times per second, and it is only a few dozen atoms wide in modern
+chips. That's why a single chip can hold **tens of billions** of them.
+
+### Why gates use transistors in pairs (CMOS)
+
+Real chips use two flavors of transistor together:
+
+- **NMOS** (the one above) turns **on when the gate is 1**.
+- **PMOS** (the mirror image) turns **on when the gate is 0**.
+
+A **NOT gate** is one of each. The PMOS connects the output to power, and the NMOS connects it to
+ground. Input 1 turns the NMOS on, so the output is pulled to 0. Input 0 turns the PMOS on, so the
+output is pulled to 1. Because only one is on at a time, almost no current is wasted while the
+circuit sits still. This design is called <Term id="cmos">CMOS</Term>, and it's why your phone
+doesn't melt.
+
+## Putting it all together
+
+Here's the full journey of `let total = 5 + 3;`:
+
+1. **You** write text: `let total = 5 + 3;`
+2. The **compiler / JS engine** tokenizes it, parses it into a tree, checks it, and generates
+   instructions.
+3. Those become **assembly**: `LOAD`, `LOAD`, `ADD`, `STORE`.
+4. Then **machine code**: patterns of bits like `0010 0011 0001 0010`.
+5. The **OS** loads those bits into **RAM** and points the CPU's Program Counter at them.
+6. The **CPU** fetches, decodes and executes each instruction, in step with the clock.
+7. For `ADD`, the **ALU** sends `0101` and `0011` through a chain of **full adders**.
+8. Each adder is made of **logic gates** (XOR, AND, OR).
+9. Each gate is a few **transistors** wired in series and parallel.
+10. Each transistor is a tiny piece of **doped silicon**, where a gate voltage decides whether
+    **electrons** flow.
+11. The output wires settle into the voltage pattern _high-low-low-low_, which we read as `1000`,
+    which is **8**.
+
+Every app you've ever used, including this one, is that loop, repeated unimaginably fast.
+
+## Common misconceptions
+
+- **"The computer understands my code."** It doesn't. It understands machine code. Everything above
+  that is translation, done by other programs.
+- **"Interpreted languages don't become machine code."** The interpreter itself _is_ machine code.
+  Modern JS engines also JIT your hot code into machine code.
+- **"Binary is a special computer language."** Binary is just a way of _writing numbers_, base 2
+  instead of base 10. It fits computers because switches have two states.
+- **"Transistors are like tiny relays with moving parts."** They have no moving parts. An electric
+  field creates or removes a conductive channel.
+- **"The CPU is smart."** The CPU is fast, not smart. It follows instructions exactly, which is also
+  why bugs do exactly what you (accidentally) told them to.
+
+## Key terms
+
+| Term                    | In one line                                                       |
+| ----------------------- | ----------------------------------------------------------------- |
+| **Bit**                 | One 0-or-1 value, a switch that's off or on                       |
+| **Compiler**            | A program that translates source code into machine code           |
+| **Token / AST**         | The "words" of code / the tree showing its meaning                |
+| **Assembly**            | Machine code written with readable names                          |
+| **Machine code**        | The binary instructions a CPU actually executes                   |
+| **JIT**                 | Compiling code to machine code _while_ the program runs           |
+| **Register**            | A tiny, ultra-fast storage slot inside the CPU                    |
+| **Program Counter**     | Holds the address of the next instruction                         |
+| **ALU**                 | The CPU's calculator circuit                                      |
+| **Logic gate**          | A small circuit that applies a rule (AND, OR, NOT…) to bits       |
+| **Full adder**          | Gates that add two bits plus a carry                              |
+| **Transistor (MOSFET)** | A voltage-controlled switch made of doped silicon                 |
+| **CMOS**                | Pairing NMOS and PMOS transistors so gates waste almost no power  |
+
+## Test yourself
+
+<HowCodeRunsQuiz />
+
+## Where to go next
+
+- **Build it yourself:** the free course [Nand2Tetris](https://www.nand2tetris.org/) has you build a
+  working computer starting from just NAND gates. It's highly recommended after this article.
+- **See real compiler output:** paste a small C or C++ function into
+  [Compiler Explorer](https://godbolt.org/) and look at the real assembly it produces.
+- **Next in this track:** _Memory and the cache hierarchy_. Why RAM is "slow", and how CPUs hide it.

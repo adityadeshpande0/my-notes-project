@@ -18,9 +18,12 @@ State: React state/hooks first; Zustand only if global state really grows.
 
 - `src/app/` router, layout, providers (theme context)
 - `src/components/` generic UI (Card, Chip, Callout, mdx-components)
-- `src/visualizers/<topic>/` step generators + 2D/3D renderers; `core/` holds `useStepper` and `<Visualizer>`
+- `src/visualizers/<topic>/` step generators + 2D/3D renderers. `core/` holds `useStepper`, `StepControls`,
+  `viz.css` (the `.viz` card styles) and `colors.ts` (`C` tokens, `alpha()`, `mix()` for inline/SVG colours).
+  A note imports its visualizers directly (`import { X } from '../../visualizers/<topic>'`) so they stay in
+  that note's lazy chunk; don't register them globally in `mdx-components`.
 - `src/three/` shared 3D bits (always lazy-loaded)
-- `src/content/{dsa,react}/*.mdx` notes; `src/lib/` content loading + pure helpers
+- `src/content/{fundamentals,dsa,react}/*.mdx` notes (tracks are defined in `src/lib/types.ts` `TRACKS`); `src/lib/` content loading + pure helpers
 - `plugins/content-manifest.ts` exposes all notes' frontmatter as `virtual:content-manifest`;
   note bodies are lazy chunks loaded via `import.meta.glob` in `src/lib/content.ts`
 
@@ -40,7 +43,8 @@ Landing page voice: plain, specific, human. No emoji, gradient text, blobs, or g
 
 Tokens are CSS variables on `[data-theme]`, mapped to Tailwind colors: `bg`, `elevated`, `surface`,
 `border`, `text`, `muted`, `accent` (periwinkle), `accent-2` (mint), `warn` (amber), `danger` (coral),
-`success` (green). Never hard-code hex values in components.
+`success` (green), plus `violet` and `pink` as extra diagram hues. Never hard-code hex values in
+components; in visualizers use `C.*` from `visualizers/core/colors.ts`, applied via `style` in SVG.
 **Visualizer semantics are fixed:** mint = current, amber = comparing, coral = swapping, green = done,
 always paired with a label, icon, or shape. Fonts: Space Grotesk (headings), Inter (body),
 JetBrains Mono (code/data). Radius: `rounded-card` 14px, `rounded-btn` 10px, chips full. Soft glows

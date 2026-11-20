@@ -62,4 +62,145 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
     definition:
       'The average cost per operation over a long run. An occasional slow step is fine if it is rare enough that the average stays low.',
   },
+  bit: {
+    term: 'Bit',
+    definition:
+      'The smallest piece of information: a single 0 or 1. In hardware it is a wire at low or high voltage.',
+    note: '/fundamentals/from-code-to-electrons',
+  },
+  binary: {
+    term: 'Binary',
+    definition:
+      'Writing numbers in base 2, using only the digits 0 and 1. Each position is worth double the one to its right: 1, 2, 4, 8, 16…',
+    note: '/fundamentals/from-code-to-electrons',
+  },
+  compiler: {
+    term: 'Compiler',
+    definition:
+      'A program that translates source code you can read into machine code a CPU can run.',
+    note: '/fundamentals/from-code-to-electrons',
+  },
+  token: {
+    term: 'Token',
+    definition:
+      'One “word” of code, like `let`, `total`, `=` or `5`, labelled with what kind of word it is.',
+  },
+  ast: {
+    term: 'Abstract Syntax Tree (AST)',
+    definition:
+      'A tree that shows what code means, after the parser has checked its grammar. `5 + 3` becomes an “add” node with 5 and 3 underneath.',
+  },
+  'constant-folding': {
+    term: 'Constant folding',
+    definition:
+      'An optimization where the compiler works out an expression that never changes, like 5 + 3, ahead of time and just writes 8.',
+  },
+  assembly: {
+    term: 'Assembly language',
+    definition:
+      'Machine code written with short readable names (LOAD, ADD, STORE) instead of raw bits. One line usually equals one CPU instruction.',
+    note: '/fundamentals/from-code-to-electrons',
+  },
+  'machine-code': {
+    term: 'Machine code',
+    definition: 'Instructions encoded as bits. It is the only thing a CPU can actually execute.',
+    note: '/fundamentals/from-code-to-electrons',
+  },
+  opcode: {
+    term: 'Opcode',
+    definition:
+      'The part of an instruction that says what to do (add, load, store). The rest of the bits say what to do it to.',
+  },
+  register: {
+    term: 'Register',
+    definition:
+      'A tiny, ultra-fast storage slot inside the CPU. A CPU has only a handful, so values are moved in and out of RAM.',
+    note: '/fundamentals/from-code-to-electrons',
+  },
+  ram: {
+    term: 'RAM (memory)',
+    definition:
+      'The computer’s main working memory: a huge row of numbered slots outside the CPU. Much bigger than registers, but slower.',
+  },
+  executable: {
+    term: 'Executable',
+    definition:
+      'A file full of machine code that the operating system can load and run, like a .exe on Windows.',
+  },
+  bytecode: {
+    term: 'Bytecode',
+    definition:
+      'Compact instructions for a virtual machine rather than a real CPU. Easier to generate than machine code, and quick to interpret.',
+  },
+  interpreter: {
+    term: 'Interpreter',
+    definition:
+      'A program that reads code (or bytecode) and carries it out step by step, without first turning all of it into machine code.',
+  },
+  jit: {
+    term: 'JIT (Just-In-Time) compilation',
+    definition:
+      'Compiling code to machine code while the program is already running, focusing on the parts that run most often.',
+    note: '/fundamentals/from-code-to-electrons',
+  },
+  'program-counter': {
+    term: 'Program Counter (PC)',
+    definition:
+      'A register that holds the memory address of the next instruction. It’s the CPU’s bookmark.',
+    note: '/fundamentals/from-code-to-electrons',
+  },
+  alu: {
+    term: 'ALU (Arithmetic Logic Unit)',
+    definition:
+      'The part of the CPU that does the maths (add, subtract) and logic (compare, AND, OR).',
+    note: '/fundamentals/from-code-to-electrons',
+  },
+  clock: {
+    term: 'Clock',
+    definition:
+      'A signal that ticks billions of times per second. Every tick, the CPU’s parts move forward one step together.',
+  },
+  pipelining: {
+    term: 'Pipelining',
+    definition:
+      'Overlapping instructions like an assembly line: fetching the next one while decoding this one and executing the one before.',
+  },
+  'logic-gate': {
+    term: 'Logic gate',
+    definition:
+      'A tiny circuit that takes one or two bits in and gives one bit out, following a fixed rule such as AND, OR or NOT.',
+    note: '/fundamentals/from-code-to-electrons',
+  },
+  'full-adder': {
+    term: 'Full adder',
+    definition:
+      'A small circuit of logic gates that adds two bits plus a carry, giving a sum bit and a carry out.',
+    note: '/fundamentals/from-code-to-electrons',
+  },
+  'carry-lookahead': {
+    term: 'Carry-lookahead',
+    definition:
+      'A faster adder design that works out all the carries at once, instead of waiting for each one to ripple across.',
+  },
+  transistor: {
+    term: 'Transistor (MOSFET)',
+    definition:
+      'A switch with no moving parts. Voltage on its gate decides whether current can flow through it.',
+    note: '/fundamentals/from-code-to-electrons',
+  },
+  doping: {
+    term: 'Doping',
+    definition:
+      'Mixing tiny amounts of another element into silicon to change how easily it conducts electricity.',
+  },
+  'threshold-voltage': {
+    term: 'Threshold voltage',
+    definition:
+      'The gate voltage a transistor needs before enough electrons gather to form a channel and switch it on.',
+  },
+  cmos: {
+    term: 'CMOS',
+    definition:
+      'Building gates from pairs of opposite transistors (NMOS and PMOS) so only one conducts at a time and almost no power is wasted.',
+  },
 };
