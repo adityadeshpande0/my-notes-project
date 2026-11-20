@@ -1,0 +1,173 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+/* Tailwind v4 reads the theme attribute for `dark:` variants. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* ---------------------------------------------------------------
+ * Theme tokens: "Midnight Lab" (dark, default) and "Daylight Lab".
+ * Components never use raw hex values; they use these tokens.
+ * ------------------------------------------------------------- */
+:root,
+[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0b0f1a; /* deep midnight */
+  --bg-elevated: #121829; /* cards, panels */
+  --surface: #1a2238; /* inputs, code blocks */
+  --border: #26304a;
+  --text: #e6eaf2;
+  --text-muted: #8a94ad;
+
+  --accent: #7c9cff; /* periwinkle: primary actions, links */
+  --accent-2: #3de0c5; /* mint: active / current step */
+  --warn: #ffb547; /* amber: comparing */
+  --danger: #ff6b8a; /* coral: swap / conflict */
+  --success: #5be38a; /* green: sorted / found / done */
+
+  --glow: 0 0 24px rgb(124 156 255 / 0.15);
+  --dot: rgb(255 255 255 / 0.05);
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f6f7fb;
+  --bg-elevated: #ffffff;
+  --surface: #eceff6;
+  --border: #d8deea;
+  --text: #141a2b;
+  --text-muted: #59637d;
+
+  --accent: #4766d6;
+  --accent-2: #0f9e86;
+  --warn: #b8740a;
+  --danger: #d23a5f;
+  --success: #1c8f4c;
+
+  --glow: 0 0 24px rgb(71 102 214 / 0.12);
+  --dot: rgb(20 26 43 / 0.06);
+}
+
+/* Expose the tokens to Tailwind: `bg-bg`, `text-muted`, `border-border`, `text-accent-2`... */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-elevated: var(--bg-elevated);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-muted: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-warn: var(--warn);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+
+  --font-heading: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --radius-card: 14px;
+  --radius-btn: 10px;
+
+  --shadow-glow: var(--glow);
+}
+
+@layer base {
+  html {
+    background: var(--bg);
+  }
+  body {
+    min-height: 100dvh;
+    background-color: var(--bg);
+    /* Subtle dot-grid texture. */
+    background-image: radial-gradient(var(--dot) 1px, transparent 1px);
+    background-size: 22px 22px;
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 17px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  @media (min-width: 768px) {
+    body {
+      font-size: 18px;
+    }
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+}
+
+/* ---------------------------------------------------------------
+ * Notes (rendered MDX). Built on @tailwindcss/typography, recolored
+ * with our tokens so both themes work.
+ * ------------------------------------------------------------- */
+.prose {
+  --tw-prose-body: var(--text);
+  --tw-prose-headings: var(--text);
+  --tw-prose-lead: var(--text-muted);
+  --tw-prose-links: var(--accent);
+  --tw-prose-bold: var(--text);
+  --tw-prose-counters: var(--text-muted);
+  --tw-prose-bullets: var(--border);
+  --tw-prose-hr: var(--border);
+  --tw-prose-quotes: var(--text);
+  --tw-prose-quote-borders: var(--accent);
+  --tw-prose-captions: var(--text-muted);
+  --tw-prose-code: var(--text);
+  --tw-prose-pre-code: var(--text);
+  --tw-prose-pre-bg: var(--surface);
+  --tw-prose-th-borders: var(--border);
+  --tw-prose-td-borders: var(--border);
+  max-width: 70ch;
+  font-size: inherit;
+  line-height: 1.7;
+}
+.prose :where(code):not(:where(pre *)) {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.1em 0.35em;
+  font-weight: 500;
+}
+.prose :where(code):not(:where(pre *))::before,
+.prose :where(code):not(:where(pre *))::after {
+  content: none;
+}
+.prose pre {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  font-size: 0.85em;
+}
+
+/* Shiki emits both themes as CSS variables; pick one based on data-theme. */
+.shiki,
+.shiki span {
+  color: var(--shiki-dark);
+}
+[data-theme='light'] .shiki,
+[data-theme='light'] .shiki span {
+  color: var(--shiki-light);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
