@@ -1,67 +1,199 @@
+import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { topics } from '../lib/content';
+import { PLANNED } from '../lib/roadmap';
 import { topicsForTrack } from '../lib/topics';
-import { TRACKS, type Track } from '../lib/types';
+import { ContentsIndex } from './home/ContentsIndex';
+import { HeroDemo } from './home/HeroDemo';
+import { ReadingKey } from './home/ReadingKey';
+
+const writtenCount = topics.length;
+const plannedCount = (['dsa', 'react'] as const).reduce((sum, track) => {
+  const written = new Set(topics.filter((t) => t.track === track).map((t) => t.slug));
+  return sum + PLANNED[track].filter((p) => !written.has(p.slug)).length;
+}, 0);
+
+const firstNote = topicsForTrack(topics, 'dsa')[0];
+
+// Newest first. Add a line whenever something worth mentioning ships.
+const LOG = [
+  {
+    date: '20 Nov 2026',
+    text: 'Live bubble sort on the front page. Press the arrows, it waits for you.',
+  },
+  { date: '20 Nov 2026', text: 'First note written: Arrays and Big-O.' },
+  { date: '20 Nov 2026', text: 'The site exists. Dark mode works. Light mode too.' },
+];
 
 export function HomePage() {
   return (
-    <div className="space-y-16">
-      {/* Hero. Phase 3 replaces the right side with the lazy-loaded 3D constellation. */}
-      <section className="max-w-3xl">
-        <p className="mb-4 font-mono text-sm text-accent-2">visual notes · react · dsa</p>
-        <h1 className="text-4xl sm:text-6xl">
-          Learn by <span className="text-accent">watching</span> it happen.
-        </h1>
-        <p className="mt-6 max-w-[60ch] text-lg text-muted">
-          Short, friendly notes with interactive visuals you can play, pause, and step through.
-          Change the input and see how the algorithm or React concept responds.
-        </p>
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Link
-            to="/dsa"
-            className="rounded-btn bg-accent px-5 py-2.5 font-medium text-bg shadow-glow transition-opacity hover:opacity-90"
-          >
-            Start with DSA
-          </Link>
-          <Link
-            to="/react"
-            className="rounded-btn border border-border bg-elevated px-5 py-2.5 font-medium transition-colors hover:border-accent"
-          >
-            Explore React
-          </Link>
+    <div className="space-y-24 sm:space-y-32">
+      {/* ── Hero ─────────────────────────────────────────────── */}
+      <section className="grid items-center gap-12 lg:grid-cols-[1fr_minmax(0,30rem)] lg:gap-16">
+        <div>
+          <p className="font-mono text-sm text-muted">
+            a visual notebook for <span className="text-text">DSA</span> and{' '}
+            <span className="text-text">React</span>
+          </p>
+
+          <h1 className="mt-5 text-[2.6rem] leading-[1.05] tracking-tight sm:text-6xl lg:text-[4.25rem]">
+            Notes you can press{' '}
+            <span className="inline-flex translate-y-[-0.08em] items-center gap-[0.25em] rounded-[0.22em] border border-b-[0.09em] border-border bg-elevated px-[0.3em] py-[0.02em] align-middle text-[0.62em] font-semibold text-accent-2">
+              <svg viewBox="0 0 24 24" className="size-[0.7em]" aria-hidden="true">
+                <path d="M7 4.5v15l12.5-7.5z" fill="currentColor" />
+              </svg>
+              play
+            </span>{' '}
+            on.
+          </h1>
+
+          <p className="mt-7 max-w-[34rem] text-lg leading-relaxed text-muted">
+            Every note comes with a visual you can run, pause, and step through one comparison at a
+            time. The idea clicks first. The code makes sense after.
+          </p>
+
+          <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-4">
+            {firstNote && (
+              <Link
+                to={`/dsa/${firstNote.slug}`}
+                className="group inline-flex items-center gap-2 rounded-btn bg-text px-5 py-3 font-medium text-bg transition-opacity hover:opacity-90"
+              >
+                Start with {firstNote.title}
+                <span
+                  className="transition-transform group-hover:translate-x-0.5"
+                  aria-hidden="true"
+                >
+                  →
+                </span>
+              </Link>
+            )}
+            <a
+              href="#contents"
+              className="font-medium text-muted underline-offset-4 hover:text-text hover:underline"
+            >
+              See all topics
+            </a>
+          </div>
+
+          <p className="mt-10 font-mono text-xs text-muted">
+            {writtenCount} {writtenCount === 1 ? 'note' : 'notes'} written · {plannedCount} on the
+            way · free, no sign-up
+          </p>
+        </div>
+
+        <div className="relative">
+          <Annotation />
+          <HeroDemo />
         </div>
       </section>
 
-      <section aria-labelledby="tracks-heading">
-        <h2 id="tracks-heading" className="mb-6 text-2xl">
-          Two tracks
-        </h2>
-        <div className="grid gap-6 md:grid-cols-2">
-          <TrackCard track="dsa" />
-          <TrackCard track="react" />
+      {/* ── Contents ─────────────────────────────────────────── */}
+      <Section
+        id="contents"
+        title="Contents"
+        intro="Read them in order, or jump straight to whatever is confusing you this week."
+      >
+        <ContentsIndex />
+      </Section>
+
+      {/* ── Reading key ──────────────────────────────────────── */}
+      <Section
+        title="Reading the visuals"
+        intro="Colours mean the same thing on every page. Each one also has its own mark, so colour is never the only clue."
+      >
+        <ReadingKey />
+      </Section>
+
+      {/* ── Why this exists ──────────────────────────────────── */}
+      <Section title="Why this exists">
+        <div className="grid gap-12 md:grid-cols-[minmax(0,1fr)_minmax(0,18rem)]">
+          <div className="max-w-[38rem] space-y-5 text-lg leading-relaxed">
+            <p>
+              Most explanations of bubble sort show you the finished code and a diagram of the
+              result. What actually helps is watching the middle: which two values got compared, why
+              one moved, and what changed after.
+            </p>
+            <p className="text-muted">
+              That&rsquo;s what these notes are for. They&rsquo;re written while learning, so they
+              stay close to the questions a beginner really asks. When something here is wrong or
+              unclear, it gets rewritten.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="mb-4 font-mono text-xs font-normal tracking-wide text-muted uppercase">
+              Notebook log
+            </h3>
+            <ol className="space-y-4 border-l border-border">
+              {LOG.map((entry, i) => (
+                <li key={i} className="relative pl-5">
+                  <span
+                    aria-hidden="true"
+                    className={`absolute top-[0.55em] -left-[4.5px] size-2 rounded-full ${i === 0 ? 'bg-accent-2' : 'bg-border'}`}
+                  />
+                  <p className="font-mono text-xs text-muted">{entry.date}</p>
+                  <p className="mt-0.5 text-[0.95rem] leading-snug">{entry.text}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
         </div>
-      </section>
+      </Section>
     </div>
   );
 }
 
-function TrackCard({ track }: { track: Track }) {
-  const count = topicsForTrack(topics, track).length;
-  const info = TRACKS[track];
+/** A full-width rule with the heading and intro on the left, content on the right (on wide screens). */
+function Section({
+  id,
+  title,
+  intro,
+  children,
+}: {
+  id?: string;
+  title: string;
+  intro?: string;
+  children: ReactNode;
+}) {
+  const headingId = `${title.toLowerCase().replace(/\W+/g, '-')}-heading`;
   return (
-    <Link
-      to={`/${track}`}
-      className="group block rounded-card border border-border bg-elevated p-6 transition-[border-color,box-shadow] hover:border-accent/60 hover:shadow-glow sm:p-8"
+    <section
+      id={id}
+      aria-labelledby={headingId}
+      className="scroll-mt-24 border-t border-border pt-8"
     >
-      <p className="font-mono text-xs uppercase tracking-wider text-muted">
-        {count} {count === 1 ? 'topic' : 'topics'}
-      </p>
-      <h3 className="mt-2 text-2xl">{info.name}</h3>
-      <p className="mt-2 text-muted">{info.tagline}</p>
-      <p className="mt-6 text-sm font-medium text-accent">
-        Open track{' '}
-        <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
-      </p>
-    </Link>
+      <div className="grid gap-x-16 gap-y-8 lg:grid-cols-[15rem_minmax(0,1fr)]">
+        <div>
+          <h2 id={headingId} className="text-2xl sm:text-3xl">
+            {title}
+          </h2>
+          {intro && <p className="mt-3 max-w-[30rem] text-muted">{intro}</p>}
+        </div>
+        <div>{children}</div>
+      </div>
+    </section>
+  );
+}
+
+/** A hand-drawn style note pointing at the demo (wide screens only). */
+function Annotation() {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute -top-11 right-2 hidden items-end gap-1 font-mono text-xs text-muted lg:flex"
+    >
+      <span className="mb-4">it&rsquo;s live. space pauses, arrows step</span>
+      <svg
+        viewBox="0 0 40 40"
+        className="size-9 text-muted"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      >
+        <path d="M4 10c14-2 24 6 26 22" />
+        <path d="M24 27l6 6 4-8" />
+      </svg>
+    </div>
   );
 }
