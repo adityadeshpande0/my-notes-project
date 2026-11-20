@@ -1,9 +1,9 @@
 import { Link, NavLink, Outlet, ScrollRestoration } from 'react-router';
 import { ThemeToggle } from '../components/ThemeToggle';
+import { TRACK_IDS, TRACKS } from '../lib/types';
 
 const NAV = [
-  { to: '/dsa', label: 'DSA' },
-  { to: '/react', label: 'React' },
+  ...TRACK_IDS.map((track) => ({ to: `/${track}`, label: TRACKS[track].short })),
   { to: '/playground', label: 'Playground' },
   { to: '/about', label: 'About' },
 ];
@@ -26,8 +26,11 @@ export function Layout() {
             Stackscape
           </Link>
 
-          <nav aria-label="Main" className="order-3 w-full sm:order-none sm:w-auto">
-            <ul className="flex gap-1 text-sm">
+          <nav
+            aria-label="Main"
+            className="order-3 -mx-2 w-[calc(100%+1rem)] overflow-x-auto sm:order-none sm:mx-0 sm:w-auto"
+          >
+            <ul className="flex gap-1 px-2 text-sm whitespace-nowrap sm:px-0">
               {NAV.map((item) => (
                 <li key={item.to}>
                   {/* NavLink knows whether its route is active, so we can style it. */}

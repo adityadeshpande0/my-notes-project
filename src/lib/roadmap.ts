@@ -6,6 +6,7 @@
 import type { Track } from './types';
 
 export const PLANNED: Record<Track, { slug: string; title: string }[]> = {
+  fundamentals: [{ slug: 'memory-and-caches', title: 'Memory and the Cache Hierarchy' }],
   dsa: [
     { slug: 'bubble-sort', title: 'Bubble Sort' },
     { slug: 'binary-search', title: 'Binary Search' },

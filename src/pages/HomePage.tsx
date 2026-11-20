@@ -3,20 +3,28 @@ import { Link } from 'react-router';
 import { topics } from '../lib/content';
 import { PLANNED } from '../lib/roadmap';
 import { topicsForTrack } from '../lib/topics';
+import { TRACK_IDS } from '../lib/types';
 import { ContentsIndex } from './home/ContentsIndex';
 import { HeroDemo } from './home/HeroDemo';
 import { ReadingKey } from './home/ReadingKey';
 
 const writtenCount = topics.length;
-const plannedCount = (['dsa', 'react'] as const).reduce((sum, track) => {
+const plannedCount = TRACK_IDS.reduce((sum, track) => {
   const written = new Set(topics.filter((t) => t.track === track).map((t) => t.slug));
   return sum + PLANNED[track].filter((p) => !written.has(p.slug)).length;
 }, 0);
 
-const firstNote = topicsForTrack(topics, 'dsa')[0];
+// "Start with…" points at the first note of the first track that has one.
+const firstNote = TRACK_IDS.map((track) => topicsForTrack(topics, track)[0]).find(Boolean);
+// Long titles like "From Code to Electrons: How Your Program Really Runs" get shortened for the button.
+const firstNoteLabel = firstNote?.title.split(':')[0];
 
 // Newest first. Add a line whenever something worth mentioning ships.
 const LOG = [
+  {
+    date: '20 Nov 2026',
+    text: 'First long read: From Code to Electrons. Eight interactive visuals, from compiler to transistor.',
+  },
   {
     date: '20 Nov 2026',
     text: 'Live bubble sort on the front page. Press the arrows, it waits for you.',
@@ -32,8 +40,8 @@ export function HomePage() {
       <section className="grid items-center gap-12 lg:grid-cols-[1fr_minmax(0,32rem)] lg:gap-16 xl:grid-cols-[1fr_minmax(0,36rem)] xl:gap-24">
         <div>
           <p className="font-mono text-sm text-muted">
-            a visual notebook for <span className="text-text">DSA</span> and{' '}
-            <span className="text-text">React</span>
+            a visual notebook for <span className="text-text">how computers work</span>,{' '}
+            <span className="text-text">DSA</span> and <span className="text-text">React</span>
           </p>
 
           <h1 className="mt-5 text-[2.6rem] leading-[1.05] tracking-tight sm:text-6xl lg:text-[4.25rem] xl:text-[5rem]">
@@ -55,10 +63,10 @@ export function HomePage() {
           <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-4">
             {firstNote && (
               <Link
-                to={`/dsa/${firstNote.slug}`}
+                to={`/${firstNote.track}/${firstNote.slug}`}
                 className="group inline-flex items-center gap-2 rounded-btn bg-text px-5 py-3 font-medium text-bg transition-opacity hover:opacity-90"
               >
-                Start with {firstNote.title}
+                Start with {firstNoteLabel}
                 <span
                   className="transition-transform group-hover:translate-x-0.5"
                   aria-hidden="true"

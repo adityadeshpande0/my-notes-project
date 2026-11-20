@@ -66,8 +66,7 @@ function TopicLayout({ topic, Note }: { topic: TopicMeta; Note: ComponentType<MD
               <span className="text-text">{topic.title}</span>
             </nav>
             <p className="mb-4 font-mono text-xs text-muted">
-              {topic.track === 'dsa' ? 'DSA' : 'React'} · note{' '}
-              {String(topic.order).padStart(2, '0')}
+              {TRACKS[topic.track].short} · note {String(topic.order).padStart(2, '0')}
               {outline.minutes > 0 && <> · {outline.minutes} min read</>}
             </p>
             <h1 className="text-[2.5rem] leading-[1.08] tracking-tight sm:text-[3.25rem]">

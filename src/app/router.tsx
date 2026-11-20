@@ -6,6 +6,7 @@ import { TopicPage } from '../pages/TopicPage';
 import { PlaygroundPage } from '../pages/PlaygroundPage';
 import { AboutPage } from '../pages/AboutPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
+import { TRACK_IDS } from '../lib/types';
 
 /**
  * All routes in one place. Child routes render inside <Layout>'s <Outlet />.
@@ -16,10 +17,11 @@ export const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: 'dsa', element: <TrackPage track="dsa" /> },
-      { path: 'dsa/:slug', element: <TopicPage track="dsa" /> },
-      { path: 'react', element: <TrackPage track="react" /> },
-      { path: 'react/:slug', element: <TopicPage track="react" /> },
+      // Two routes per track: the track page (/dsa) and its topics (/dsa/binary-search).
+      ...TRACK_IDS.flatMap((track) => [
+        { path: track, element: <TrackPage track={track} /> },
+        { path: `${track}/:slug`, element: <TopicPage track={track} /> },
+      ]),
       { path: 'playground', element: <PlaygroundPage /> },
       { path: 'about', element: <AboutPage /> },
       { path: '*', element: <NotFoundPage /> },
