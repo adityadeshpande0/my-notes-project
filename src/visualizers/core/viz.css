@@ -1,0 +1,237 @@
+/*
+ * Shared styles for interactive visuals inside notes (<div className="viz">).
+ * Imported by each visualizer folder's index.ts, so it only loads with the
+ * notes that use it. Colours come from the theme tokens in styles/index.css.
+ */
+
+.viz {
+  margin: 2.25rem 0;
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--bg-elevated);
+  color: var(--text);
+  box-shadow: var(--glow);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.55;
+}
+@media (min-width: 640px) {
+  .viz {
+    padding: 1.5rem;
+  }
+}
+
+.viz-title {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0 0 0.25rem;
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+.viz-title::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--accent-2);
+}
+.viz-sub {
+  margin: 0 0 1rem;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+.viz-mono {
+  font-family: var(--font-mono);
+}
+
+/* Buttons */
+.viz-btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 0.45rem 0.8rem;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s,
+    transform 0.1s;
+}
+.viz-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+.viz-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.viz-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.viz-btn[aria-pressed='true'] {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  border-color: var(--accent);
+}
+.viz-btn--primary {
+  min-width: 5.5rem;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+  font-weight: 600;
+}
+.viz-btn--icon {
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  padding: 0;
+}
+
+/* Control bar */
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+}
+.viz-progress {
+  flex: 1 1 100px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.viz-progress > span {
+  display: block;
+  height: 100%;
+  background: var(--accent-2);
+  transition: width 0.3s ease;
+}
+.viz-stepcount {
+  min-width: 4rem;
+  text-align: right;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+/* What just happened, in words */
+.viz-caption {
+  margin-top: 0.9rem;
+  padding: 0.75rem 0.9rem;
+  min-height: 3.2rem;
+  border-left: 3px solid var(--accent-2);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.viz-caption strong {
+  color: var(--accent-2);
+}
+
+.viz-chip {
+  display: inline-block;
+  padding: 0.1rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+.viz-panel {
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.viz-label {
+  margin-bottom: 0.4rem;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.viz-grid-2 {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+/* Wide diagrams scroll sideways on phones instead of shrinking to unreadable. */
+.viz-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* SVG basics */
+.viz svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.viz svg text {
+  fill: var(--text);
+  font-family: var(--font-sans);
+}
+.viz .wire {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 3;
+  transition: stroke 0.25s;
+}
+.viz .wire.on {
+  stroke: var(--accent-2);
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--accent-2) 70%, transparent));
+}
+/* Marching dashes = current flowing */
+.viz .flow {
+  stroke-dasharray: 4 10;
+  animation: viz-flow 0.8s linear infinite;
+}
+@keyframes viz-flow {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
+.viz-fade {
+  animation: viz-fade 0.35s ease both;
+}
+@keyframes viz-fade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.viz .electron {
+  animation-name: viz-electron;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+@keyframes viz-electron {
+  0% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  10%,
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(250px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .viz *,
+  .viz *::before,
+  .viz *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
