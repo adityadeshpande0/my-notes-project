@@ -162,6 +162,18 @@
   gap: 1rem;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
+/* AbstractionLadder: list on the left, detail on the right (stacked on phones) */
+.ladder {
+  display: grid;
+  gap: 1.5rem;
+}
+@media (min-width: 640px) {
+  .ladder {
+    grid-template-columns: minmax(15rem, 0.9fr) minmax(0, 1.4fr);
+    align-items: stretch;
+  }
+}
+
 /* Wide diagrams scroll sideways on phones instead of shrinking to unreadable. */
 .viz-scroll {
   overflow-x: auto;
@@ -234,4 +246,13 @@
     animation: none !important;
     transition: none !important;
   }
+}
+
+/* Inline code inside a visual's text, e.g. the subtitle */
+.viz :where(p, li) > code {
+  padding: 0.05em 0.35em;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  font-size: 0.9em;
 }

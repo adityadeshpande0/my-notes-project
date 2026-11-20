@@ -98,88 +98,103 @@ export default function AbstractionLadder() {
         looks like there.
       </p>
 
-      <div className="viz-grid-2" style={{ alignItems: 'center' }}>
-        {/* The stack, tilted a little in 3D with plain CSS (no three.js needed). */}
-        <div
-          role="listbox"
-          aria-label="Layers of abstraction"
-          aria-activedescendant={`ladder-${current}`}
-          tabIndex={0}
-          onKeyDown={onKeyDown}
-          style={{ perspective: '900px', padding: '8px 4px', borderRadius: 12 }}
-        >
-          <div
-            style={{ transform: 'rotateX(24deg) rotateZ(-3deg)', transformStyle: 'preserve-3d' }}
+      <div className="ladder">
+        {/* Left: the layers as a vertical path, top (human) to bottom (hardware). */}
+        <div>
+          <div className="mb-2 flex justify-between font-mono text-[11px] tracking-wide text-muted uppercase">
+            <span>↑ human-friendly</span>
+          </div>
+          <ol
+            role="listbox"
+            aria-label="Layers of abstraction"
+            aria-activedescendant={`ladder-${current}`}
+            tabIndex={0}
+            onKeyDown={onKeyDown}
+            className="relative m-0 list-none rounded-[12px] p-0"
           >
+            {/* The line joining the numbered dots */}
+            <span
+              aria-hidden="true"
+              className="absolute top-5 bottom-5 left-[19px] w-px"
+              style={{ background: C.border }}
+            />
             {LAYERS.map((l, i) => {
               const selected = i === current;
+              const passed = i < current; // layers the code has already travelled through
               return (
-                <div
+                <li
                   key={l.name}
                   id={`ladder-${i}`}
                   role="option"
                   aria-selected={selected}
                   onClick={() => setCurrent(i)}
+                  className="relative flex cursor-pointer items-center gap-3 rounded-[10px] py-1.5 pr-3 pl-1.5 transition-colors"
                   style={{
-                    cursor: 'pointer',
-                    margin: '0 0 6px',
-                    padding: '9px 14px',
-                    borderRadius: 10,
-                    border: `1px solid ${selected ? l.color : C.border}`,
-                    background: selected
-                      ? `linear-gradient(90deg, ${alpha(l.color, 20)}, ${alpha(l.color, 5)})`
-                      : C.surface,
-                    boxShadow: selected
-                      ? `0 10px 24px -10px ${alpha(l.color, 60)}`
-                      : '0 3px 0 rgb(0 0 0 / .18)',
-                    transform: selected ? 'translateZ(28px) translateX(10px)' : 'none',
-                    transition:
-                      'transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s, background .3s',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    gap: 8,
+                    background: selected ? alpha(l.color, 12) : 'transparent',
+                    boxShadow: selected ? `inset 0 0 0 1px ${alpha(l.color, 55)}` : 'none',
                   }}
                 >
-                  <span style={{ fontWeight: 600 }}>
-                    <span className="viz-mono" style={{ color: l.color, marginRight: 8 }}>
-                      {i + 1}
-                    </span>
-                    {l.name}
+                  {/* Numbered dot: filled for the current layer, tinted for ones above it */}
+                  <span
+                    className="relative z-10 grid size-[26px] shrink-0 place-items-center rounded-full font-mono text-xs font-semibold transition-colors"
+                    style={{
+                      background: selected ? l.color : passed ? alpha(l.color, 18) : C.elevated,
+                      color: selected ? C.bg : l.color,
+                      border: `1.5px solid ${selected || passed ? l.color : C.border}`,
+                    }}
+                  >
+                    {i + 1}
                   </span>
-                  <span className="viz-chip">{l.tag}</span>
-                </div>
+                  <span className="min-w-0 flex-1">
+                    <span
+                      className="block text-[0.95rem] leading-tight font-semibold"
+                      style={{ color: selected ? C.text : undefined }}
+                    >
+                      {l.name}
+                    </span>
+                    <span className="block truncate text-xs" style={{ color: C.muted }}>
+                      {l.tag}
+                    </span>
+                  </span>
+                </li>
               );
             })}
+          </ol>
+          <div className="mt-2 font-mono text-[11px] tracking-wide text-muted uppercase">
+            ↓ closer to the hardware
           </div>
-          <p className="viz-sub" style={{ textAlign: 'center', margin: '.5rem 0 0' }}>
-            ↑ more human-friendly · ↓ closer to the hardware
-          </p>
         </div>
 
-        {/* key={current} restarts the fade-in animation each time the layer changes */}
-        <div className="viz-fade" key={current}>
-          <p style={{ margin: '0 0 .4rem', color: layer.color, fontWeight: 600 }}>
-            Layer {current + 1}: {layer.name}
+        {/* Right: what the code looks like at the chosen layer. key restarts the fade. */}
+        <div className="viz-fade flex flex-col" key={current}>
+          <p className="m-0 font-mono text-xs text-muted">
+            Layer {current + 1} of {LAYERS.length}
           </p>
-          <p style={{ margin: '0 0 .8rem' }}>{layer.sees}</p>
+          <p
+            className="mt-1 mb-2 font-heading text-xl font-semibold"
+            style={{ color: layer.color }}
+          >
+            {layer.name}
+          </p>
+          <p className="m-0 mb-4 text-[0.95rem] leading-relaxed">{layer.sees}</p>
           <pre
-            className="viz-mono"
+            className="viz-mono m-0"
             style={{
-              margin: 0,
-              padding: 14,
+              padding: '16px 18px',
               borderRadius: 10,
               background: C.bg,
               border: `1px solid ${alpha(layer.color, 40)}`,
+              borderLeft: `3px solid ${layer.color}`,
               color: layer.color,
-              fontSize: 13.5,
+              fontSize: 14.5,
+              lineHeight: 1.6,
               whiteSpace: 'pre-wrap',
-              minHeight: 110,
+              minHeight: 140,
             }}
           >
             {layer.view}
           </pre>
-          <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+          <div className="mt-3 flex gap-2">
             <button
               type="button"
               className="viz-btn"
