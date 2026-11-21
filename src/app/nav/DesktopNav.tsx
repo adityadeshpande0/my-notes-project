@@ -10,8 +10,8 @@ const OPEN_DELAY = 90; // ms: brushing past a menu item shouldn't open it
 const CLOSE_DELAY = 160; // ms: time to move the mouse from the item down into the panel
 
 /**
- * The main navigation on wide screens. Hovering a track (or pressing its ▾
- * button) opens a panel under the header with that track's full outline.
+ * The main navigation on wide screens. Hovering a collection (or pressing its ▾
+ * button) opens a panel under the header with its whole learning path.
  */
 export function DesktopNav() {
   const { pathname } = useLocation();
@@ -121,7 +121,7 @@ export function DesktopNav() {
                   <div className="mx-auto grid max-w-[112rem] gap-10 px-5 py-8 whitespace-normal sm:px-8 lg:grid-cols-[16rem_minmax(0,1fr)] lg:px-12">
                     <div>
                       <p className="font-mono text-xs tracking-wide text-accent-2 uppercase">
-                        {TRACKS[track].short} track
+                        Collection · learning path
                       </p>
                       <p className="mt-2 font-heading text-2xl font-semibold">
                         {TRACKS[track].name}
@@ -134,7 +134,7 @@ export function DesktopNav() {
                         onClick={closeAfterNavigate}
                         className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-accent hover:underline"
                       >
-                        Open the track <span aria-hidden="true">→</span>
+                        Open the learning path <span aria-hidden="true">→</span>
                       </Link>
                     </div>
                     <OutlineGroups

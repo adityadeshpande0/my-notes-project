@@ -53,6 +53,10 @@ const SPECS: [string, string][] = [
 // Newest first. Add a line whenever something worth mentioning ships.
 const LOG = [
   {
+    date: '22 Nov 2026',
+    text: 'Collections are now learning paths. Each topic is a numbered step, the sidebar shows where you are, and every note ends with the next step.',
+  },
+  {
     date: '21 Nov 2026',
     text: 'Every track is now split into groups. Hover a track in the navbar, or open the menu on a phone, to see all of it.',
   },
@@ -198,9 +202,9 @@ export function HomePage() {
       {/* ── Contents ─────────────────────────────────────────── */}
       <Section
         id="contents"
-        kicker="Everything, by track"
-        title="Contents"
-        intro="Read them in order, or jump straight to whatever is confusing you this week."
+        kicker="Learning paths"
+        title="Collections"
+        intro="Each collection is a learning path. Start at step 1 and move forward one topic at a time, or jump straight to whatever is confusing you this week."
       >
         <ContentsIndex />
       </Section>
@@ -306,7 +310,7 @@ export function HomePage() {
               href="#contents"
               className="font-medium text-muted underline-offset-4 hover:text-text hover:underline"
             >
-              Browse all topics
+              Browse the collections
             </a>
           </div>
         </div>

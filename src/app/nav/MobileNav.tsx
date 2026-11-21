@@ -9,7 +9,7 @@ import { TRACKS } from '../../lib/types';
 const OUTLINES = allOutlines(topics);
 
 /*
- * The phone menu: a hamburger button that opens a sidebar with every track,
+ * The phone menu: a hamburger button that opens a sidebar with every collection,
  * group and topic.
  *
  * It's built on the browser's own <dialog> element. `showModal()` gives us, for
@@ -111,7 +111,7 @@ export function MobileNav() {
                     onClick={close}
                     className="mb-3 ml-2.5 inline-block text-sm text-accent hover:underline"
                   >
-                    Track overview →
+                    Open the learning path →
                   </Link>
                   <OutlineGroups groups={o.groups} onNavigate={close} />
                 </div>

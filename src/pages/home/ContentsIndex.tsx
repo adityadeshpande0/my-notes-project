@@ -9,8 +9,8 @@ const OUTLINES = allOutlines(topics);
 const NUMERALS = ['I', 'II', 'III', 'IV', 'V', 'VI'];
 
 /**
- * The home page's contents: one tab per track, and
- * the chosen track's groups and topics underneath. Tabs follow the ARIA tabs
+ * The home page's collections: one tab per collection, and
+ * the chosen collection's modules and topics underneath. Tabs follow the ARIA tabs
  * pattern: ← and → move between them.
  */
 export function ContentsIndex() {
@@ -71,7 +71,7 @@ export function ContentsIndex() {
               to={`/${active}`}
               className="text-sm font-medium whitespace-nowrap text-accent hover:underline"
             >
-              Open the {TRACKS[active].short} track <span aria-hidden="true">→</span>
+              Open the {TRACKS[active].short} path <span aria-hidden="true">→</span>
             </Link>
           </div>
           <OutlineGroups groups={outline.groups} columns />
