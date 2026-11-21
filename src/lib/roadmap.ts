@@ -33,21 +33,66 @@ export const CURRICULUM: Record<Track, CurriculumGroup[]> = {
       topics: [{ slug: 'memory-and-caches', title: 'Memory and the Cache Hierarchy' }],
     },
   ],
+  // The JavaScript learning path, built one step at a time. Each group is a
+  // module; topics are in the order a beginner should read them.
   javascript: [
     {
       name: 'Getting started',
-      topics: [{ slug: 'what-is-javascript', title: 'JavaScript Basics' }],
+      topics: [
+        { slug: 'what-is-javascript', title: 'JavaScript Basics' },
+        { slug: 'running-javascript', title: 'Where JavaScript Runs Your Code' },
+      ],
     },
     {
       name: 'Core language',
       topics: [
         { slug: 'variables-and-data-types', title: 'Variables & Data Types' },
+        { slug: 'operators', title: 'Operators and Expressions' },
+        { slug: 'conditionals', title: 'Making Decisions: if, else, switch' },
+        { slug: 'loops', title: 'Loops' },
         { slug: 'functions', title: 'Functions' },
+        { slug: 'scope-and-closures', title: 'Scope and Closures' },
+      ],
+    },
+    {
+      name: 'Working with data',
+      topics: [
+        { slug: 'arrays', title: 'Arrays' },
+        { slug: 'objects', title: 'Objects' },
+        { slug: 'strings', title: 'Strings' },
+        { slug: 'array-methods', title: 'map, filter and reduce' },
+        { slug: 'destructuring-and-spread', title: 'Destructuring and Spread' },
+      ],
+    },
+    {
+      name: 'How JavaScript thinks',
+      topics: [
+        { slug: 'hoisting', title: 'Hoisting and Execution Context' },
+        { slug: 'this-keyword', title: 'The this Keyword' },
+        { slug: 'prototypes-and-classes', title: 'Prototypes and Classes' },
+        { slug: 'errors-and-debugging', title: 'Errors and Debugging' },
+      ],
+    },
+    {
+      name: 'Asynchronous JavaScript',
+      topics: [
+        { slug: 'callbacks-and-timers', title: 'Callbacks and Timers' },
+        { slug: 'promises', title: 'Promises' },
+        { slug: 'async-await', title: 'async and await' },
+        { slug: 'fetching-data', title: 'Fetching Data from an API' },
       ],
     },
     {
       name: 'In the browser',
-      topics: [{ slug: 'the-dom', title: 'The DOM' }],
+      topics: [
+        { slug: 'the-dom', title: 'The DOM' },
+        { slug: 'events', title: 'Events' },
+        { slug: 'web-storage', title: 'Saving Data in the Browser' },
+      ],
+    },
+    {
+      name: 'Modules',
+      topics: [{ slug: 'modules', title: 'Modules: import and export' }],
     },
   ],
   dsa: [

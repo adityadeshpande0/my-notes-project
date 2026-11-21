@@ -71,3 +71,40 @@ export function outlineFor(all: TopicMeta[], track: Track): TrackOutline {
 }
 
 export const allOutlines = (all: TopicMeta[]) => TRACK_IDS.map((t) => outlineFor(all, t));
+
+/** One step on a collection's learning path. */
+export interface PathStep extends OutlineEntry {
+  /** 1-based position on the path. */
+  step: number;
+  /** The group (module) this step belongs to. */
+  group: string;
+}
+
+/** Every topic of a collection, written or not, in reading order. */
+export function pathFor(all: TopicMeta[], track: Track): PathStep[] {
+  let step = 0;
+  return outlineFor(all, track).groups.flatMap((g) =>
+    g.entries.map((e) => ({ ...e, step: ++step, group: g.name })),
+  );
+}
+
+/**
+ * Where a topic sits on its path: the step itself, the closest *written* steps
+ * before and after it (so links always work), and the very next step even if
+ * it isn't written yet (so the reader can see what's coming).
+ */
+export function pathPosition(all: TopicMeta[], track: Track, slug: string) {
+  const path = pathFor(all, track);
+  const i = path.findIndex((s) => s.slug === slug);
+  if (i === -1)
+    return { path, current: undefined, prev: undefined, next: undefined, upcoming: undefined };
+  const before = path.slice(0, i).filter((s) => s.href);
+  const after = path.slice(i + 1);
+  return {
+    path,
+    current: path[i],
+    prev: before.at(-1),
+    next: after.find((s) => s.href),
+    upcoming: after[0],
+  };
+}
