@@ -7,6 +7,11 @@ import type { Track } from './types';
 
 export const PLANNED: Record<Track, { slug: string; title: string }[]> = {
   fundamentals: [{ slug: 'memory-and-caches', title: 'Memory and the Cache Hierarchy' }],
+  javascript: [
+    { slug: 'variables-and-data-types', title: 'Variables & Data Types' },
+    { slug: 'functions', title: 'Functions' },
+    { slug: 'the-dom', title: 'The DOM' },
+  ],
   dsa: [
     { slug: 'bubble-sort', title: 'Bubble Sort' },
     { slug: 'binary-search', title: 'Binary Search' },

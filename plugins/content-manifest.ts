@@ -19,7 +19,7 @@ import type { Plugin, ViteDevServer } from 'vite';
 const VIRTUAL_ID = 'virtual:content-manifest';
 const RESOLVED_ID = '\0' + VIRTUAL_ID;
 const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---/;
-const TRACKS = ['fundamentals', 'dsa', 'react'];
+const TRACKS = ['fundamentals', 'javascript', 'dsa', 'react'];
 const LEVELS = ['beginner', 'intermediate', 'advanced'];
 
 function listMdxFiles(dir: string): string[] {
