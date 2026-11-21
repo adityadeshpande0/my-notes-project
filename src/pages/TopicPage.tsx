@@ -5,9 +5,11 @@ import { Chip } from '../components/Chip';
 import { LevelChip } from '../components/LevelChip';
 import { mdxComponents } from '../components/mdx-components';
 import { getNote, getTopic, topics } from '../lib/content';
+import { useReveal } from '../lib/hooks';
 import { neighbours } from '../lib/topics';
 import { TRACKS, type TopicMeta, type Track } from '../lib/types';
 import { NotFoundPage } from './NotFoundPage';
+import { NoteSkeleton, TocSkeleton } from './topic/NoteSkeleton';
 import { ReadingProgress } from './topic/ReadingProgress';
 import { TableOfContents, type Heading } from './topic/TableOfContents';
 
@@ -51,7 +53,11 @@ function TopicLayout({ topic, Note }: { topic: TopicMeta; Note: ComponentType<MD
             <p className="mb-3 font-mono text-xs tracking-wide text-muted uppercase">
               On this page
             </p>
-            <TableOfContents headings={outline.headings} />
+            {outline.headings.length > 0 ? (
+              <TableOfContents headings={outline.headings} />
+            ) : (
+              <TocSkeleton />
+            )}
           </div>
         </aside>
 
@@ -100,7 +106,7 @@ function TopicLayout({ topic, Note }: { topic: TopicMeta; Note: ComponentType<MD
           )}
 
           {/* The note is a lazy component: Suspense shows the fallback while its chunk downloads. */}
-          <Suspense fallback={<p className="text-muted">Loading note…</p>}>
+          <Suspense fallback={<NoteSkeleton />}>
             <NoteBody Note={Note} onOutline={setOutline} />
           </Suspense>
 
@@ -178,6 +184,10 @@ function NoteBody({
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
+  // Visuals, code, tables, callouts and section headings fade up as you reach them.
+  // Plain paragraphs and lists stay put, so reading never waits on an animation.
+  useReveal(ref, ':scope > :not(p, ul, ol)');
+
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -219,7 +229,7 @@ function PagerLink({
   return (
     <Link
       to={to}
-      className={`group rounded-card border border-border p-5 transition-colors hover:border-accent/60 hover:bg-elevated ${alignRight ? 'text-right' : ''}`}
+      className={`group rounded-card border border-border p-5 transition-[border-color,background-color,translate] duration-200 hover:-translate-y-0.5 hover:border-accent/60 hover:bg-elevated ${alignRight ? 'text-right' : ''}`}
     >
       <span className="block font-mono text-xs text-muted">
         {alignRight ? `${label} →` : `← ${label}`}

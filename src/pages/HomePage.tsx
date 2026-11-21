@@ -1,6 +1,7 @@
-import type { ReactNode } from 'react';
+import { useRef, type CSSProperties, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { topics } from '../lib/content';
+import { useReveal } from '../lib/hooks';
 import { PLANNED } from '../lib/roadmap';
 import { topicsForTrack } from '../lib/topics';
 import { TRACK_IDS } from '../lib/types';
@@ -34,17 +35,23 @@ const LOG = [
 ];
 
 export function HomePage() {
+  const pageRef = useRef<HTMLDivElement>(null);
+  useReveal(pageRef); // everything marked `data-reveal` below fades up on scroll
+
   return (
-    <div className="space-y-24 sm:space-y-32">
+    <div ref={pageRef} className="space-y-24 sm:space-y-32">
       {/* ── Hero ─────────────────────────────────────────────── */}
       <section className="grid items-center gap-12 lg:grid-cols-[1fr_minmax(0,32rem)] lg:gap-16 xl:grid-cols-[1fr_minmax(0,36rem)] xl:gap-24">
         <div>
-          <p className="font-mono text-sm text-muted">
+          <p className="stagger font-mono text-sm text-muted" style={order(0)}>
             a visual notebook for <span className="text-text">how computers work</span>,{' '}
             <span className="text-text">DSA</span> and <span className="text-text">React</span>
           </p>
 
-          <h1 className="mt-5 text-[2.6rem] leading-[1.05] tracking-tight sm:text-6xl lg:text-[4.25rem] xl:text-[5rem]">
+          <h1
+            style={order(1)}
+            className="stagger mt-5 text-[2.6rem] leading-[1.05] tracking-tight sm:text-6xl lg:text-[4.25rem] xl:text-[5rem]"
+          >
             Notes you can press{' '}
             <span className="inline-flex translate-y-[-0.08em] items-center gap-[0.25em] rounded-[0.22em] border border-b-[0.09em] border-border bg-elevated px-[0.3em] py-[0.02em] align-middle text-[0.62em] font-semibold text-accent-2">
               <svg viewBox="0 0 24 24" className="size-[0.7em]" aria-hidden="true">
@@ -55,12 +62,18 @@ export function HomePage() {
             on.
           </h1>
 
-          <p className="mt-7 max-w-[34rem] text-lg leading-relaxed text-muted">
+          <p
+            style={order(2)}
+            className="stagger mt-7 max-w-[34rem] text-lg leading-relaxed text-muted"
+          >
             Every note comes with a visual you can run, pause, and step through one comparison at a
             time. The idea clicks first. The code makes sense after.
           </p>
 
-          <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-4">
+          <div
+            style={order(3)}
+            className="stagger mt-9 flex flex-wrap items-center gap-x-6 gap-y-4"
+          >
             {firstNote && (
               <Link
                 to={`/${firstNote.track}/${firstNote.slug}`}
@@ -83,13 +96,13 @@ export function HomePage() {
             </a>
           </div>
 
-          <p className="mt-10 font-mono text-xs text-muted">
+          <p style={order(4)} className="stagger mt-10 font-mono text-xs text-muted">
             {writtenCount} {writtenCount === 1 ? 'note' : 'notes'} written · {plannedCount} on the
             way · free, no sign-up
           </p>
         </div>
 
-        <div className="relative">
+        <div style={order(2)} className="stagger relative">
           <Annotation />
           <HeroDemo />
         </div>
@@ -115,7 +128,7 @@ export function HomePage() {
       {/* ── Why this exists ──────────────────────────────────── */}
       <Section title="Why this exists">
         <div className="grid gap-12 md:grid-cols-[minmax(0,1fr)_minmax(0,18rem)]">
-          <div className="max-w-[38rem] space-y-5 text-lg leading-relaxed">
+          <div data-reveal className="max-w-[38rem] space-y-5 text-lg leading-relaxed">
             <p>
               Most explanations of bubble sort show you the finished code and a diagram of the
               result. What actually helps is watching the middle: which two values got compared, why
@@ -151,6 +164,11 @@ export function HomePage() {
   );
 }
 
+/** Position in the hero's entrance sequence. A CSS variable can be set like any style. */
+function order(i: number) {
+  return { '--i': i } as CSSProperties;
+}
+
 /** A full-width rule with the heading and intro on the left, content on the right (on wide screens). */
 function Section({
   id,
@@ -171,7 +189,7 @@ function Section({
       className="scroll-mt-24 border-t border-border pt-8"
     >
       <div className="grid gap-x-16 gap-y-8 lg:grid-cols-[17rem_minmax(0,1fr)] xl:grid-cols-[20rem_minmax(0,1fr)]">
-        <div>
+        <div data-reveal>
           <h2 id={headingId} className="text-2xl sm:text-3xl">
             {title}
           </h2>

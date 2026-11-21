@@ -25,7 +25,7 @@ export function ContentsIndex() {
     <div className="grid gap-x-12 gap-y-12 md:grid-cols-2 2xl:grid-cols-3">
       {TRACK_IDS.map((track, i) => ({ track, numeral: NUMERALS[i], name: TRACKS[track].name })).map(
         (part) => (
-          <section key={part.track} aria-labelledby={`part-${part.track}`}>
+          <section key={part.track} aria-labelledby={`part-${part.track}`} data-reveal>
             <h3 id={`part-${part.track}`} className="mb-5 flex items-baseline gap-3 text-lg">
               <span className="font-mono text-sm font-normal text-muted">Part {part.numeral}</span>
               <Link to={`/${part.track}`} className="hover:text-accent">

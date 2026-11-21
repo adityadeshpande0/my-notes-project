@@ -1,12 +1,16 @@
+import { useRef } from 'react';
 import { Link } from 'react-router';
 import { LevelChip } from '../components/LevelChip';
 import { topics } from '../lib/content';
+import { useReveal } from '../lib/hooks';
 import { groupByLevel, topicsForTrack } from '../lib/topics';
 import { LEVELS, TRACKS, type Track } from '../lib/types';
 
 export function TrackPage({ track }: { track: Track }) {
   const groups = groupByLevel(topicsForTrack(topics, track));
   const info = TRACKS[track];
+  const listRef = useRef<HTMLDivElement>(null);
+  useReveal(listRef); // cards marked `data-reveal` fade up as they scroll in
 
   return (
     <div>
@@ -17,7 +21,7 @@ export function TrackPage({ track }: { track: Track }) {
       </header>
 
       {/* Phase 3 turns this list into a path / skill-tree with progress rings. */}
-      <div className="space-y-12">
+      <div ref={listRef} className="space-y-12">
         {LEVELS.map((level) =>
           groups[level].length === 0 ? null : (
             <section key={level} aria-labelledby={`level-${level}`}>
@@ -26,10 +30,10 @@ export function TrackPage({ track }: { track: Track }) {
               </h2>
               <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {groups[level].map((topic) => (
-                  <li key={topic.slug}>
+                  <li key={topic.slug} data-reveal>
                     <Link
                       to={`/${track}/${topic.slug}`}
-                      className="flex h-full flex-col rounded-card border border-border bg-elevated p-5 transition-[border-color,box-shadow] hover:border-accent/60 hover:shadow-glow"
+                      className="flex h-full flex-col rounded-card border border-border bg-elevated p-5 transition-[border-color,box-shadow,translate] duration-200 hover:-translate-y-0.5 hover:border-accent/60 hover:shadow-glow"
                     >
                       <div className="mb-2 flex items-center justify-between gap-2">
                         <span className="font-mono text-xs text-muted">#{topic.order}</span>

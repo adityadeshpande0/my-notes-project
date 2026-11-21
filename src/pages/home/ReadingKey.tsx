@@ -48,7 +48,10 @@ const HEIGHTS = [45, 80, 60];
 
 export function ReadingKey() {
   return (
-    <dl className="grid gap-px overflow-hidden rounded-card border border-border bg-border sm:grid-cols-2">
+    <dl
+      data-reveal
+      className="grid gap-px overflow-hidden rounded-card border border-border bg-border sm:grid-cols-2"
+    >
       {KEY.map((item) => (
         <div key={item.id} className="flex gap-5 bg-bg p-5 sm:p-6">
           {/* A tiny three-bar sketch with the middle bar highlighted */}
