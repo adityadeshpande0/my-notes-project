@@ -75,3 +75,54 @@ export function useActiveHeading(ids: string[], offset = 140): string | undefine
   }, [ids, offset]);
   return active;
 }
+
+/**
+ * Scroll reveal: elements matching `selector` inside `ref` fade up as they
+ * scroll into view. Elements already on screen when the page opens are left
+ * visible, so nothing flashes on first paint. Elements that arrive together
+ * are staggered slightly so a row of cards ripples in instead of popping.
+ *
+ * Pass `deps` when the content inside `ref` can change (e.g. a lazy note
+ * that loads later), so the hook looks for new elements.
+ */
+export function useReveal(
+  ref: RefObject<Element | null>,
+  selector = '[data-reveal]',
+  deps: unknown[] = [],
+) {
+  useEffect(() => {
+    const root = ref.current;
+    if (!root || window.matchMedia(REDUCED).matches) return;
+
+    const els = [...root.querySelectorAll<HTMLElement>(selector)].filter(
+      // Skip anything that starts on screen (or above it).
+      (el) => el.getBoundingClientRect().top > window.innerHeight,
+    );
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        let n = 0;
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const el = entry.target as HTMLElement;
+          el.style.transitionDelay = `${Math.min(n++, 6) * 70}ms`;
+          el.dataset.reveal = 'shown';
+          observer.unobserve(el); // reveal once, then stop watching
+        }
+      },
+      // Trigger a little before the element is fully in view.
+      { rootMargin: '0px 0px -8% 0px' },
+    );
+
+    for (const el of els) {
+      el.dataset.reveal = 'hidden';
+      observer.observe(el);
+    }
+    return () => {
+      observer.disconnect();
+      // Never leave content hidden if this effect is torn down (e.g. navigation).
+      for (const el of els) el.dataset.reveal = 'shown';
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `deps` is the caller's list
+  }, [ref, selector, ...deps]);
+}

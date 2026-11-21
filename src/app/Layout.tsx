@@ -1,4 +1,4 @@
-import { Link, NavLink, Outlet, ScrollRestoration } from 'react-router';
+import { Link, NavLink, Outlet, ScrollRestoration, useLocation } from 'react-router';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { TRACK_IDS, TRACKS } from '../lib/types';
 
@@ -10,6 +10,7 @@ const NAV = [
 
 /** The frame around every page. <Outlet /> is where the current route renders. */
 export function Layout() {
+  const { pathname } = useLocation();
   return (
     <div className="flex min-h-dvh flex-col">
       <a
@@ -59,7 +60,11 @@ export function Layout() {
         id="main"
         className="mx-auto w-full max-w-[112rem] flex-1 px-5 py-10 sm:px-8 sm:py-14 lg:px-12"
       >
-        <Outlet />
+        {/* A new `key` per URL makes React mount a fresh wrapper on every navigation,
+            which replays the CSS entrance animation on `.page-enter`. */}
+        <div key={pathname} className="page-enter">
+          <Outlet />
+        </div>
       </main>
 
       <footer className="border-t border-border">

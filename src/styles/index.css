@@ -268,6 +268,85 @@
   }
 }
 
+/* ---------------------------------------------------------------
+ * Motion: page entrance, scroll reveal, loading skeletons.
+ * All of it is opacity + a few pixels of movement, so it stays cheap
+ * (the browser can animate both without re-laying out the page).
+ * ------------------------------------------------------------- */
+:root {
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* Each route fades up a little when you navigate to it (Layout.tsx).
+   `backwards` means the styles only apply *before and during* the animation,
+   so nothing is left on the element afterwards (a leftover transform would
+   break the fixed reading-progress bar inside the page). */
+.page-enter {
+  animation: rise 420ms var(--ease-out) backwards;
+}
+
+/* Hero items arrive one after another. Set --i on each: 0, 1, 2... */
+.stagger {
+  animation: rise 600ms var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * 80ms + 60ms);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+  }
+}
+
+/* Scroll reveal (useReveal in lib/hooks.ts). Only elements that start
+   below the fold get "hidden"; anything already on screen is left alone,
+   so the first paint never flashes. */
+[data-reveal] {
+  transition:
+    opacity 600ms var(--ease-out),
+    translate 600ms var(--ease-out);
+}
+[data-reveal='hidden'] {
+  opacity: 0;
+  translate: 0 18px;
+}
+
+/* Loading skeleton: a soft grey block with a light sweep across it. */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--surface);
+}
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  translate: -100% 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--text) 7%, transparent),
+    transparent
+  );
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+@keyframes shimmer {
+  to {
+    translate: 100% 0;
+  }
+}
+
+/* Skeletons wait a beat before showing, so a fast load never flashes one. */
+.skeleton-group {
+  animation: fade-in 300ms ease-out 150ms backwards;
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
 /* Shiki emits both themes as CSS variables; pick one based on data-theme. */
 .shiki,
 .shiki span {
@@ -285,5 +364,14 @@
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+  /* An infinite 0.01ms shimmer would flicker; just show the still block. */
+  .skeleton::after {
+    animation: none;
+    display: none;
+  }
+  [data-reveal='hidden'] {
+    opacity: 1;
+    translate: none;
   }
 }
