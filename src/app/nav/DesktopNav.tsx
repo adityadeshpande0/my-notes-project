@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { Link, NavLink, useLocation } from 'react-router';
-import { OutlineGroups, ProgressBar } from '../../components/OutlineGroups';
+import { OutlineGroups } from '../../components/OutlineGroups';
 import { allOutlines } from '../../lib/curriculum';
 import { topics } from '../../lib/content';
 import { TRACKS, type Track } from '../../lib/types';
@@ -129,12 +129,6 @@ export function DesktopNav() {
                       <p className="mt-2 text-sm leading-relaxed text-muted">
                         {TRACKS[track].tagline}
                       </p>
-                      <div className="mt-5 space-y-2">
-                        <ProgressBar written={outline.written} total={outline.total} />
-                        <p className="font-mono text-xs text-muted">
-                          {outline.written} of {outline.total} topics written
-                        </p>
-                      </div>
                       <Link
                         to={`/${track}`}
                         onClick={closeAfterNavigate}

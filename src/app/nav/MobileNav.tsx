@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { Link, NavLink, useLocation } from 'react-router';
-import { OutlineGroups, ProgressBar } from '../../components/OutlineGroups';
+import { OutlineGroups } from '../../components/OutlineGroups';
 import { ThemeToggle } from '../../components/ThemeToggle';
 import { topics } from '../../lib/content';
 import { allOutlines } from '../../lib/curriculum';
@@ -96,14 +96,6 @@ export function MobileNav() {
                 <summary className="flex cursor-pointer list-none items-center gap-3 rounded-btn px-2.5 py-3 hover:bg-surface">
                   <span className="min-w-0 flex-1">
                     <span className="block font-heading font-semibold">{TRACKS[o.track].name}</span>
-                    <span className="mt-1.5 flex items-center gap-2">
-                      <span className="w-20">
-                        <ProgressBar written={o.written} total={o.total} />
-                      </span>
-                      <span className="font-mono text-[0.7rem] text-muted">
-                        {o.written}/{o.total} written
-                      </span>
-                    </span>
                   </span>
                   <svg
                     viewBox="0 0 12 12"

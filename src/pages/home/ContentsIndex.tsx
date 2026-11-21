@@ -1,6 +1,6 @@
 import { useState, type KeyboardEvent } from 'react';
 import { Link } from 'react-router';
-import { OutlineGroups, ProgressBar } from '../../components/OutlineGroups';
+import { OutlineGroups } from '../../components/OutlineGroups';
 import { topics } from '../../lib/content';
 import { allOutlines } from '../../lib/curriculum';
 import { TRACKS, type Track } from '../../lib/types';
@@ -9,7 +9,7 @@ const OUTLINES = allOutlines(topics);
 const NUMERALS = ['I', 'II', 'III', 'IV', 'V', 'VI'];
 
 /**
- * The home page's contents: one tab per track (with how much is written), and
+ * The home page's contents: one tab per track, and
  * the chosen track's groups and topics underneath. Tabs follow the ARIA tabs
  * pattern: ← and → move between them.
  */
@@ -51,12 +51,6 @@ export function ContentsIndex() {
               <span className="block font-mono text-xs text-muted">Part {NUMERALS[i]}</span>
               <span className="mt-1 block font-heading text-[1.05rem] leading-snug font-semibold">
                 {TRACKS[o.track].name}
-              </span>
-              <span className="mt-3 block">
-                <ProgressBar written={o.written} total={o.total} />
-              </span>
-              <span className="mt-1.5 block font-mono text-[0.7rem] text-muted">
-                {o.written} of {o.total} written
               </span>
             </button>
           );

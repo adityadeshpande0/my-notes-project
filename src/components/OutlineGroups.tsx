@@ -28,11 +28,8 @@ export function OutlineGroups({
     <div className={columns ? 'grid gap-x-8 gap-y-7 sm:grid-cols-2 xl:grid-cols-3' : 'space-y-5'}>
       {groups.map((group, gi) => (
         <div key={group.name}>
-          <p className="mb-2 flex items-baseline justify-between gap-3 font-mono text-[0.7rem] tracking-wider text-muted uppercase">
-            <span>{group.name}</span>
-            <span className="tabular-nums">
-              {group.entries.filter((e) => e.href).length}/{group.entries.length}
-            </span>
+          <p className="mb-2 font-mono text-[0.7rem] tracking-wider text-muted uppercase">
+            {group.name}
           </p>
           <ul className="space-y-0.5">
             {group.entries.map((entry, ei) => {
@@ -73,21 +70,5 @@ export function OutlineGroups({
         </div>
       ))}
     </div>
-  );
-}
-
-/** A thin bar showing how much of a track is written. */
-export function ProgressBar({ written, total }: { written: number; total: number }) {
-  return (
-    <span
-      role="img"
-      aria-label={`${written} of ${total} written`}
-      className="block h-1 overflow-hidden rounded-full bg-border"
-    >
-      <span
-        className="block h-full rounded-full bg-accent-2 transition-[width] duration-500"
-        style={{ width: `${total ? (written / total) * 100 : 0}%` }}
-      />
-    </span>
   );
 }

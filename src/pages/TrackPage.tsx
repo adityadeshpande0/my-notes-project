@@ -1,7 +1,6 @@
 import { useRef } from 'react';
 import { Link } from 'react-router';
 import { LevelChip } from '../components/LevelChip';
-import { ProgressBar } from '../components/OutlineGroups';
 import { topics } from '../lib/content';
 import { outlineFor } from '../lib/curriculum';
 import { useReveal } from '../lib/hooks';
@@ -15,17 +14,11 @@ export function TrackPage({ track }: { track: Track }) {
 
   return (
     <div>
-      <header className="mb-14 grid gap-8 border-b border-border pb-10 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-end">
+      <header className="mb-14 border-b border-border pb-10">
         <div className="max-w-3xl">
           <p className="mb-3 font-mono text-sm text-accent-2">track</p>
           <h1 className="text-4xl sm:text-5xl">{info.name}</h1>
           <p className="mt-4 text-lg text-muted">{info.tagline}</p>
-        </div>
-        <div className="space-y-2">
-          <ProgressBar written={outline.written} total={outline.total} />
-          <p className="font-mono text-xs text-muted">
-            {outline.written} of {outline.total} topics written · {outline.groups.length} groups
-          </p>
         </div>
       </header>
 
@@ -41,9 +34,6 @@ export function TrackPage({ track }: { track: Track }) {
                 <h2 id={id} className="text-xl sm:text-2xl">
                   {group.name}
                 </h2>
-                <span className="font-mono text-xs text-muted">
-                  {group.entries.filter((e) => e.href).length}/{group.entries.length} written
-                </span>
               </div>
               <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {group.entries.map((entry) => (

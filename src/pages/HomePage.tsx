@@ -1,26 +1,17 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useRef, type CSSProperties, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { topics } from '../lib/content';
 import { useReveal } from '../lib/hooks';
-import { allOutlines } from '../lib/curriculum';
 import { topicsForTrack } from '../lib/topics';
 import { TRACK_IDS } from '../lib/types';
 import { ContentsIndex } from './home/ContentsIndex';
 import { HeroDemo } from './home/HeroDemo';
 import { NoteAnatomy } from './home/NoteAnatomy';
-import { ReadingKey } from './home/ReadingKey';
-import { TheMiddle } from './home/TheMiddle';
-
-const writtenCount = topics.length;
-// Topics in the curriculum that aren't written yet.
-const plannedCount = allOutlines(topics).reduce((sum, o) => sum + o.total - o.written, 0);
 
 // "Start with…" points at the first note of the first track that has one.
 const firstNote = TRACK_IDS.map((track) => topicsForTrack(topics, track)[0]).find(Boolean);
 // Long titles like "From Code to Electrons: How Your Program Really Runs" get shortened for the button.
 const firstNoteLabel = firstNote?.title.split(':')[0];
-
-const trackCount = TRACK_IDS.filter((t) => topicsForTrack(topics, t).length > 0).length;
 
 /** Readers this is built for, each with a concrete first note. */
 const READERS = [
@@ -63,7 +54,7 @@ const SPECS: [string, string][] = [
 const LOG = [
   {
     date: '21 Nov 2026',
-    text: 'The front page now explains the idea: scrub through every step of a sort, and see how a note is put together.',
+    text: 'Every track is now split into groups. Hover a track in the navbar, or open the menu on a phone, to see all of it.',
   },
   {
     date: '21 Nov 2026',
@@ -140,21 +131,16 @@ export function HomePage() {
               </Link>
             )}
             <a
-              href="#the-idea"
+              href="#how-it-works"
               className="font-medium text-muted underline-offset-4 hover:text-text hover:underline"
             >
               How it works
             </a>
           </div>
 
-          <dl style={order(8)} className="stagger mt-12 grid max-w-[30rem] grid-cols-3 gap-6">
-            <Stat
-              value={writtenCount}
-              label={writtenCount === 1 ? 'note written' : 'notes written'}
-            />
-            <Stat value={plannedCount} label="on the way" />
-            <Stat value={0} label="sign-ups needed" />
-          </dl>
+          <p style={order(8)} className="stagger mt-10 font-mono text-xs text-muted">
+            free · no sign-up · works on any screen
+          </p>
         </div>
 
         <div style={order(4)} className="stagger-pop relative">
@@ -163,18 +149,9 @@ export function HomePage() {
         </div>
       </Spotlight>
 
-      {/* ── The idea ─────────────────────────────────────────── */}
-      <Section
-        id="the-idea"
-        kicker="The idea"
-        title="Most tutorials skip the middle"
-        intro="A textbook shows you the unsorted list and the sorted one. Everything you actually need to understand happens in between. Drag through every step of one real run."
-      >
-        <TheMiddle />
-      </Section>
-
       {/* ── How a note works ─────────────────────────────────── */}
       <Section
+        id="how-it-works"
         kicker="How it works"
         title="Every note, the same four steps"
         intro="Learn the pattern once, and every topic after that reads the same way."
@@ -221,20 +198,11 @@ export function HomePage() {
       {/* ── Contents ─────────────────────────────────────────── */}
       <Section
         id="contents"
-        kicker={`${trackCount} tracks open`}
+        kicker="Everything, by track"
         title="Contents"
         intro="Read them in order, or jump straight to whatever is confusing you this week."
       >
         <ContentsIndex />
-      </Section>
-
-      {/* ── Reading key ──────────────────────────────────────── */}
-      <Section
-        kicker="One visual language"
-        title="Reading the visuals"
-        intro="Colours mean the same thing on every page. Each one also has its own mark, so colour is never the only clue."
-      >
-        <ReadingKey />
       </Section>
 
       {/* ── Made for everyone ────────────────────────────────── */}
@@ -381,45 +349,6 @@ function Spotlight({ className, children }: { className: string; children: React
       <div aria-hidden="true" className="hero-spotlight-dots" />
       {children}
     </section>
-  );
-}
-
-/** A number that counts up from 0 the first time it scrolls into view. */
-function Stat({ value, label }: { value: number; label: string }) {
-  const ref = useRef<HTMLElement>(null);
-  const [shown, setShown] = useState(value);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || value === 0 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    let frame = 0;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) return;
-      observer.disconnect();
-      const start = performance.now();
-      const tick = (now: number) => {
-        const t = Math.min(1, (now - start) / 900);
-        setShown(Math.round(value * (1 - (1 - t) ** 3))); // ease-out
-        if (t < 1) frame = requestAnimationFrame(tick);
-      };
-      setShown(0);
-      frame = requestAnimationFrame(tick);
-    });
-    observer.observe(el);
-    return () => {
-      observer.disconnect();
-      cancelAnimationFrame(frame);
-    };
-  }, [value]);
-  return (
-    <div className="border-l border-border pl-4">
-      <dt className="sr-only">{label}</dt>
-      <dd ref={ref} className="font-heading text-3xl font-bold tabular-nums">
-        {shown}
-      </dd>
-      <dd className="mt-1 font-mono text-xs leading-snug text-muted" aria-hidden="true">
-        {label}
-      </dd>
-    </div>
   );
 }
 
