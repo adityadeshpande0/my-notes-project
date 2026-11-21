@@ -1,12 +1,15 @@
-import type { KeyboardEvent, ReactNode } from 'react';
+import type { CSSProperties, KeyboardEvent, ReactNode } from 'react';
 import type { Stepper } from './useStepper';
 
 /**
  * Restart / back / play / forward, a progress bar and a step counter.
  * Keyboard: ← and → step, space plays or pauses (when the controls have focus).
+ * The progress bar is a real range input, so you can drag (or arrow-key) to any step.
  */
 export function StepControls({ s }: { s: Stepper }) {
   const onKeyDown = (e: KeyboardEvent) => {
+    // The slider handles its own arrow keys.
+    if (e.target instanceof HTMLInputElement) return;
     if (e.key === 'ArrowRight') s.next();
     else if (e.key === 'ArrowLeft') s.prev();
     // A focused button already reacts to space, so only handle it on the group itself.
@@ -41,9 +44,18 @@ export function StepControls({ s }: { s: Stepper }) {
       <IconButton label="Next step" onClick={s.next} disabled={s.atEnd}>
         <path d="M9 6l6 6-6 6" />
       </IconButton>
-      <div className="viz-progress" aria-hidden="true">
-        <span style={{ width: `${progress}%` }} />
-      </div>
+      <input
+        type="range"
+        className="viz-progress"
+        min={0}
+        max={Math.max(0, s.total - 1)}
+        value={s.index}
+        onChange={(e) => s.seek(Number(e.target.value))}
+        aria-label="Step"
+        aria-valuetext={`Step ${s.index + 1} of ${s.total}`}
+        // The filled part of the track is drawn with a CSS variable (see viz.css).
+        style={{ '--progress': `${progress}%` } as CSSProperties}
+      />
       <span className="viz-stepcount viz-mono" aria-live="polite">
         {s.index + 1} / {s.total}
       </span>

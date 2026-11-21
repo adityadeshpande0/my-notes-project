@@ -1,0 +1,261 @@
+---
+title: 'JavaScript Basics: What It Is, Where It Came From, and How It Works'
+track: javascript
+level: beginner
+order: 1
+summary: The story of the language that makes the web move, from 10 days in 1995 to the most used programming language in the world, explained with things you can play with.
+tags: [javascript, history, event-loop, beginner]
+readingTime: 15
+---
+
+import {
+  WebsiteLayers,
+  WhyJsSimulator,
+  JavaVsJavaScript,
+  HistoryTimeline,
+  EventLoop,
+  CodePlayground,
+  GuessTheOutput,
+  WhereJsRuns,
+  JsBasicsQuiz,
+} from '../../visualizers/javascript-basics';
+
+Every time you click "Like", see a dropdown menu open, watch a map move under your finger, or get a
+red "invalid email" warning before you even press Submit, **JavaScript** is doing the work.
+
+In this article you'll learn:
+
+- **What** JavaScript is, in plain words
+- **Who** invented it, **when**, and **why** the web needed it
+- **How** it actually runs your code (with a visual you can step through)
+- **Why** it became the most used programming language in the world, and its weak spots too
+
+Every section has something to click, drag or play with. Don't just read. Poke things!
+
+## What is JavaScript?
+
+**JavaScript is a programming language that makes web pages _do_ things.**
+
+A web page is built from three languages that work as a team. The easiest way to picture them is a
+**house**:
+
+| Language       | Job                       | In the house…                                     |
+| -------------- | ------------------------- | ------------------------------------------------- |
+| **HTML**       | Structure and content     | The walls, rooms and doors                        |
+| **CSS**        | Looks and layout          | The paint, furniture and decoration               |
+| **JavaScript** | Behaviour and interaction | The electricity: lights, doorbell, the garage door |
+
+A house with no electricity still _looks_ like a house. You just can't switch anything on. Try it
+yourself: turn each layer on and off.
+
+<WebsiteLayers />
+
+In more technical words, JavaScript is:
+
+- **High-level.** You write `total = price + tax`, not instructions for the CPU.
+- **Interpreted / JIT-compiled.** You don't build a program file first. The browser reads your code
+  and runs it directly (more on that below).
+- **Dynamically typed.** A variable can hold a number now and text later. Convenient, but sometimes
+  surprising.
+- **Multi-paradigm.** You can write it in a simple step-by-step style, with objects, or with
+  functions. Whatever fits the problem.
+- **Single-threaded with an event loop.** It does one thing at a time but never sits around
+  waiting. This is JavaScript's superpower, and we'll _see_ it later.
+
+<Callout kind="tip" title="One-line definition to remember">
+  JavaScript is the language of the browser: it turns static pages into interactive apps.
+</Callout>
+
+## Who invented JavaScript, and why?
+
+### The web in 1995 was… a document
+
+In the early 1990s, websites were like **digital paper**. You could read text, look at images and
+click links, and that was about it. Every action meant asking a faraway server for a whole new page,
+over a dial-up modem that could take several seconds (often much longer).
+
+Imagine filling in a 10-field sign-up form, pressing Submit, waiting… and waiting… only for the
+server to reply _"Your email is missing an @"_, with your form now empty. Try both worlds:
+
+<WhyJsSimulator />
+
+### Netscape wants the web to come alive
+
+In 1995 the most popular browser was **Netscape Navigator**. Netscape wanted a simple **scripting
+language that lived inside the browser**, something web designers (not just professional
+programmers) could sprinkle into a page to make it react instantly.
+
+They hired a programmer named **Brendan Eich**. In **May 1995**, under huge time pressure, he wrote
+the first version of the language in **about 10 days**.
+
+### Mocha → LiveScript → JavaScript
+
+The language changed names twice in its first year:
+
+1. **Mocha** was its first internal name (May 1995).
+2. **LiveScript** was the name it shipped under in a Netscape beta (September 1995).
+3. **JavaScript** was the final name (December 1995). It was chosen partly as **marketing**. Sun
+   Microsystems' **Java** was the hottest language at the time, and Netscape had a partnership with
+   Sun.
+
+Which leads to the most important fact for any beginner…
+
+### Java ≠ JavaScript
+
+Despite the name, **JavaScript has almost nothing to do with Java.** The classic joke: _Java is to
+JavaScript what car is to carpet._ The syntax looks a little alike (curly braces, semicolons)
+because both borrowed from the C language. That's where the family resemblance ends.
+
+<JavaVsJavaScript />
+
+### From browser wars to a shared standard
+
+Microsoft quickly copied the language for Internet Explorer and called its version **JScript**. Now
+two browsers had _slightly different_ JavaScripts, and web developers suffered. To fix that,
+Netscape handed the language to a standards organisation, **Ecma International**, and in **1997**
+the first official specification was published under the name
+**<Term id="ecmascript">ECMAScript</Term>**.
+
+That's why you'll hear names like **ES5**, **ES6** and **ES2015**. **ECMAScript is the rulebook.
+JavaScript is the language that follows it.** Since **2015 a new edition comes out every year**. The
+latest, **ECMAScript 2026** (the 17th edition), was approved on **30 June 2026**.
+
+Explore the big moments:
+
+<HistoryTimeline />
+
+## How does JavaScript work?
+
+### 1. The engine
+
+Your browser has a built-in program called a **JavaScript engine** that reads and runs your code:
+
+- **V8** runs in Chrome, Edge and Node.js
+- **SpiderMonkey** runs in Firefox (it descends from Brendan Eich's original engine)
+- **JavaScriptCore** runs in Safari
+
+The engine **parses** your code (checks it and understands its structure), turns it into compact
+**<Term id="bytecode">bytecode</Term>**, starts running it right away, and then **compiles the
+busiest parts into real machine code** while the page is running. This trick is called
+**<Term id="jit">JIT, Just-In-Time compilation</Term>**. It's why modern JavaScript is surprisingly
+fast.
+
+<Callout kind="note" title="Go deeper">
+  Want to see what happens _below_ the engine, down to the CPU and transistors? Read [From Code to
+  Electrons](/fundamentals/from-code-to-electrons).
+</Callout>
+
+### 2. One thing at a time: the call stack
+
+JavaScript is **<Term id="single-threaded">single-threaded</Term>**: it has **one
+<Term id="call-stack">call stack</Term>**, so it can only run one piece of code at a time. Think of
+a stack of plates. When a function is called, a plate goes on top. When the function finishes, its
+plate comes off. JavaScript always works on the **top plate**.
+
+### 3. …but never stuck waiting: the event loop
+
+If JavaScript can only do one thing at a time, how does a page stay responsive while it waits 3
+seconds for a timer, or for data from a server?
+
+**It doesn't wait. It delegates.**
+
+Think of a **restaurant with one waiter** (the call stack). The waiter takes your order and hands it
+to the **kitchen** (the browser's _Web APIs_: timers, network requests, clicks). The waiter doesn't
+stand in the kitchen staring at the oven. They go and serve other tables. When a dish is ready, it
+goes on the **pick-up counter** (the _callback queue_). Whenever the waiter's hands are free, they
+grab the next dish from the counter. That habit of _checking the counter whenever the stack is
+empty_ is the **<Term id="event-loop">event loop</Term>**.
+
+Step through it. Pay special attention to the `setTimeout(..., 0)` example: it prints _last_, even
+with a 0 ms delay!
+
+<EventLoop />
+
+**Key takeaways:**
+
+- The call stack runs **one thing at a time**, top plate first.
+- Slow things (timers, network, clicks) are **handed off** to the browser.
+- When they finish, their <Term id="callback">callbacks</Term> **wait in a queue**.
+- The **event loop** moves a callback onto the stack **only when the stack is empty**.
+
+### 4. Try it yourself
+
+Time to write real JavaScript. Edit the code and press **Run**. Pick a preset to start.
+
+<CodePlayground />
+
+## JavaScript's famous quirks
+
+Because JavaScript was designed in 10 days and **can never break old websites** (a page from 1998
+must still work today), some early odd decisions are stuck forever. The most famous is
+**<Term id="type-coercion">type coercion</Term>**: when you mix types, JavaScript quietly converts
+one of them.
+
+- `"5" + 3` gives `"53"`, because `+` with text means _join text_.
+- `"5" - 3` gives `2`, because `-` only works on numbers, so `"5"` becomes `5`.
+
+Can you predict what JavaScript will say? Play a round:
+
+<GuessTheOutput />
+
+<Callout kind="tip" title="Pro tip">
+  Use `===` (strict equality) instead of `==`. It never converts types behind your back, so
+  `5 === "5"` is `false`.
+</Callout>
+
+## Where does JavaScript run today?
+
+JavaScript started in the browser, but in **2009 Ryan Dahl created Node.js**, which took Chrome's V8
+engine _out_ of the browser so JavaScript could run on servers. Since then it has spread almost
+everywhere:
+
+<WhereJsRuns />
+
+## Advantages of JavaScript
+
+1. **It runs everywhere, with nothing to install.** Every browser on every phone, tablet and
+   computer already has a JavaScript engine.
+2. **Instant feedback.** Save, refresh, see the result. It's one of the friendliest languages to
+   learn by experimenting.
+3. **One language, full stack.** The same language for the front end (browser), back end (Node.js),
+   mobile apps and desktop apps.
+4. **Huge ecosystem.** npm, JavaScript's package registry, has millions of free packages, so someone
+   has probably already solved your problem.
+5. **Giant community.** JavaScript has been the most used language in Stack Overflow's developer
+   survey for over a decade. In the 2025 survey, 66% of respondents said they had used it. Every
+   question you'll have has been answered somewhere.
+6. **Fast enough for almost anything**, thanks to JIT-compiling engines like V8.
+7. **Non-blocking by design.** The event loop makes it great for apps that handle many users or
+   events at once.
+8. **Always improving**, with a new ECMAScript edition every year that never breaks old code.
+
+## Disadvantages (an honest look)
+
+- **Quirky type coercion** can cause sneaky bugs (you just saw them).
+- **Dynamic typing** means some mistakes only show up when the code runs. That's why many teams use
+  **TypeScript**, which is JavaScript with types added.
+- **Single thread:** a heavy calculation can freeze the page (Web Workers help with this).
+- **Your code is visible** to anyone who opens the browser's dev tools, so never put secrets in
+  front-end JavaScript.
+- **Ecosystem overload:** so many frameworks and tools that choosing can be hard.
+
+## Quick recap
+
+- **What:** the programming language of the web. It makes pages interactive.
+- **Who:** Brendan Eich at Netscape.
+- **When:** May 1995, written in about 10 days. Named Mocha, then LiveScript, then JavaScript.
+- **Why:** to let pages react instantly in the browser instead of waiting on a slow server for
+  everything.
+- **Standard:** ECMAScript (first edition 1997, a new edition every year since 2015).
+- **How:** an engine parses and JIT-compiles your code. One call stack plus the event loop keeps the
+  page responsive.
+- **Today:** browsers, servers (Node.js), mobile, desktop and more.
+
+## Test yourself
+
+<JsBasicsQuiz />
+
+## What's next?
+
+Next in the JavaScript track: **Variables & Data Types**, then **Functions**, then **The DOM**.
+After that you'll have everything you need to start the **React** track.

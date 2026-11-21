@@ -203,4 +203,36 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
     definition:
       'Building gates from pairs of opposite transistors (NMOS and PMOS) so only one conducts at a time and almost no power is wasted.',
   },
+  'call-stack': {
+    term: 'Call stack',
+    definition:
+      'The list of functions that are running right now. Calling a function puts it on top; when it finishes, it comes off. JavaScript only ever runs the top one.',
+    note: '/javascript/what-is-javascript',
+  },
+  'event-loop': {
+    term: 'Event loop',
+    definition:
+      'The part of a JavaScript runtime that waits until the call stack is empty, then moves the next waiting callback onto it.',
+    note: '/javascript/what-is-javascript',
+  },
+  callback: {
+    term: 'Callback',
+    definition:
+      'A function you hand to someone else to call later, such as "run this when the timer ends" or "run this on a click".',
+  },
+  'type-coercion': {
+    term: 'Type coercion',
+    definition:
+      'JavaScript quietly converting a value from one type to another, like the text "5" to the number 5, when you mix types.',
+  },
+  ecmascript: {
+    term: 'ECMAScript',
+    definition:
+      'The official standard that describes the JavaScript language. Engines like V8 follow it. A new edition comes out every year.',
+  },
+  'single-threaded': {
+    term: 'Single-threaded',
+    definition:
+      'Able to run only one piece of code at a time, in one sequence. The opposite is running several things truly in parallel.',
+  },
 };

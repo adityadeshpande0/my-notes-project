@@ -1,4 +1,4 @@
-export type Track = 'fundamentals' | 'dsa' | 'react';
+export type Track = 'fundamentals' | 'javascript' | 'dsa' | 'react';
 export type Level = 'beginner' | 'intermediate' | 'advanced';
 
 /** Everything we know about a topic from its frontmatter (no note body). */
@@ -22,6 +22,11 @@ export const TRACKS: Record<Track, { name: string; short: string; tagline: strin
     name: 'How Computers Work',
     short: 'Fundamentals',
     tagline: 'Follow your code all the way down to electrons.',
+  },
+  javascript: {
+    name: 'JavaScript',
+    short: 'JavaScript',
+    tagline: 'The language of the web, from its first ten days to the event loop.',
   },
   dsa: {
     name: 'Data Structures & Algorithms',
