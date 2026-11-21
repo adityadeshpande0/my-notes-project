@@ -14,6 +14,8 @@ export interface OutlineEntry {
   href?: string;
   level?: Level;
   summary?: string;
+  /** What a planned step will cover (from the curriculum). */
+  blurb?: string;
 }
 
 export interface OutlineGroup {
@@ -36,9 +38,9 @@ export function outlineFor(all: TopicMeta[], track: Track): TrackOutline {
   const bySlug = new Map(notes.map((n) => [n.slug, n]));
   const listed = new Set<string>();
 
-  const toEntry = (slug: string, fallbackTitle: string): OutlineEntry => {
+  const toEntry = (slug: string, fallbackTitle: string, blurb?: string): OutlineEntry => {
     const note = bySlug.get(slug);
-    if (!note) return { slug, title: fallbackTitle };
+    if (!note) return { slug, title: fallbackTitle, blurb };
     return {
       slug,
       title: shortTitle(note.title),
@@ -52,7 +54,7 @@ export function outlineFor(all: TopicMeta[], track: Track): TrackOutline {
     name: g.name,
     entries: g.topics.map((t) => {
       listed.add(t.slug);
-      return toEntry(t.slug, t.title);
+      return toEntry(t.slug, t.title, t.blurb);
     }),
   }));
 

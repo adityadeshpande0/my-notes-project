@@ -15,6 +15,8 @@ export interface PlannedTopic {
   slug: string;
   /** Short title, used until the note exists (then its own title wins). */
   title: string;
+  /** What the step will cover. Shown on the path while it's "coming soon". */
+  blurb?: string;
 }
 
 export interface CurriculumGroup {
@@ -33,66 +35,119 @@ export const CURRICULUM: Record<Track, CurriculumGroup[]> = {
       topics: [{ slug: 'memory-and-caches', title: 'Memory and the Cache Hierarchy' }],
     },
   ],
-  // The JavaScript learning path, built one step at a time. Each group is a
-  // module; topics are in the order a beginner should read them.
+  // The JavaScript learning path: 14 steps, built one at a time. Each group is
+  // a module; topics are in the order a beginner should read them. The last
+  // step, a small app, leads straight into the React collection.
   javascript: [
     {
       name: 'Getting started',
       topics: [
-        { slug: 'what-is-javascript', title: 'JavaScript Basics' },
-        { slug: 'running-javascript', title: 'Where JavaScript Runs Your Code' },
+        {
+          slug: 'what-is-javascript',
+          title: 'JavaScript Basics',
+          blurb: 'What JavaScript is and how it works.',
+        },
       ],
     },
     {
       name: 'Core language',
       topics: [
-        { slug: 'variables-and-data-types', title: 'Variables & Data Types' },
-        { slug: 'operators', title: 'Operators and Expressions' },
-        { slug: 'conditionals', title: 'Making Decisions: if, else, switch' },
-        { slug: 'loops', title: 'Loops' },
-        { slug: 'functions', title: 'Functions' },
-        { slug: 'scope-and-closures', title: 'Scope and Closures' },
+        {
+          slug: 'variables-and-data-types',
+          title: 'Variables & Data Types',
+          blurb: 'let, const, and the kinds of values JavaScript works with.',
+        },
+        {
+          slug: 'operators-and-conditions',
+          title: 'Operators & Conditions',
+          blurb: 'if, switch, and what counts as truthy or falsy.',
+        },
+        {
+          slug: 'loops',
+          title: 'Loops',
+          blurb: 'Repeat work with for and while, with a step-through loop visualizer.',
+        },
+        {
+          slug: 'functions',
+          title: 'Functions',
+          blurb: 'Parameters, return values, and the call stack.',
+        },
       ],
     },
     {
       name: 'Working with data',
       topics: [
-        { slug: 'arrays', title: 'Arrays' },
-        { slug: 'objects', title: 'Objects' },
-        { slug: 'strings', title: 'Strings' },
-        { slug: 'array-methods', title: 'map, filter and reduce' },
-        { slug: 'destructuring-and-spread', title: 'Destructuring and Spread' },
+        {
+          slug: 'arrays-and-array-methods',
+          title: 'Arrays & Array Methods',
+          blurb: 'Lists of values, with map, filter and reduce shown as conveyor belts.',
+        },
+        {
+          slug: 'objects-and-json',
+          title: 'Objects & JSON',
+          blurb: 'Group related values under names, and send them around as JSON.',
+        },
       ],
     },
     {
       name: 'How JavaScript thinks',
       topics: [
-        { slug: 'hoisting', title: 'Hoisting and Execution Context' },
-        { slug: 'this-keyword', title: 'The this Keyword' },
-        { slug: 'prototypes-and-classes', title: 'Prototypes and Classes' },
-        { slug: 'errors-and-debugging', title: 'Errors and Debugging' },
-      ],
-    },
-    {
-      name: 'Asynchronous JavaScript',
-      topics: [
-        { slug: 'callbacks-and-timers', title: 'Callbacks and Timers' },
-        { slug: 'promises', title: 'Promises' },
-        { slug: 'async-await', title: 'async and await' },
-        { slug: 'fetching-data', title: 'Fetching Data from an API' },
+        {
+          slug: 'scope-hoisting-closures',
+          title: 'Scope, Hoisting & Closures',
+          blurb: 'Where a variable can be seen, and how functions remember it.',
+        },
       ],
     },
     {
       name: 'In the browser',
       topics: [
-        { slug: 'the-dom', title: 'The DOM' },
-        { slug: 'events', title: 'Events' },
-        { slug: 'web-storage', title: 'Saving Data in the Browser' },
+        {
+          slug: 'the-dom',
+          title: 'The DOM',
+          blurb: 'Change the page with JavaScript.',
+        },
+        {
+          slug: 'events',
+          title: 'Events',
+          blurb: 'React to clicks and typing, and see how events bubble up the page.',
+        },
       ],
     },
     {
-      name: 'Modules',
-      topics: [{ slug: 'modules', title: 'Modules: import and export' }],
+      name: 'Asynchronous JavaScript',
+      topics: [
+        {
+          slug: 'async-javascript',
+          title: 'Asynchronous JavaScript',
+          blurb: 'From callbacks to Promises to async/await.',
+        },
+        {
+          slug: 'fetching-data',
+          title: 'Fetching Data from APIs',
+          blurb: 'Ask a server for data and show it on the page.',
+        },
+      ],
+    },
+    {
+      name: 'Modern JavaScript',
+      topics: [
+        {
+          slug: 'modern-javascript',
+          title: 'Modern JS (ES6+)',
+          blurb: 'Destructuring, spread, and modules.',
+        },
+      ],
+    },
+    {
+      name: 'Build something',
+      topics: [
+        {
+          slug: 'mini-project-todo-app',
+          title: 'Mini Project: A To-Do App',
+          blurb: 'Put it all together in a small app, which leads straight into React.',
+        },
+      ],
     },
   ],
   dsa: [

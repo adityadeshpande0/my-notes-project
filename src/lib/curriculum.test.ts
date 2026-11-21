@@ -68,3 +68,14 @@ describe('learning path', () => {
     expect(pathPosition(written, 'dsa', 'binary-search').prev?.slug).toBe('arrays-and-big-o');
   });
 });
+
+describe('the JavaScript path', () => {
+  it('has the 14 planned steps, ending with the to-do app', () => {
+    const path = pathFor([], 'javascript');
+    expect(path).toHaveLength(14);
+    expect(path[0].slug).toBe('what-is-javascript');
+    expect(path[1].slug).toBe('variables-and-data-types');
+    expect(path.at(-1)?.slug).toBe('mini-project-todo-app');
+    expect(path.every((s) => s.blurb)).toBe(true); // every planned step says what it covers
+  });
+});

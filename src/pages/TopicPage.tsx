@@ -232,7 +232,9 @@ function PathPager({
             Next · step {pad(upcoming.step)} · {upcoming.group}
           </p>
           <p className="mt-1 font-heading text-lg font-semibold text-muted">{upcoming.title}</p>
-          <p className="mt-1 text-sm text-muted">Coming soon. It&rsquo;s being written now.</p>
+          <p className="mt-1 text-sm text-muted">
+            {upcoming.blurb && <>{upcoming.blurb} </>}Coming soon.
+          </p>
         </div>
       )}
 

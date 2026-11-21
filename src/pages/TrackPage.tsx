@@ -185,12 +185,15 @@ function Step({ step, visited, upNext }: { step: PathStep; visited: boolean; upN
           </span>
         </Link>
       ) : (
-        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 py-3.5 text-muted">
-          <span className="font-mono text-xs">Step {pad(step.step)}</span>
-          <span className="text-[1.05rem]">{step.title}</span>
-          <span className="rounded-full border border-dashed border-border px-2 py-0.5 font-mono text-[0.7rem]">
-            coming soon
-          </span>
+        <div className="py-3.5 text-muted">
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <span className="font-mono text-xs">Step {pad(step.step)}</span>
+            <span className="text-[1.05rem]">{step.title}</span>
+            <span className="rounded-full border border-dashed border-border px-2 py-0.5 font-mono text-[0.7rem]">
+              coming soon
+            </span>
+          </div>
+          {step.blurb && <p className="mt-1 text-sm text-muted/80">{step.blurb}</p>}
         </div>
       )}
     </li>
