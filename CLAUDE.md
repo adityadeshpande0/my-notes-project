@@ -19,7 +19,8 @@ State: React state/hooks first; Zustand only if global state really grows.
 - `src/app/` router, layout, providers (theme context)
 - `src/components/` generic UI (Card, Chip, Callout, mdx-components)
 - `src/visualizers/<topic>/` step generators + 2D/3D renderers. `core/` holds `useStepper`, `StepControls`,
-  `viz.css` (the `.viz` card styles), `Quiz` (end-of-note self-check) and `colors.ts` (`C` tokens, `alpha()`, `mix()` for inline/SVG colours).
+  `viz.css` (the `.viz` card styles), `Quiz` (end-of-note self-check), `memory/` (`MemoryBox`,
+  `HeapCard`, `RefArrows`: the JavaScript course's shared way to draw variables and objects) and `colors.ts` (`C` tokens, `alpha()`, `mix()` for inline/SVG colours).
   A note imports its visualizers directly (`import { X } from '../../visualizers/<topic>'`) so they stay in
   that note's lazy chunk; don't register them globally in `mdx-components`.
 - `src/three/` shared 3D bits (always lazy-loaded)

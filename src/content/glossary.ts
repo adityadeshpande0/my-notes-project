@@ -235,4 +235,57 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
     definition:
       'Able to run only one piece of code at a time, in one sequence. The opposite is running several things truly in parallel.',
   },
+  variable: {
+    term: 'Variable',
+    definition:
+      'A named box in memory that holds a value. You create it once and can read it, or (with let) change it, later.',
+    note: '/javascript/variables-and-data-types',
+  },
+  primitive: {
+    term: 'Primitive',
+    definition:
+      'A simple, single value: a string, number, bigint, boolean, undefined, null or symbol. Primitives are copied when you assign them.',
+    note: '/javascript/variables-and-data-types',
+  },
+  heap: {
+    term: 'Heap',
+    definition:
+      'The area of memory where objects and arrays live. Variables don’t hold the object itself, only an arrow (a reference) to it.',
+  },
+  reference: {
+    term: 'Reference',
+    definition:
+      'An arrow from a variable to an object in memory. Copying the variable copies the arrow, not the object.',
+    note: '/javascript/variables-and-data-types',
+  },
+  hoisting: {
+    term: 'Hoisting',
+    definition:
+      'JavaScript sets up a scope’s variables before running its code. var variables start as undefined; let and const exist but can’t be used until their line.',
+  },
+  tdz: {
+    term: 'Temporal Dead Zone',
+    definition:
+      'The part of a block before a let or const line runs. Using the variable there throws a ReferenceError instead of quietly giving undefined.',
+  },
+  'block-scope': {
+    term: 'Block scope',
+    definition:
+      'A variable that only exists inside the { } block it was created in. let and const are block-scoped; var is not.',
+  },
+  immutable: {
+    term: 'Immutable',
+    definition:
+      'Can’t be changed in place. String methods never change the original string; they return a new one.',
+  },
+  'template-literal': {
+    term: 'Template literal',
+    definition:
+      'A string written with backticks that can include values with ${ }, like `Hi ${name}`.',
+  },
+  'dynamic-typing': {
+    term: 'Dynamically typed',
+    definition:
+      'A variable can hold any type of value, and the type is checked while the code runs, not before.',
+  },
 };
