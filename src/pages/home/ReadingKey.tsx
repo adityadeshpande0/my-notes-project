@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 /** Map-style legend for the visualizer colours. Each colour also has a shape. */
 
 type Highlight = 'compare' | 'swap' | 'sorted' | 'current';
@@ -52,15 +53,16 @@ export function ReadingKey() {
       data-reveal
       className="grid gap-px overflow-hidden rounded-card border border-border bg-border sm:grid-cols-2"
     >
-      {KEY.map((item) => (
+      {KEY.map((item, k) => (
         <div key={item.id} className="flex gap-5 bg-bg p-5 sm:p-6">
           {/* A tiny three-bar sketch with the middle bar highlighted */}
           <div className="flex h-14 w-12 shrink-0 items-end gap-1" aria-hidden="true">
             {HEIGHTS.map((h, i) => (
               <div
                 key={i}
-                className={`flex-1 rounded-t-sm ${i === 1 ? item.bar : 'bg-accent/25'}`}
-                style={{ height: `${h}%` }}
+                className={`key-bar flex-1 rounded-t-sm ${i === 1 ? item.bar : 'bg-accent/25'}`}
+                // --i staggers the bars growing in when this card scrolls into view
+                style={{ height: `${h}%`, '--i': k * 2 + i } as CSSProperties}
               />
             ))}
           </div>
