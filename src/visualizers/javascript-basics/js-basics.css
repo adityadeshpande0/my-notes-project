@@ -3,26 +3,6 @@
  * only loads with that note. Colours come from the theme tokens.
  */
 
-/* Small shared bits */
-.js-tabs,
-.el-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-bottom: 1rem;
-}
-.el-tabs [role='tab'][aria-selected='true'],
-.js-tabs [role='tab'][aria-selected='true'] {
-  background: color-mix(in srgb, var(--accent) 18%, transparent);
-  border-color: var(--accent);
-}
-.js-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 /* ─── #5 Event loop ─────────────────────────────────────────────── */
 .el-grid {
   display: grid;
@@ -44,13 +24,16 @@
 }
 .el-panel-head {
   display: flex;
-  justify-content: space-between;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin-bottom: 0.6rem;
+}
+.el-panel-head .viz-label {
+  margin: 0;
 }
 .el-role {
-  text-transform: none;
-  letter-spacing: 0;
+  color: var(--text-muted);
+  font-size: 12px;
 }
 .el-empty {
   margin: 0.25rem 0;
@@ -274,10 +257,15 @@
 
 /* The decorative layer stack: CSS 3D (perspective + translateZ), no WebGL. */
 .wl-planes {
+  display: none;
   position: relative;
-  height: 7.5rem;
-  margin-top: 0.5rem;
+  height: 6.5rem;
   perspective: 600px;
+}
+@media (min-width: 720px) {
+  .wl-planes {
+    display: block;
+  }
 }
 .wl-plane {
   position: absolute;
@@ -503,6 +491,14 @@
 /* ─── #2 History timeline ───────────────────────────────────────── */
 .ht-scroll {
   padding-bottom: 0.25rem;
+  /* Soft fade at both edges hints that the track scrolls sideways. */
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 1.5rem,
+    #000 calc(100% - 1.5rem),
+    transparent
+  );
 }
 .ht-track {
   position: relative;
@@ -697,13 +693,31 @@
   -webkit-backface-visibility: hidden;
 }
 .jj-front {
-  display: grid;
-  place-items: center;
-  min-height: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.4rem;
+  padding: 0;
   border: 1px dashed var(--border);
   border-radius: 8px;
+  background: transparent;
   color: var(--text-muted);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
+}
+.jj-front:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+.jj-q {
   font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--accent);
 }
 .jj-back {
   transform: rotateY(180deg);
@@ -748,8 +762,16 @@
 @media (min-width: 720px) {
   .wj-grid {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    align-items: start;
   }
+}
+.wj-net {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.wj-form .viz-btn--primary {
+  justify-self: start;
+  min-width: 7rem;
 }
 .wj-form {
   display: grid;
@@ -805,9 +827,14 @@
   text-align: center;
   color: var(--warn);
 }
+.wj-stats caption {
+  margin-bottom: 0.4rem;
+  text-align: left;
+}
 .wj-stats {
   width: 100%;
-  margin-top: 1rem;
+  margin-top: 1.25rem;
+  font-variant-numeric: tabular-nums;
   border-collapse: collapse;
   font-size: 13px;
 }
@@ -819,6 +846,7 @@
 }
 .wj-stats th[scope='row'] {
   text-align: left;
+  white-space: nowrap;
 }
 .wj-stats thead th {
   color: var(--text-muted);
@@ -826,10 +854,28 @@
 }
 
 /* ─── #6 Code playground ────────────────────────────────────────── */
-.pg-select {
-  display: flex;
-  align-items: center;
+.pg-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: end;
   gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+@container (max-width: 30rem) {
+  .pg-toolbar {
+    grid-template-columns: 1fr 1fr;
+  }
+  .pg-toolbar .pg-select {
+    grid-column: 1 / -1;
+  }
+}
+.pg-select {
+  display: grid;
+  gap: 0.3rem;
+  max-width: 20rem;
+}
+.pg-select select {
+  width: 100%;
 }
 .pg-select select {
   padding: 0.4rem 0.6rem;
@@ -876,9 +922,10 @@
   tab-size: 2;
 }
 .pg-hint {
-  margin: 0.4rem 0 0.9rem;
+  margin: 0.5rem 0 1rem;
   color: var(--text-muted);
   font-size: 12.5px;
+  line-height: 1.9;
 }
 .pg-out {
   display: grid;
@@ -991,8 +1038,14 @@
   font-size: 12px;
 }
 .wr-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
   margin-top: 0.75rem;
+}
+.jj-chips > .viz-btn--ghost {
+  border: 1px dashed var(--border);
+  text-align: center;
+}
+/* Keep the network diagram at a readable size on wide screens. */
+.wj-net svg {
+  max-width: 22rem;
+  margin: 0 auto;
 }

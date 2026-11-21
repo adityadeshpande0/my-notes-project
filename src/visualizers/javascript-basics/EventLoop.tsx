@@ -30,7 +30,7 @@ export default function EventLoop() {
         waits.
       </p>
 
-      <div role="tablist" aria-label="Example programs" className="el-tabs">
+      <div role="tablist" aria-label="Example programs" className="viz-seg viz-seg--2up">
         {PRESETS.map((p, i) => (
           <button
             key={p.id}
@@ -40,7 +40,7 @@ export default function EventLoop() {
             aria-selected={p.id === presetId}
             aria-controls="el-panel"
             tabIndex={p.id === presetId ? 0 : -1}
-            className="viz-btn"
+            className="viz-seg-btn"
             onClick={() => setPresetId(p.id)}
             onKeyDown={(e) => onTabKey(e, i)}
           >
@@ -157,8 +157,8 @@ function Panel({
 }) {
   return (
     <section className="viz-panel el-panel" style={{ gridArea: area }} aria-label={label}>
-      <div className="viz-label el-panel-head">
-        <span>{label}</span>
+      <div className="el-panel-head">
+        <span className="viz-label">{label}</span>
         {role && <span className="el-role">{role}</span>}
       </div>
       {children}

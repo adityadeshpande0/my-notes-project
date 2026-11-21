@@ -184,11 +184,11 @@ export default function CodePlayground() {
     <div className="viz not-prose">
       <p className="viz-title">Write real JavaScript</p>
       <p className="viz-sub">
-        Edit the code and press Run (or Ctrl/⌘ + Enter). It runs in a sealed-off sandbox, so you
-        can’t break anything.
+        Pick an example, edit it, and press Run. It runs in a sealed-off sandbox, so you can’t break
+        anything.
       </p>
 
-      <div className="js-row" style={{ marginBottom: '.75rem' }}>
+      <div className="pg-toolbar">
         <label className="pg-select">
           <span className="viz-label" style={{ margin: 0 }}>
             Example
@@ -201,7 +201,6 @@ export default function CodePlayground() {
             ))}
           </select>
         </label>
-        <span style={{ flex: 1 }} />
         <button
           type="button"
           className="viz-btn"
@@ -238,7 +237,8 @@ export default function CodePlayground() {
         />
       </div>
       <p id="pg-hint" className="pg-hint">
-        Tab indents. Press Esc, then Tab, to move on to the next control.
+        <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Enter</kbd> runs · <kbd>Tab</kbd> indents ·{' '}
+        <kbd>Esc</kbd> then <kbd>Tab</kbd> leaves the editor
       </p>
 
       <div className={`pg-out ${showPage ? 'has-page' : ''}`}>

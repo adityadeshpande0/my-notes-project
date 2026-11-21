@@ -147,27 +147,22 @@ export default function WhyJsSimulator() {
         The email has a mistake on purpose. Submit it in 1995, then switch to JavaScript.
       </p>
 
-      <div
-        className="js-row"
-        role="group"
-        aria-label="Choose an era"
-        style={{ marginBottom: '1rem' }}
-      >
+      <div className="viz-seg" role="group" aria-label="Choose an era">
         <button
           type="button"
-          className="viz-btn"
+          className="viz-seg-btn"
           aria-pressed={mode === 'old'}
           onClick={() => switchMode('old')}
         >
-          1995: No JavaScript
+          1995: no JS
         </button>
         <button
           type="button"
-          className="viz-btn"
+          className="viz-seg-btn"
           aria-pressed={mode === 'js'}
           onClick={() => switchMode('js')}
         >
-          With JavaScript
+          Today: with JS
         </button>
       </div>
 
@@ -229,15 +224,13 @@ export default function WhyJsSimulator() {
       </div>
 
       <table className="wj-stats">
-        <caption className="viz-label" style={{ textAlign: 'left' }}>
-          Results so far
-        </caption>
+        <caption className="viz-label">Results so far</caption>
         <thead>
           <tr>
             <th scope="col" />
-            <th scope="col">Trips to server</th>
-            <th scope="col">Seconds waited</th>
-            <th scope="col">Times you retyped</th>
+            <th scope="col">Trips</th>
+            <th scope="col">Waited</th>
+            <th scope="col">Retyped</th>
           </tr>
         </thead>
         <tbody>
@@ -246,7 +239,7 @@ export default function WhyJsSimulator() {
               <th scope="row">{m === 'old' ? '1995' : 'With JS'}</th>
               <td className="viz-mono">{stats[m].trips}</td>
               <td className="viz-mono" style={{ color: stats[m].waited ? C.danger : undefined }}>
-                {(stats[m].waited / 1000).toFixed(1)}
+                {(stats[m].waited / 1000).toFixed(1)} s
               </td>
               <td className="viz-mono">{stats[m].retyped}</td>
             </tr>

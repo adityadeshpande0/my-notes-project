@@ -15,6 +15,9 @@
   font-family: var(--font-sans);
   font-size: 15px;
   line-height: 1.55;
+  /* Children can size themselves to the card's width with @container queries,
+     which works whether or not the page has a sidebar. */
+  container-type: inline-size;
 }
 @media (min-width: 640px) {
   .viz {
@@ -285,4 +288,119 @@
   border-radius: 6px;
   background: var(--surface);
   font-size: 0.9em;
+}
+
+/* ── Segmented control: a row of mutually exclusive options (tabs, modes) ──
+ * <div class="viz-seg"><button class="viz-seg-btn" aria-pressed|aria-selected>…
+ * Equal-width options. Add .viz-seg--2up for 3+ options: two per row on phones. */
+.viz-seg {
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 3px;
+  max-width: 100%;
+  margin-bottom: 1rem;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+}
+.viz-seg-btn {
+  appearance: none;
+  padding: 0.45rem 0.9rem;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+}
+.viz-seg-btn:hover:not(:disabled) {
+  color: var(--text);
+}
+.viz-seg-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.viz-seg-btn[aria-pressed='true'],
+.viz-seg-btn[aria-selected='true'] {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+@container (max-width: 30rem) {
+  .viz-seg {
+    display: grid;
+    width: 100%;
+  }
+  .viz-seg--2up {
+    grid-auto-flow: row;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ── Choice grid: option buttons in even columns. Built for 6 items:
+ * 2 per row on phones, 3 when there's room, and .viz-choices--6 puts all six
+ * on one row in a wide card. Always full rows, never one lonely button. ── */
+.viz-choices {
+  display: grid;
+  gap: 0.4rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@container (min-width: 34rem) {
+  .viz-choices {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@container (min-width: 50rem) {
+  .viz-choices--6 {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+.viz-choices > .viz-btn {
+  text-align: left;
+}
+
+/* A quiet button for secondary actions (Reveal all, Show code…) */
+.viz-btn--ghost {
+  border-color: transparent;
+  background: transparent;
+  color: var(--text-muted);
+}
+.viz-btn--ghost:hover:not(:disabled) {
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.viz kbd {
+  display: inline-block;
+  min-width: 1.4em;
+  padding: 0 0.35em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: var(--surface);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* Quiz answers: one column on phones, two side by side when there's room. */
+.viz-quiz-options {
+  display: grid;
+  gap: 6px;
+}
+@container (min-width: 36rem) {
+  .viz-quiz-options {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.viz-choices > .viz-btn {
+  padding-inline: 0.65rem;
 }

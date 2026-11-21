@@ -133,9 +133,7 @@ export default function WebsiteLayers() {
                 key={l}
                 className={`wl-plane wl-plane--${l} ${on[l] ? 'is-on' : ''}`}
                 style={{ '--i': i } as React.CSSProperties}
-              >
-                {l.toUpperCase()}
-              </div>
+              ></div>
             ))}
           </div>
         </div>

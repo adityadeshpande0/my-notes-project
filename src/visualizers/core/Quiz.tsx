@@ -42,7 +42,7 @@ export function Quiz({
           return (
             <li key={qi}>
               <p style={{ margin: '0 0 .5rem', fontWeight: 600 }}>{question.q}</p>
-              <div style={{ display: 'grid', gap: 6 }}>
+              <div className="viz-quiz-options">
                 {question.options.map((option, oi) => {
                   const isPicked = choice === oi;
                   const isRight = oi === question.answer;

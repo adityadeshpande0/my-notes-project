@@ -71,9 +71,17 @@ export default function JavaVsJavaScript() {
               <dt className="viz-label">{row.topic}</dt>
               <dd className={`jj-flip ${open ? 'is-open' : ''}`}>
                 {/* Both faces sit in the same grid cell; the back is pre-rotated 180°. */}
-                <span className="jj-face jj-front" aria-hidden={open}>
-                  ?
-                </span>
+                {/* The front is a button too: tap the "?" to reveal this row. It's
+                    hidden from the keyboard here because the topic buttons above do the same. */}
+                <button
+                  type="button"
+                  className="jj-face jj-front"
+                  aria-hidden={true}
+                  tabIndex={-1}
+                  onClick={() => pick(i)}
+                >
+                  <span className="jj-q">?</span> tap to reveal
+                </button>
                 <span className="jj-face jj-back" aria-hidden={!open}>
                   {row[lang]}
                 </span>
@@ -90,7 +98,7 @@ export default function JavaVsJavaScript() {
       <p className="viz-title">Same name, different languages</p>
       <p className="viz-sub">Pick a topic to flip both cards and compare.</p>
 
-      <div className="js-row jj-chips" role="group" aria-label="Compare">
+      <div className="viz-choices viz-choices--6 jj-chips" role="group" aria-label="Compare">
         {ROWS.map((row, i) => (
           <button
             key={row.topic}
@@ -105,7 +113,7 @@ export default function JavaVsJavaScript() {
         ))}
         <button
           type="button"
-          className="viz-btn"
+          className="viz-btn viz-btn--ghost"
           onClick={() => {
             if (all) {
               setRevealed(new Set());

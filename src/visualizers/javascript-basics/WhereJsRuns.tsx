@@ -57,10 +57,10 @@ export default function WhereJsRuns() {
         planet, or use the buttons below.
       </p>
 
-      <div className="js-row" role="group" aria-label="View" style={{ marginBottom: '.75rem' }}>
+      <div className="viz-seg" role="group" aria-label="View">
         <button
           type="button"
-          className="viz-btn"
+          className="viz-seg-btn"
           aria-pressed={view === '2d'}
           onClick={() => setChoice('2d')}
         >
@@ -68,7 +68,7 @@ export default function WhereJsRuns() {
         </button>
         <button
           type="button"
-          className="viz-btn"
+          className="viz-seg-btn"
           aria-pressed={view === '3d'}
           onClick={() => setChoice('3d')}
           disabled={!capable}
@@ -94,7 +94,7 @@ export default function WhereJsRuns() {
       </div>
 
       {/* The same planets as real buttons: keyboard and screen readers use these. */}
-      <div className="wr-list" role="group" aria-label="Platforms">
+      <div className="viz-choices wr-list" role="group" aria-label="Platforms">
         {PLANETS.map((p) => (
           <button
             key={p.id}
