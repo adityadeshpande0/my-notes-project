@@ -351,6 +351,142 @@
   scale: 0;
 }
 
+/* Hero spotlight (HomePage.tsx): an accent-coloured copy of the dot grid,
+   visible only in a soft circle around the mouse. --mx/--my are set from JS. */
+.hero-spotlight {
+  isolation: isolate;
+}
+.hero-spotlight-dots {
+  position: absolute;
+  inset: -4rem 0 -2rem; /* never wider than the page, so phones can't scroll sideways */
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--accent) 80%, transparent) 1.4px,
+    transparent 1.4px
+  );
+  background-size: 22px 22px;
+  /* Lined up with the body's 22px dot grid (offsets set from JS). */
+  background-position: var(--bx, 0) var(--by, 0);
+  opacity: 0;
+  mask-image: radial-gradient(
+    260px circle at var(--mx, -999px) calc(var(--my, -999px) + 4rem),
+    #000,
+    transparent 70%
+  );
+  transition: opacity 400ms;
+}
+@media (hover: hover) and (pointer: fine) {
+  .hero-spotlight:hover .hero-spotlight-dots {
+    opacity: 1;
+  }
+}
+
+/* "The middle" filmstrip: frames ripple in when revealed. */
+.film-frame {
+  cursor: pointer;
+  transition:
+    scale 500ms var(--ease-out),
+    opacity 500ms var(--ease-out),
+    border-color 150ms;
+  transition-delay: calc(var(--i, 0) * 18ms), calc(var(--i, 0) * 18ms), 0ms;
+}
+[data-reveal='hidden'] .film-frame {
+  scale: 1 0.2;
+  opacity: 0;
+}
+.film-range {
+  accent-color: var(--accent-2);
+  cursor: pointer;
+}
+
+/* "How a note works" previews */
+.anatomy-swap {
+  animation: rise 450ms var(--ease-out) backwards;
+}
+.anatomy-pop {
+  animation: rise 500ms var(--ease-out) 250ms backwards;
+}
+.anatomy-plate {
+  animation: plate-drop 450ms var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * 140ms + 150ms);
+}
+@keyframes plate-drop {
+  from {
+    opacity: 0;
+    translate: 0 -12px;
+  }
+}
+/* Two amber bars trade places, over and over. */
+.anatomy-swap-a {
+  animation: swap-right 2.4s var(--ease-out) infinite;
+}
+.anatomy-swap-b {
+  animation: swap-left 2.4s var(--ease-out) infinite;
+}
+@keyframes swap-right {
+  0%,
+  30% {
+    translate: 0;
+  }
+  55%,
+  100% {
+    translate: calc(100% + 0.625rem);
+  }
+}
+@keyframes swap-left {
+  0%,
+  30% {
+    translate: 0;
+  }
+  55%,
+  100% {
+    translate: calc(-100% - 0.625rem);
+  }
+}
+.anatomy-progress {
+  animation: progress 2.4s linear infinite;
+}
+@keyframes progress {
+  from {
+    width: 10%;
+  }
+  to {
+    width: 70%;
+  }
+}
+/* The code highlight hops down the five lines (1.75rem each). */
+.anatomy-line {
+  animation: line-hop 4s steps(1) infinite;
+}
+@keyframes line-hop {
+  0% {
+    translate: 0 0;
+  }
+  20% {
+    translate: 0 1.75rem;
+  }
+  40% {
+    translate: 0 3.5rem;
+  }
+  60% {
+    translate: 0 5.25rem;
+  }
+  80% {
+    translate: 0 1.75rem;
+  }
+}
+
+/* Closing call to action: a faint bar chart that rises when revealed. */
+.cta-bar {
+  transform-origin: bottom;
+  transition: scale 900ms var(--ease-out);
+  transition-delay: calc(var(--i, 0) * 35ms + 150ms);
+}
+[data-reveal='hidden'] .cta-bar {
+  scale: 1 0;
+}
+
 /* Scroll reveal (useReveal in lib/hooks.ts). Only elements that start
    below the fold get "hidden"; anything already on screen is left alone,
    so the first paint never flashes. */
@@ -426,5 +562,14 @@
   [data-reveal='hidden'] {
     opacity: 1;
     translate: none;
+  }
+  .anatomy-swap-a,
+  .anatomy-swap-b,
+  .anatomy-progress,
+  .anatomy-line {
+    animation: none;
+  }
+  .hero-spotlight-dots {
+    display: none;
   }
 }

@@ -1,4 +1,4 @@
-import { useRef, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { topics } from '../lib/content';
 import { useReveal } from '../lib/hooks';
@@ -7,7 +7,9 @@ import { topicsForTrack } from '../lib/topics';
 import { TRACK_IDS } from '../lib/types';
 import { ContentsIndex } from './home/ContentsIndex';
 import { HeroDemo } from './home/HeroDemo';
+import { NoteAnatomy } from './home/NoteAnatomy';
 import { ReadingKey } from './home/ReadingKey';
+import { TheMiddle } from './home/TheMiddle';
 
 const writtenCount = topics.length;
 const plannedCount = TRACK_IDS.reduce((sum, track) => {
@@ -20,8 +22,51 @@ const firstNote = TRACK_IDS.map((track) => topicsForTrack(topics, track)[0]).fin
 // Long titles like "From Code to Electrons: How Your Program Really Runs" get shortened for the button.
 const firstNoteLabel = firstNote?.title.split(':')[0];
 
+const trackCount = TRACK_IDS.filter((t) => topicsForTrack(topics, t).length > 0).length;
+
+/** Readers this is built for, each with a concrete first note. */
+const READERS = [
+  {
+    who: 'You are learning to code',
+    need: 'You can follow a tutorial, but you could not explain why the code works.',
+    help: 'Start with the language itself: what JavaScript is, and how one call stack keeps a page responsive.',
+    to: '/javascript/what-is-javascript',
+    cta: 'JavaScript Basics',
+  },
+  {
+    who: 'You have a coding interview coming',
+    need: 'You have memorised sorts and searches, then blanked when asked to trace one.',
+    help: 'Every algorithm here runs one comparison at a time, so you can trace it before you have to explain it.',
+    to: '/dsa/arrays-and-big-o',
+    cta: 'Arrays and Big-O',
+  },
+  {
+    who: 'You write code, but the machine is a black box',
+    need: 'You ship features, yet “what happens when this runs” stays vague.',
+    help: 'Follow one line of code down through the compiler, the CPU and logic gates to electrons.',
+    to: '/fundamentals/from-code-to-electrons',
+    cta: 'From Code to Electrons',
+  },
+];
+
+/** The practical facts, stated plainly. */
+const SPECS: [string, string][] = [
+  ['Price', 'Free. No ads, no paywall, nothing to unlock.'],
+  ['Account', 'None. Open a page and start reading.'],
+  ['Screens', 'Phones from 360px wide up to large monitors.'],
+  ['Keyboard', 'Every visual works without a mouse. Space plays, arrows step.'],
+  ['Motion', 'Follows your system’s reduce-motion setting. 3D falls back to 2D.'],
+  ['Colour', 'Dark and light themes. Every colour also has a shape or label.'],
+  ['Speed', 'Under 200 KB of JavaScript on first load. 3D only loads when you reach it.'],
+  ['Safety', 'Code you type in a playground runs in a sealed sandbox.'],
+];
+
 // Newest first. Add a line whenever something worth mentioning ships.
 const LOG = [
+  {
+    date: '21 Nov 2026',
+    text: 'The front page now explains the idea: scrub through every step of a sort, and see how a note is put together.',
+  },
   {
     date: '21 Nov 2026',
     text: 'New JavaScript track. First note: JavaScript Basics, with an event loop you can step through and a sandboxed playground.',
@@ -45,11 +90,12 @@ export function HomePage() {
   return (
     <div ref={pageRef} className="space-y-24 sm:space-y-32">
       {/* ── Hero ─────────────────────────────────────────────── */}
-      <section className="grid items-center gap-12 lg:grid-cols-[1fr_minmax(0,32rem)] lg:gap-16 xl:grid-cols-[1fr_minmax(0,36rem)] xl:gap-24">
+      <Spotlight className="grid items-center gap-12 lg:grid-cols-[1fr_minmax(0,32rem)] lg:gap-16 xl:grid-cols-[1fr_minmax(0,36rem)] xl:gap-24">
         <div>
           <p className="stagger font-mono text-sm text-muted" style={order(0)}>
             a visual notebook for <span className="text-text">how computers work</span>,{' '}
-            <span className="text-text">DSA</span> and <span className="text-text">React</span>
+            <span className="text-text">JavaScript</span>, <span className="text-text">DSA</span>{' '}
+            and <span className="text-text">React</span>
           </p>
 
           {/* Each word is its own span so they can rise in one after another. */}
@@ -72,8 +118,9 @@ export function HomePage() {
             style={order(6)}
             className="stagger mt-7 max-w-[34rem] text-lg leading-relaxed text-muted"
           >
-            Every note comes with a visual you can run, pause, and step through one comparison at a
-            time. The idea clicks first. The code makes sense after.
+            Stackscape explains programming with visuals you can run, pause and step through. You
+            watch an algorithm make each decision, see which line of code made it, then check
+            yourself. The idea clicks first. The code makes sense after.
           </p>
 
           <div
@@ -95,28 +142,88 @@ export function HomePage() {
               </Link>
             )}
             <a
-              href="#contents"
+              href="#the-idea"
               className="font-medium text-muted underline-offset-4 hover:text-text hover:underline"
             >
-              See all topics
+              How it works
             </a>
           </div>
 
-          <p style={order(8)} className="stagger mt-10 font-mono text-xs text-muted">
-            {writtenCount} {writtenCount === 1 ? 'note' : 'notes'} written · {plannedCount} on the
-            way · free, no sign-up
-          </p>
+          <dl style={order(8)} className="stagger mt-12 grid max-w-[30rem] grid-cols-3 gap-6">
+            <Stat
+              value={writtenCount}
+              label={writtenCount === 1 ? 'note written' : 'notes written'}
+            />
+            <Stat value={plannedCount} label="on the way" />
+            <Stat value={0} label="sign-ups needed" />
+          </dl>
         </div>
 
         <div style={order(4)} className="stagger-pop relative">
           <Annotation />
           <HeroDemo />
         </div>
-      </section>
+      </Spotlight>
+
+      {/* ── The idea ─────────────────────────────────────────── */}
+      <Section
+        id="the-idea"
+        kicker="The idea"
+        title="Most tutorials skip the middle"
+        intro="A textbook shows you the unsorted list and the sorted one. Everything you actually need to understand happens in between. Drag through every step of one real run."
+      >
+        <TheMiddle />
+      </Section>
+
+      {/* ── How a note works ─────────────────────────────────── */}
+      <Section
+        kicker="How it works"
+        title="Every note, the same four steps"
+        intro="Learn the pattern once, and every topic after that reads the same way."
+      >
+        <NoteAnatomy />
+      </Section>
+
+      {/* ── Who it helps ─────────────────────────────────────── */}
+      <Section
+        kicker="Who it helps"
+        title="Pick the line that sounds like you"
+        intro="Each one has a place to start today."
+      >
+        <ol className="border-t border-border">
+          {READERS.map((r, i) => (
+            <li key={r.who} data-reveal className="border-b border-border">
+              <Link
+                to={r.to}
+                className="group grid gap-x-10 gap-y-3 py-7 transition-colors md:grid-cols-[2.5rem_minmax(0,1fr)_minmax(0,1.1fr)_auto] md:items-baseline"
+              >
+                <span className="font-mono text-sm text-muted">0{i + 1}</span>
+                <span>
+                  <span className="block font-heading text-xl font-semibold group-hover:text-accent">
+                    {r.who}
+                  </span>
+                  <span className="mt-1.5 block text-muted">{r.need}</span>
+                </span>
+                <span className="leading-relaxed">{r.help}</span>
+                <span className="inline-flex items-center gap-2 font-mono text-sm whitespace-nowrap text-accent-2">
+                  {r.cta}
+                  <span
+                    className="transition-transform group-hover:translate-x-1"
+                    aria-hidden="true"
+                  >
+                    →
+                  </span>
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ol>
+      </Section>
 
       {/* ── Contents ─────────────────────────────────────────── */}
       <Section
         id="contents"
+        kicker={`${trackCount} tracks open`}
         title="Contents"
         intro="Read them in order, or jump straight to whatever is confusing you this week."
       >
@@ -125,14 +232,35 @@ export function HomePage() {
 
       {/* ── Reading key ──────────────────────────────────────── */}
       <Section
+        kicker="One visual language"
         title="Reading the visuals"
         intro="Colours mean the same thing on every page. Each one also has its own mark, so colour is never the only clue."
       >
         <ReadingKey />
       </Section>
 
+      {/* ── Made for everyone ────────────────────────────────── */}
+      <Section
+        kicker="Made for everyone"
+        title="The practical bits"
+        intro="No catch. These are the promises every page is checked against before it ships."
+      >
+        <dl className="grid border-t border-border sm:grid-cols-2 sm:gap-x-12">
+          {SPECS.map(([term, detail]) => (
+            <div
+              key={term}
+              data-reveal
+              className="grid grid-cols-[6.5rem_minmax(0,1fr)] gap-4 border-b border-border py-4"
+            >
+              <dt className="font-mono text-sm text-muted">{term}</dt>
+              <dd className="leading-snug">{detail}</dd>
+            </div>
+          ))}
+        </dl>
+      </Section>
+
       {/* ── Why this exists ──────────────────────────────────── */}
-      <Section title="Why this exists">
+      <Section kicker="Behind it" title="Why this exists">
         <div className="grid gap-12 md:grid-cols-[minmax(0,1fr)_minmax(0,18rem)]">
           <div data-reveal className="max-w-[38rem] space-y-5 text-lg leading-relaxed">
             <p>
@@ -166,6 +294,133 @@ export function HomePage() {
           </div>
         </div>
       </Section>
+
+      {/* ── Closing call to action ───────────────────────────── */}
+      <section
+        aria-labelledby="start-heading"
+        data-reveal
+        className="relative overflow-hidden rounded-card border border-border bg-elevated px-6 pt-14 pb-24 text-center shadow-glow sm:px-12 sm:pt-20 sm:pb-28"
+      >
+        <div
+          aria-hidden="true"
+          className="cta-bars absolute inset-x-0 bottom-0 flex h-16 items-end gap-1.5 px-6 opacity-60 sm:px-12"
+        >
+          {[3, 6, 2, 8, 5, 9, 4, 7, 1, 6, 3, 8, 5, 2, 7, 4, 9, 6].map((v, i) => (
+            <span
+              key={i}
+              style={{ height: `${v * 10}%`, '--i': i } as CSSProperties}
+              className="cta-bar flex-1 rounded-t-sm bg-accent/15"
+            />
+          ))}
+        </div>
+        <div className="relative">
+          <p className="font-mono text-sm text-accent-2">ten minutes is enough</p>
+          <h2 id="start-heading" className="mx-auto mt-3 max-w-[36rem] text-3xl sm:text-5xl">
+            Pick the one thing that confused you this week.
+          </h2>
+          <p className="mx-auto mt-5 max-w-[32rem] text-lg text-muted">
+            Open its note, press play, and watch it happen one step at a time.
+          </p>
+          <div className="mt-9 flex flex-wrap items-center justify-center gap-x-6 gap-y-4">
+            {firstNote && (
+              <Link
+                to={`/${firstNote.track}/${firstNote.slug}`}
+                className="group inline-flex items-center gap-2 rounded-btn bg-text px-5 py-3 font-medium text-bg transition-opacity hover:opacity-90"
+              >
+                Start with {firstNoteLabel}
+                <span
+                  className="transition-transform group-hover:translate-x-0.5"
+                  aria-hidden="true"
+                >
+                  →
+                </span>
+              </Link>
+            )}
+            <a
+              href="#contents"
+              className="font-medium text-muted underline-offset-4 hover:text-text hover:underline"
+            >
+              Browse all topics
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+/**
+ * The hero's background: the page's dot grid lights up in the accent colour
+ * around your mouse pointer. The pointer position is written straight into two
+ * CSS variables (no React state), so moving the mouse never re-renders anything.
+ */
+function Spotlight({ className, children }: { className: string; children: ReactNode }) {
+  const ref = useRef<HTMLElement>(null);
+  const onPointerMove = (e: React.PointerEvent) => {
+    const el = ref.current;
+    if (!el || e.pointerType !== 'mouse') return;
+    const box = el.getBoundingClientRect();
+    el.style.setProperty('--mx', `${e.clientX - box.left}px`);
+    el.style.setProperty('--my', `${e.clientY - box.top}px`);
+    // The glowing dots must sit exactly on the page's own 22px dot grid, which
+    // starts at the top-left of the document. The dot layer starts 4rem above
+    // this section, so shift its pattern by its position on the page, modulo 22.
+    const dots = el.firstElementChild as HTMLElement | null;
+    if (dots) {
+      const r = dots.getBoundingClientRect();
+      const x = r.left + window.scrollX;
+      const y = r.top + window.scrollY;
+      el.style.setProperty('--bx', `${-(x % 22)}px`);
+      el.style.setProperty('--by', `${-(y % 22)}px`);
+    }
+  };
+  return (
+    <section
+      ref={ref}
+      onPointerMove={onPointerMove}
+      className={`hero-spotlight relative ${className}`}
+    >
+      <div aria-hidden="true" className="hero-spotlight-dots" />
+      {children}
+    </section>
+  );
+}
+
+/** A number that counts up from 0 the first time it scrolls into view. */
+function Stat({ value, label }: { value: number; label: string }) {
+  const ref = useRef<HTMLElement>(null);
+  const [shown, setShown] = useState(value);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || value === 0 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let frame = 0;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      observer.disconnect();
+      const start = performance.now();
+      const tick = (now: number) => {
+        const t = Math.min(1, (now - start) / 900);
+        setShown(Math.round(value * (1 - (1 - t) ** 3))); // ease-out
+        if (t < 1) frame = requestAnimationFrame(tick);
+      };
+      setShown(0);
+      frame = requestAnimationFrame(tick);
+    });
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+    };
+  }, [value]);
+  return (
+    <div className="border-l border-border pl-4">
+      <dt className="sr-only">{label}</dt>
+      <dd ref={ref} className="font-heading text-3xl font-bold tabular-nums">
+        {shown}
+      </dd>
+      <dd className="mt-1 font-mono text-xs leading-snug text-muted" aria-hidden="true">
+        {label}
+      </dd>
     </div>
   );
 }
@@ -187,11 +442,14 @@ function Word({ i, children }: { i: number; children: ReactNode }) {
 /** A full-width rule with the heading and intro on the left, content on the right (on wide screens). */
 function Section({
   id,
+  kicker,
   title,
   intro,
   children,
 }: {
   id?: string;
+  /** A small label above the heading, e.g. "The idea". */
+  kicker?: string;
   title: string;
   intro?: string;
   children: ReactNode;
@@ -204,7 +462,10 @@ function Section({
       className="scroll-mt-24 border-t border-border pt-8"
     >
       <div className="grid gap-x-16 gap-y-8 lg:grid-cols-[17rem_minmax(0,1fr)] xl:grid-cols-[20rem_minmax(0,1fr)]">
-        <div data-reveal>
+        <div data-reveal className="lg:sticky lg:top-28 lg:self-start">
+          {kicker && (
+            <p className="mb-3 font-mono text-xs tracking-wide text-accent-2 uppercase">{kicker}</p>
+          )}
           <h2 id={headingId} className="text-2xl sm:text-3xl">
             {title}
           </h2>

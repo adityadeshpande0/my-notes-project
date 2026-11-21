@@ -69,7 +69,7 @@ export function Layout() {
 
       <footer className="border-t border-border">
         <div className="mx-auto flex max-w-[112rem] flex-wrap justify-between gap-2 px-5 py-6 text-sm text-muted sm:px-8 lg:px-12">
-          <p>Stackscape: visual notes for React &amp; DSA. Free for everyone.</p>
+          <p>Stackscape: visual notes on how code really runs. Free for everyone, no sign-up.</p>
           <p>Built by a learner, for learners.</p>
         </div>
       </footer>
