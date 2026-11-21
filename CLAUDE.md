@@ -36,7 +36,9 @@ Page template: Intuition → Interactive visual → How it works → Code → Co
 Explain jargon on hover with `<Term id="big-o">Big-O</Term>` (shared definitions in
 `src/content/glossary.ts`) or `<Term tip="...">word</Term>` for one-offs. Never start a line with
 `<Term`: MDX then treats it as a block. Prettier skips `.mdx` for this reason.
-Planned-but-unwritten topics live in `src/lib/roadmap.ts` (shown as "soon" on the landing page).
+The curriculum (every track split into groups, written and planned topics in order) lives in
+`src/lib/roadmap.ts`; `lib/curriculum.ts` merges it with the written notes. The navbar menu, phone
+sidebar, home contents and track pages all read it. Add new topics there.
 Landing page voice: plain, specific, human. No emoji, gradient text, blobs, or generic feature-card grids.
 
 ## Theme ("Midnight Lab" dark default, "Daylight Lab" light)
