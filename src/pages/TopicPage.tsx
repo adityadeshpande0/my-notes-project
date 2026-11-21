@@ -6,11 +6,13 @@ import { LevelChip } from '../components/LevelChip';
 import { mdxComponents } from '../components/mdx-components';
 import { getNote, getTopic, topics } from '../lib/content';
 import { useReveal } from '../lib/hooks';
-import { neighbours } from '../lib/topics';
+import { pathPosition, type PathStep } from '../lib/curriculum';
+import { markVisited } from '../lib/readingHistory';
 import { TRACKS, type TopicMeta, type Track } from '../lib/types';
 import { NotFoundPage } from './NotFoundPage';
-import { NoteSkeleton, TocSkeleton } from './topic/NoteSkeleton';
+import { NoteSkeleton } from './topic/NoteSkeleton';
 import { ReadingProgress } from './topic/ReadingProgress';
+import { PathNav } from './topic/PathNav';
 import { TableOfContents, type Heading } from './topic/TableOfContents';
 
 interface Outline {
@@ -33,31 +35,25 @@ export function TopicPage({ track }: { track: Track }) {
 function TopicLayout({ topic, Note }: { topic: TopicMeta; Note: ComponentType<MDXProps> }) {
   const articleRef = useRef<HTMLElement>(null);
   const [outline, setOutline] = useState<Outline>({ headings: [], minutes: 0 });
-  const { prev, next } = neighbours(topics, topic.track, topic.slug);
+  // Where this note sits on its collection's learning path.
+  const { current, prev, next, upcoming } = pathPosition(topics, topic.track, topic.slug);
   const trackName = TRACKS[topic.track].name;
+
+  // Remember this step was read, so the path can tick it and offer "continue".
+  useEffect(() => markVisited(topic.track, topic.slug), [topic.track, topic.slug]);
 
   return (
     <>
       <ReadingProgress target={articleRef} />
 
       <div className="grid gap-x-12 lg:grid-cols-[13rem_minmax(0,1fr)] xl:grid-cols-[14rem_minmax(0,1fr)] xl:gap-x-16 2xl:grid-cols-[15rem_minmax(0,64rem)_17rem] 2xl:justify-between">
-        {/* ── Left: table of contents (desktop) ───────────── */}
-        <aside className="hidden lg:block" aria-label="On this page">
-          <div className="sticky top-24">
-            <Link
-              to={`/${topic.track}`}
-              className="mb-8 inline-flex items-center gap-2 text-sm text-muted hover:text-text"
-            >
-              <span aria-hidden="true">←</span> {trackName}
-            </Link>
-            <p className="mb-3 font-mono text-xs tracking-wide text-muted uppercase">
-              On this page
-            </p>
-            {outline.headings.length > 0 ? (
-              <TableOfContents headings={outline.headings} />
-            ) : (
-              <TocSkeleton />
-            )}
+        {/* ── Left: the learning path, with this page's sections nested (desktop) ── */}
+        <aside className="hidden lg:block" aria-label="Learning path">
+          <div
+            data-path-scroll
+            className="sticky top-24 max-h-[calc(100dvh-7.5rem)] overflow-y-auto overscroll-contain pr-2 pb-6"
+          >
+            <PathNav track={topic.track} slug={topic.slug} headings={outline.headings} />
           </div>
         </aside>
 
@@ -68,11 +64,21 @@ function TopicLayout({ topic, Note }: { topic: TopicMeta; Note: ComponentType<MD
               <Link to={`/${topic.track}`} className="hover:text-text">
                 {trackName}
               </Link>
-              <span aria-hidden="true"> / </span>
-              <span className="text-text">{topic.title}</span>
+              {current && (
+                <>
+                  <span aria-hidden="true"> / </span>
+                  <span>{current.group}</span>
+                </>
+              )}
             </nav>
             <p className="mb-4 font-mono text-xs text-muted">
-              {TRACKS[topic.track].short} · note {String(topic.order).padStart(2, '0')}
+              {TRACKS[topic.track].short}
+              {current && (
+                <>
+                  {' '}
+                  · {current.group} · step {String(current.step).padStart(2, '0')}
+                </>
+              )}
               {outline.minutes > 0 && <> · {outline.minutes} min read</>}
             </p>
             <h1 className="max-w-[56rem] text-[2.5rem] leading-[1.08] tracking-tight sm:text-[3.25rem] 2xl:text-[3.75rem]">
@@ -110,24 +116,7 @@ function TopicLayout({ topic, Note }: { topic: TopicMeta; Note: ComponentType<MD
             <NoteBody Note={Note} onOutline={setOutline} />
           </Suspense>
 
-          <nav
-            aria-label="More topics"
-            className="mt-20 grid gap-4 border-t border-border pt-10 sm:grid-cols-2"
-          >
-            {prev ? (
-              <PagerLink to={`/${topic.track}/${prev.slug}`} label="Previous" title={prev.title} />
-            ) : (
-              <span className="hidden sm:block" />
-            )}
-            {next && (
-              <PagerLink
-                to={`/${topic.track}/${next.slug}`}
-                label="Next"
-                title={next.title}
-                alignRight
-              />
-            )}
-          </nav>
+          <PathPager track={topic.track} prev={prev} next={next} upcoming={upcoming} />
         </article>
 
         {/* ── Right: at a glance (wide screens) ────────────── */}
@@ -215,28 +204,80 @@ function GlanceRow({ label, children }: { label: string; children: ReactNode }) 
   );
 }
 
-function PagerLink({
-  to,
-  label,
-  title,
-  alignRight,
+/**
+ * The end of a note: where to go next on the path. The next step is the big
+ * card. If the very next step isn't written yet, say so, and still offer the
+ * next written one (or the way back to the path).
+ */
+function PathPager({
+  track,
+  prev,
+  next,
+  upcoming,
 }: {
-  to: string;
-  label: string;
-  title: string;
-  alignRight?: boolean;
+  track: Track;
+  prev?: PathStep;
+  next?: PathStep;
+  upcoming?: PathStep;
 }) {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const upcomingIsPlanned = upcoming && !upcoming.href;
   return (
-    <Link
-      to={to}
-      className={`group rounded-card border border-border p-5 transition-[border-color,background-color,translate] duration-200 hover:-translate-y-0.5 hover:border-accent/60 hover:bg-elevated ${alignRight ? 'text-right' : ''}`}
-    >
-      <span className="block font-mono text-xs text-muted">
-        {alignRight ? `${label} →` : `← ${label}`}
-      </span>
-      <span className="mt-1 block font-heading text-lg font-semibold group-hover:text-accent">
-        {title}
-      </span>
-    </Link>
+    <nav aria-label="Learning path" className="mt-20 border-t border-border pt-10">
+      <p className="mb-4 font-mono text-xs tracking-wide text-muted uppercase">Continue the path</p>
+
+      {upcomingIsPlanned && (
+        <div className="mb-4 rounded-card border border-dashed border-border p-5">
+          <p className="font-mono text-xs text-muted">
+            Next · step {pad(upcoming.step)} · {upcoming.group}
+          </p>
+          <p className="mt-1 font-heading text-lg font-semibold text-muted">{upcoming.title}</p>
+          <p className="mt-1 text-sm text-muted">Coming soon. It&rsquo;s being written now.</p>
+        </div>
+      )}
+
+      <div className={`grid gap-4 ${prev ? 'sm:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]' : ''}`}>
+        {prev ? (
+          <Link
+            to={prev.href!}
+            className="group rounded-card border border-border p-5 transition-colors hover:border-accent/60 hover:bg-elevated"
+          >
+            <span className="block font-mono text-xs text-muted">
+              ← Previous · step {pad(prev.step)}
+            </span>
+            <span className="mt-1 block font-heading text-lg font-semibold group-hover:text-accent">
+              {prev.title}
+            </span>
+          </Link>
+        ) : null}
+        {next ? (
+          <Link
+            to={next.href!}
+            className="group rounded-card border border-accent-2/60 bg-elevated p-5 shadow-glow transition-[border-color,translate] duration-200 hover:-translate-y-0.5 hover:border-accent-2 sm:p-6"
+          >
+            <span className="block font-mono text-xs text-accent-2">
+              {upcomingIsPlanned ? 'Next ready step' : 'Next step'} · step {pad(next.step)} ·{' '}
+              {next.group} →
+            </span>
+            <span className="mt-1.5 block font-heading text-xl font-semibold group-hover:text-accent">
+              {next.title}
+            </span>
+            {next.summary && <span className="mt-2 block text-sm text-muted">{next.summary}</span>}
+          </Link>
+        ) : (
+          <Link
+            to={`/${track}`}
+            className="group rounded-card border border-border bg-elevated p-5 transition-colors hover:border-accent/60 sm:p-6"
+          >
+            <span className="block font-mono text-xs text-muted">
+              You&rsquo;re at the newest step
+            </span>
+            <span className="mt-1.5 block font-heading text-xl font-semibold group-hover:text-accent">
+              See the whole {TRACKS[track].name} path →
+            </span>
+          </Link>
+        )}
+      </div>
+    </nav>
   );
 }
