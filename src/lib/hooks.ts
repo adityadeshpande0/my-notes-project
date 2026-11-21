@@ -105,7 +105,7 @@ export function useReveal(
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
           const el = entry.target as HTMLElement;
-          el.style.transitionDelay = `${Math.min(n++, 6) * 70}ms`;
+          el.style.transitionDelay = `${Math.min(n++, 10) * 60}ms`;
           el.dataset.reveal = 'shown';
           observer.unobserve(el); // reveal once, then stop watching
         }

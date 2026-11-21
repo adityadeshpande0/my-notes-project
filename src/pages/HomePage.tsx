@@ -48,22 +48,24 @@ export function HomePage() {
             <span className="text-text">DSA</span> and <span className="text-text">React</span>
           </p>
 
-          <h1
-            style={order(1)}
-            className="stagger mt-5 text-[2.6rem] leading-[1.05] tracking-tight sm:text-6xl lg:text-[4.25rem] xl:text-[5rem]"
-          >
-            Notes you can press{' '}
-            <span className="inline-flex translate-y-[-0.08em] items-center gap-[0.25em] rounded-[0.22em] border border-b-[0.09em] border-border bg-elevated px-[0.3em] py-[0.02em] align-middle text-[0.62em] font-semibold text-accent-2">
+          {/* Each word is its own span so they can rise in one after another. */}
+          <h1 className="mt-5 text-[2.6rem] leading-[1.05] tracking-tight sm:text-6xl lg:text-[4.25rem] xl:text-[5rem]">
+            <Word i={1}>Notes</Word> <Word i={2}>you</Word> <Word i={3}>can</Word>{' '}
+            <Word i={4}>press</Word>{' '}
+            <span
+              style={order(5)}
+              className="key-pop inline-flex translate-y-[-0.08em] items-center gap-[0.25em] rounded-[0.22em] border border-b-[0.09em] border-border bg-elevated px-[0.3em] py-[0.02em] align-middle text-[0.62em] font-semibold text-accent-2"
+            >
               <svg viewBox="0 0 24 24" className="size-[0.7em]" aria-hidden="true">
                 <path d="M7 4.5v15l12.5-7.5z" fill="currentColor" />
               </svg>
               play
             </span>{' '}
-            on.
+            <Word i={6}>on.</Word>
           </h1>
 
           <p
-            style={order(2)}
+            style={order(6)}
             className="stagger mt-7 max-w-[34rem] text-lg leading-relaxed text-muted"
           >
             Every note comes with a visual you can run, pause, and step through one comparison at a
@@ -71,7 +73,7 @@ export function HomePage() {
           </p>
 
           <div
-            style={order(3)}
+            style={order(7)}
             className="stagger mt-9 flex flex-wrap items-center gap-x-6 gap-y-4"
           >
             {firstNote && (
@@ -96,13 +98,13 @@ export function HomePage() {
             </a>
           </div>
 
-          <p style={order(4)} className="stagger mt-10 font-mono text-xs text-muted">
+          <p style={order(8)} className="stagger mt-10 font-mono text-xs text-muted">
             {writtenCount} {writtenCount === 1 ? 'note' : 'notes'} written · {plannedCount} on the
             way · free, no sign-up
           </p>
         </div>
 
-        <div style={order(2)} className="stagger relative">
+        <div style={order(4)} className="stagger-pop relative">
           <Annotation />
           <HeroDemo />
         </div>
@@ -147,10 +149,10 @@ export function HomePage() {
             </h3>
             <ol className="space-y-4 border-l border-border">
               {LOG.map((entry, i) => (
-                <li key={i} className="relative pl-5">
+                <li key={i} data-reveal className="relative pl-5">
                   <span
                     aria-hidden="true"
-                    className={`absolute top-[0.55em] -left-[4.5px] size-2 rounded-full ${i === 0 ? 'bg-accent-2' : 'bg-border'}`}
+                    className={`log-dot absolute top-[0.55em] -left-[4.5px] size-2 rounded-full ${i === 0 ? 'bg-accent-2' : 'bg-border'}`}
                   />
                   <p className="font-mono text-xs text-muted">{entry.date}</p>
                   <p className="mt-0.5 text-[0.95rem] leading-snug">{entry.text}</p>
@@ -167,6 +169,15 @@ export function HomePage() {
 /** Position in the hero's entrance sequence. A CSS variable can be set like any style. */
 function order(i: number) {
   return { '--i': i } as CSSProperties;
+}
+
+/** One word of the headline, rising in at position `i`. */
+function Word({ i, children }: { i: number; children: ReactNode }) {
+  return (
+    <span style={order(i)} className="hero-word">
+      {children}
+    </span>
+  );
 }
 
 /** A full-width rule with the heading and intro on the left, content on the right (on wide screens). */
