@@ -183,7 +183,7 @@
 .viz-label {
   margin-bottom: 0.4rem;
   color: var(--text-muted);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }

@@ -166,7 +166,10 @@ function timeoutZeroSteps(): ELStep[] {
   s.pop();
   s.snap(1, '…prints "1: Order placed" and comes off.');
   s.push('setTimeout(cb, 0)');
-  s.snap(2, 'setTimeout is called. It does not run the arrow function. It hands it to the browser.');
+  s.snap(
+    2,
+    'setTimeout is called. It does not run the arrow function. It hands it to the browser.',
+  );
   s.startTimer('t', 'timer 0 ms → cb', 0);
   s.pop();
   s.snap(
@@ -180,9 +183,13 @@ function timeoutZeroSteps(): ELStep[] {
     { loop: 'checking' },
   );
   s.push('console.log("2: …")');
-  s.snap(5, 'Meanwhile main() keeps going. The stack is not empty, so the callback keeps waiting.', {
-    loop: 'checking',
-  });
+  s.snap(
+    5,
+    'Meanwhile main() keeps going. The stack is not empty, so the callback keeps waiting.',
+    {
+      loop: 'checking',
+    },
+  );
   s.log('2: Serving other tables');
   s.pop();
   s.snap(5, '"2: Serving other tables" is printed.', { loop: 'checking' });
@@ -288,7 +295,10 @@ function clickSteps(): ELStep[] {
   s.push('main()');
   s.snap(1, 'The file starts running. Line 1 finds the button on the page.');
   s.push('addEventListener("click", cb)');
-  s.snap(2, 'addEventListener hands the arrow function to the browser and says: run this on a click.');
+  s.snap(
+    2,
+    'addEventListener hands the arrow function to the browser and says: run this on a click.',
+  );
   s.startTimer('click', 'click listener → onClick', Infinity);
   s.pop();
   s.snap(2, 'The browser now watches the button. Nothing else happens yet.');
