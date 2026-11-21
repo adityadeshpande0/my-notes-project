@@ -222,6 +222,7 @@
 .viz svg text {
   fill: var(--text);
   font-family: var(--font-sans);
+  font-variant-ligatures: none; /* show == and === as typed */
 }
 .viz .wire {
   fill: none;

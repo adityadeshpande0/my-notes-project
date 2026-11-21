@@ -561,6 +561,16 @@ html:has(.drawer[open]) {
   }
 }
 
+/* No programming ligatures: a beginner must see == and === (and => vs ⇒) as
+   the separate characters they type, not one joined symbol. */
+code,
+pre,
+kbd,
+.font-mono,
+.viz-mono {
+  font-variant-ligatures: none;
+}
+
 /* Shiki emits both themes as CSS variables; pick one based on data-theme. */
 .shiki,
 .shiki span {
