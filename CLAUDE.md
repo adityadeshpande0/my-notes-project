@@ -19,11 +19,11 @@ State: React state/hooks first; Zustand only if global state really grows.
 - `src/app/` router, layout, providers (theme context)
 - `src/components/` generic UI (Card, Chip, Callout, mdx-components)
 - `src/visualizers/<topic>/` step generators + 2D/3D renderers. `core/` holds `useStepper`, `StepControls`,
-  `viz.css` (the `.viz` card styles) and `colors.ts` (`C` tokens, `alpha()`, `mix()` for inline/SVG colours).
+  `viz.css` (the `.viz` card styles), `Quiz` (end-of-note self-check) and `colors.ts` (`C` tokens, `alpha()`, `mix()` for inline/SVG colours).
   A note imports its visualizers directly (`import { X } from '../../visualizers/<topic>'`) so they stay in
   that note's lazy chunk; don't register them globally in `mdx-components`.
 - `src/three/` shared 3D bits (always lazy-loaded)
-- `src/content/{fundamentals,dsa,react}/*.mdx` notes (tracks are defined in `src/lib/types.ts` `TRACKS`); `src/lib/` content loading + pure helpers
+- `src/content/{fundamentals,javascript,dsa,react}/*.mdx` notes (tracks are defined in `src/lib/types.ts` `TRACKS`); `src/lib/` content loading + pure helpers
 - `plugins/content-manifest.ts` exposes all notes' frontmatter as `virtual:content-manifest`;
   note bodies are lazy chunks loaded via `import.meta.glob` in `src/lib/content.ts`
 

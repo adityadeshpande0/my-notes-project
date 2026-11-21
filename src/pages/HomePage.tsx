@@ -23,6 +23,10 @@ const firstNoteLabel = firstNote?.title.split(':')[0];
 // Newest first. Add a line whenever something worth mentioning ships.
 const LOG = [
   {
+    date: '21 Nov 2026',
+    text: 'New JavaScript track. First note: JavaScript Basics, with an event loop you can step through and a sandboxed playground.',
+  },
+  {
     date: '20 Nov 2026',
     text: 'First long read: From Code to Electrons. Eight interactive visuals, from compiler to transistor.',
   },
