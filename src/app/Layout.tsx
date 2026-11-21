@@ -1,12 +1,7 @@
-import { Link, NavLink, Outlet, ScrollRestoration, useLocation } from 'react-router';
+import { Link, Outlet, ScrollRestoration, useLocation } from 'react-router';
 import { ThemeToggle } from '../components/ThemeToggle';
-import { TRACK_IDS, TRACKS } from '../lib/types';
-
-const NAV = [
-  ...TRACK_IDS.map((track) => ({ to: `/${track}`, label: TRACKS[track].short })),
-  { to: '/playground', label: 'Playground' },
-  { to: '/about', label: 'About' },
-];
+import { DesktopNav } from './nav/DesktopNav';
+import { MobileNav } from './nav/MobileNav';
 
 /** The frame around every page. <Outlet /> is where the current route renders. */
 export function Layout() {
@@ -20,36 +15,15 @@ export function Layout() {
         Skip to content
       </a>
 
-      <header className="sticky top-0 z-40 border-b border-border bg-bg/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-[112rem] flex-wrap items-center gap-x-8 gap-y-2 px-5 py-3 sm:px-8 lg:px-12">
+      <header className="sticky top-0 z-40 border-b border-border bg-bg/85 backdrop-blur-md">
+        <div className="mx-auto flex max-w-[112rem] items-center gap-x-3 px-5 py-3 sm:px-8 lg:gap-x-8 lg:px-12">
+          {/* Phones: a menu button opens the sidebar. Wider screens: the full navbar. */}
+          <MobileNav />
           <Link to="/" className="flex items-center gap-2 font-heading text-lg font-bold">
             <Logo />
             Stackscape
           </Link>
-
-          <nav
-            aria-label="Main"
-            className="order-3 -mx-2 w-[calc(100%+1rem)] overflow-x-auto sm:order-none sm:mx-0 sm:w-auto"
-          >
-            <ul className="flex gap-1 px-2 text-sm whitespace-nowrap sm:px-0">
-              {NAV.map((item) => (
-                <li key={item.to}>
-                  {/* NavLink knows whether its route is active, so we can style it. */}
-                  <NavLink
-                    to={item.to}
-                    className={({ isActive }) =>
-                      `block rounded-btn px-3 py-1.5 transition-colors ${
-                        isActive ? 'bg-surface text-text' : 'text-muted hover:text-text'
-                      }`
-                    }
-                  >
-                    {item.label}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
+          <DesktopNav />
           <div className="ml-auto">
             <ThemeToggle />
           </div>
