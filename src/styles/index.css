@@ -502,6 +502,16 @@ html:has(.drawer[open]) {
   overflow: hidden;
 }
 
+/* Learning path (TrackPage.tsx): the "up next" dot breathes gently. */
+.path-pulse {
+  animation: path-pulse 2s ease-in-out infinite;
+}
+@keyframes path-pulse {
+  50% {
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent-2) 25%, transparent);
+  }
+}
+
 /* Scroll reveal (useReveal in lib/hooks.ts). Only elements that start
    below the fold get "hidden"; anything already on screen is left alone,
    so the first paint never flashes. */
