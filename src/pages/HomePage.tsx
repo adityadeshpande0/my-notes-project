@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 import { Link } from 'react-router';
 import { topics } from '../lib/content';
 import { useReveal } from '../lib/hooks';
-import { PLANNED } from '../lib/roadmap';
+import { allOutlines } from '../lib/curriculum';
 import { topicsForTrack } from '../lib/topics';
 import { TRACK_IDS } from '../lib/types';
 import { ContentsIndex } from './home/ContentsIndex';
@@ -12,10 +12,8 @@ import { ReadingKey } from './home/ReadingKey';
 import { TheMiddle } from './home/TheMiddle';
 
 const writtenCount = topics.length;
-const plannedCount = TRACK_IDS.reduce((sum, track) => {
-  const written = new Set(topics.filter((t) => t.track === track).map((t) => t.slug));
-  return sum + PLANNED[track].filter((p) => !written.has(p.slug)).length;
-}, 0);
+// Topics in the curriculum that aren't written yet.
+const plannedCount = allOutlines(topics).reduce((sum, o) => sum + o.total - o.written, 0);
 
 // "Start with…" points at the first note of the first track that has one.
 const firstNote = TRACK_IDS.map((track) => topicsForTrack(topics, track)[0]).find(Boolean);

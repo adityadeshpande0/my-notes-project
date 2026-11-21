@@ -1,60 +1,81 @@
 import { useRef } from 'react';
 import { Link } from 'react-router';
 import { LevelChip } from '../components/LevelChip';
+import { ProgressBar } from '../components/OutlineGroups';
 import { topics } from '../lib/content';
+import { outlineFor } from '../lib/curriculum';
 import { useReveal } from '../lib/hooks';
-import { groupByLevel, topicsForTrack } from '../lib/topics';
-import { LEVELS, TRACKS, type Track } from '../lib/types';
+import { TRACKS, type Track } from '../lib/types';
 
 export function TrackPage({ track }: { track: Track }) {
-  const groups = groupByLevel(topicsForTrack(topics, track));
+  const outline = outlineFor(topics, track);
   const info = TRACKS[track];
   const listRef = useRef<HTMLDivElement>(null);
   useReveal(listRef); // cards marked `data-reveal` fade up as they scroll in
 
   return (
     <div>
-      <header className="mb-12 max-w-3xl">
-        <p className="mb-3 font-mono text-sm text-accent-2">track</p>
-        <h1 className="text-4xl sm:text-5xl">{info.name}</h1>
-        <p className="mt-4 text-lg text-muted">{info.tagline}</p>
+      <header className="mb-14 grid gap-8 border-b border-border pb-10 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-end">
+        <div className="max-w-3xl">
+          <p className="mb-3 font-mono text-sm text-accent-2">track</p>
+          <h1 className="text-4xl sm:text-5xl">{info.name}</h1>
+          <p className="mt-4 text-lg text-muted">{info.tagline}</p>
+        </div>
+        <div className="space-y-2">
+          <ProgressBar written={outline.written} total={outline.total} />
+          <p className="font-mono text-xs text-muted">
+            {outline.written} of {outline.total} topics written · {outline.groups.length} groups
+          </p>
+        </div>
       </header>
 
-      {/* Phase 3 turns this list into a path / skill-tree with progress rings. */}
-      <div ref={listRef} className="space-y-12">
-        {LEVELS.map((level) =>
-          groups[level].length === 0 ? null : (
-            <section key={level} aria-labelledby={`level-${level}`}>
-              <h2 id={`level-${level}`} className="mb-4 text-xl capitalize">
-                {level}
-              </h2>
+      <div ref={listRef} className="space-y-14">
+        {outline.groups.map((group, gi) => {
+          const id = `group-${gi}`;
+          return (
+            <section key={group.name} aria-labelledby={id}>
+              <div className="mb-5 flex items-baseline gap-3">
+                <span className="font-mono text-sm text-muted">
+                  {String(gi + 1).padStart(2, '0')}
+                </span>
+                <h2 id={id} className="text-xl sm:text-2xl">
+                  {group.name}
+                </h2>
+                <span className="font-mono text-xs text-muted">
+                  {group.entries.filter((e) => e.href).length}/{group.entries.length} written
+                </span>
+              </div>
               <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {groups[level].map((topic) => (
-                  <li key={topic.slug} data-reveal>
-                    <Link
-                      to={`/${track}/${topic.slug}`}
-                      className="flex h-full flex-col rounded-card border border-border bg-elevated p-5 transition-[border-color,box-shadow,translate] duration-200 hover:-translate-y-0.5 hover:border-accent/60 hover:shadow-glow"
-                    >
-                      <div className="mb-2 flex items-center justify-between gap-2">
-                        <span className="font-mono text-xs text-muted">#{topic.order}</span>
-                        <LevelChip level={topic.level} />
+                {group.entries.map((entry) => (
+                  <li key={entry.slug} data-reveal>
+                    {entry.href ? (
+                      <Link
+                        to={entry.href}
+                        className="flex h-full flex-col rounded-card border border-border bg-elevated p-5 transition-[border-color,box-shadow,translate] duration-200 hover:-translate-y-0.5 hover:border-accent/60 hover:shadow-glow"
+                      >
+                        <div className="mb-2 flex items-center justify-end">
+                          {entry.level && <LevelChip level={entry.level} />}
+                        </div>
+                        <h3 className="text-lg">{entry.title}</h3>
+                        {entry.summary && (
+                          <p className="mt-2 text-sm text-muted">{entry.summary}</p>
+                        )}
+                        <span className="mt-auto pt-4 text-sm font-medium text-accent">
+                          Read the note <span aria-hidden="true">→</span>
+                        </span>
+                      </Link>
+                    ) : (
+                      <div className="flex h-full flex-col rounded-card border border-dashed border-border p-5 text-muted">
+                        <span className="mb-2 self-end font-mono text-xs">coming soon</span>
+                        <h3 className="text-lg">{entry.title}</h3>
                       </div>
-                      <h3 className="text-lg">{topic.title}</h3>
-                      {topic.summary && <p className="mt-2 text-sm text-muted">{topic.summary}</p>}
-                    </Link>
+                    )}
                   </li>
                 ))}
               </ol>
             </section>
-          ),
-        )}
-
-        {LEVELS.every((l) => groups[l].length === 0) && (
-          <p className="text-muted">
-            No notes yet. Add an <code className="font-mono">.mdx</code> file to{' '}
-            <code className="font-mono">src/content/{track}/</code> to start this track.
-          </p>
-        )}
+          );
+        })}
       </div>
     </div>
   );

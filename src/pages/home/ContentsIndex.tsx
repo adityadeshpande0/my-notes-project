@@ -1,79 +1,88 @@
+import { useState, type KeyboardEvent } from 'react';
 import { Link } from 'react-router';
+import { OutlineGroups, ProgressBar } from '../../components/OutlineGroups';
 import { topics } from '../../lib/content';
-import { PLANNED } from '../../lib/roadmap';
-import { topicsForTrack } from '../../lib/topics';
-import { TRACK_IDS, TRACKS, type Level, type Track } from '../../lib/types';
+import { allOutlines } from '../../lib/curriculum';
+import { TRACKS, type Track } from '../../lib/types';
 
-interface Entry {
-  slug: string;
-  title: string;
-  level?: Level; // only written notes have a level
-}
+const OUTLINES = allOutlines(topics);
+const NUMERALS = ['I', 'II', 'III', 'IV', 'V', 'VI'];
 
-/** Written notes first (in order), then the planned ones that don't exist yet. */
-function entriesFor(track: Track): Entry[] {
-  const written = topicsForTrack(topics, track);
-  const writtenSlugs = new Set(written.map((t) => t.slug));
-  const planned = PLANNED[track].filter((p) => !writtenSlugs.has(p.slug));
-  return [...written, ...planned];
-}
-
-const NUMERALS = ['I', 'II', 'III', 'IV', 'V'];
-
+/**
+ * The home page's contents: one tab per track (with how much is written), and
+ * the chosen track's groups and topics underneath. Tabs follow the ARIA tabs
+ * pattern: ← and → move between them.
+ */
 export function ContentsIndex() {
+  const [active, setActive] = useState<Track>(OUTLINES[0].track);
+  const outline = OUTLINES.find((o) => o.track === active)!;
+
+  const onKeyDown = (e: KeyboardEvent, i: number) => {
+    const dir = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+    if (!dir) return;
+    e.preventDefault();
+    const next = OUTLINES[(i + dir + OUTLINES.length) % OUTLINES.length].track;
+    setActive(next);
+    document.getElementById(`contents-tab-${next}`)?.focus();
+  };
+
   return (
-    <div className="grid gap-x-12 gap-y-12 md:grid-cols-2 2xl:grid-cols-3">
-      {TRACK_IDS.map((track, i) => ({ track, numeral: NUMERALS[i], name: TRACKS[track].name })).map(
-        (part) => (
-          <section key={part.track} aria-labelledby={`part-${part.track}`}>
-            <h3
-              id={`part-${part.track}`}
-              data-reveal
-              className="mb-5 flex items-baseline gap-3 text-lg"
+    <div data-reveal>
+      <div role="tablist" aria-label="Tracks" className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+        {OUTLINES.map((o, i) => {
+          const selected = o.track === active;
+          return (
+            <button
+              key={o.track}
+              id={`contents-tab-${o.track}`}
+              type="button"
+              role="tab"
+              aria-selected={selected}
+              aria-controls="contents-panel"
+              tabIndex={selected ? 0 : -1}
+              onClick={() => setActive(o.track)}
+              onKeyDown={(e) => onKeyDown(e, i)}
+              className={`rounded-card border p-4 text-left transition-[border-color,background-color] duration-200 ${
+                selected
+                  ? 'border-accent/70 bg-elevated shadow-glow'
+                  : 'border-border hover:border-accent/40 hover:bg-elevated/60'
+              }`}
             >
-              <span className="font-mono text-sm font-normal text-muted">Part {part.numeral}</span>
-              <Link to={`/${part.track}`} className="hover:text-accent">
-                {part.name}
-              </Link>
-            </h3>
+              <span className="block font-mono text-xs text-muted">Part {NUMERALS[i]}</span>
+              <span className="mt-1 block font-heading text-[1.05rem] leading-snug font-semibold">
+                {TRACKS[o.track].name}
+              </span>
+              <span className="mt-3 block">
+                <ProgressBar written={o.written} total={o.total} />
+              </span>
+              <span className="mt-1.5 block font-mono text-[0.7rem] text-muted">
+                {o.written} of {o.total} written
+              </span>
+            </button>
+          );
+        })}
+      </div>
 
-            <ol className="border-t border-border">
-              {entriesFor(part.track).map((entry, i) => {
-                const number = String(i + 1).padStart(2, '0');
-                const row = (
-                  <>
-                    <span className="w-6 shrink-0 font-mono text-xs text-muted tabular-nums">
-                      {number}
-                    </span>
-                    <span className="min-w-0">{entry.title}</span>
-                    {/* The dotted "leader" line between title and status, like a printed contents page */}
-                    <span
-                      aria-hidden="true"
-                      className="mx-1 min-w-4 flex-1 translate-y-[-0.3em] border-b border-dotted border-border"
-                    />
-                    <span className="shrink-0 font-mono text-xs">{entry.level ?? 'soon'}</span>
-                  </>
-                );
-
-                return (
-                  <li key={entry.slug} data-reveal className="border-b border-border">
-                    {entry.level ? (
-                      <Link
-                        to={`/${part.track}/${entry.slug}`}
-                        className="group flex items-baseline gap-3 py-3 transition-colors hover:text-accent [&>span:last-child]:text-accent-2"
-                      >
-                        {row}
-                      </Link>
-                    ) : (
-                      <div className="flex items-baseline gap-3 py-3 text-muted/70">{row}</div>
-                    )}
-                  </li>
-                );
-              })}
-            </ol>
-          </section>
-        ),
-      )}
+      <div
+        id="contents-panel"
+        role="tabpanel"
+        aria-labelledby={`contents-tab-${active}`}
+        className="mt-4 rounded-card border border-border bg-elevated p-5 sm:p-7"
+      >
+        {/* `key` replays the fade when you switch tracks. */}
+        <div key={active} className="anatomy-swap">
+          <div className="mb-7 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 border-b border-border pb-5">
+            <p className="max-w-[36rem] text-muted">{TRACKS[active].tagline}</p>
+            <Link
+              to={`/${active}`}
+              className="text-sm font-medium whitespace-nowrap text-accent hover:underline"
+            >
+              Open the {TRACKS[active].short} track <span aria-hidden="true">→</span>
+            </Link>
+          </div>
+          <OutlineGroups groups={outline.groups} columns />
+        </div>
+      </div>
     </div>
   );
 }
