@@ -1,0 +1,302 @@
+---
+title: 'Variables & Data Types: How JavaScript Remembers Things'
+track: javascript
+level: beginner
+order: 2
+summary: Learn how JavaScript stores information in variables, the difference between let, const and var, the 8 data types, and why copying an object isn't really copying, all with things you can play with.
+tags: [javascript, variables, data-types, let, const, memory, beginner]
+readingTime: 16
+---
+
+import {
+  VariableBoxes,
+  NameChecker,
+  LetConstVar,
+  TypeZoo,
+  StringBoxes,
+  NumberLab,
+  CopyVsReference,
+  CoercionMachine,
+  VariablesQuiz,
+} from '../../visualizers/javascript-variables';
+
+A program that can't remember anything is useless. A game has to remember your **score**, a shop
+has to remember your **cart**, and a chat app has to remember **who you are**.
+
+In JavaScript, we remember things using **variables**. And every piece of information has a
+**type**: a number, some text, a yes/no answer, a list…
+
+By the end of this article you'll know:
+
+- What a variable really is, and how to name one well
+- When to use `let`, `const` and (almost never) `var`
+- JavaScript's **8 data types**
+- Why `"5" + 3` is `"53"`, and how to predict JavaScript's conversions
+- The #1 trap for beginners: **copying vs referencing** (this matters a _lot_ in React!)
+
+## What is a variable?
+
+A <Term id="variable">variable</Term> **is a labelled box that holds a value.**
+
+```js
+let score = 10;
+```
+
+Read it like a sentence: _"Make a box, label it `score`, and put `10` inside."_
+
+- `let` means "I'm creating a new variable"
+- `score` is the **name** (the label on the box)
+- `=` means **"put this value in"**. It is _not_ "equals" like in maths!
+- `10` is the **value**
+
+Later, you can **change** what's in the box:
+
+```js
+score = 20; // no `let` this time: the box already exists
+```
+
+Step through it and watch memory change:
+
+<VariableBoxes />
+
+<Callout kind="tip" title="Key idea">
+  `=` is called the **assignment operator**. It always works right-to-left: _first_ work out the
+  value on the right, _then_ store it in the box on the left. That's why `score = score + 5` makes
+  sense in code, even though it's nonsense in maths.
+</Callout>
+
+## Naming your variables
+
+Good names make code read like English. JavaScript has a few **rules** (break them and you get an
+error) and a few **conventions** (break them and other developers will be sad).
+
+**Rules:**
+
+- A name can contain letters, digits, `_` and `$`.
+- It **can't start with a digit**: `2player` ❌, `player2` ✅
+- No spaces or dashes: `my score` ❌, `my-score` ❌
+- It can't be a **reserved word** like `let`, `if`, `class` or `return`.
+- Names are **case-sensitive**: `score` and `Score` are two different variables.
+
+**Conventions:**
+
+- Use **camelCase**: `totalPrice`, `isLoggedIn`, `userName`
+- Be descriptive: `cartTotal` beats `x`
+- Booleans read like questions: `isOpen`, `hasPaid`, `canEdit`
+- Constants that never change are sometimes written in `UPPER_SNAKE_CASE`: `MAX_PLAYERS`
+
+Test your naming skills:
+
+<NameChecker />
+
+## `let`, `const` and `var`
+
+There are three ways to create a variable. Here's the short version:
+
+| Keyword | Can you change the value? | Where does it exist?                          | Use it?                       |
+| ------- | ------------------------- | --------------------------------------------- | ----------------------------- |
+| `const` | ❌ No, the box is locked  | Inside its `{ }` block                        | ✅ **By default**             |
+| `let`   | ✅ Yes                    | Inside its `{ }` block                        | ✅ When the value must change |
+| `var`   | ✅ Yes                    | The whole function (it _leaks_ out of blocks) | ⚠️ Old style, avoid           |
+
+**The modern rule of thumb:** _use `const` for everything, and switch to `let` only when you need to
+change the value._ That way, anyone reading your code knows instantly which values can change.
+
+### Why `var` is avoided
+
+`var` comes from JavaScript's 1995 design, and it has two surprising behaviours:
+
+1. **It ignores blocks.** A `var` created inside an `if { }` or a loop is still visible outside it.
+2. **It's "hoisted" as `undefined`.** You can use it _before_ the line that creates it, and you
+   silently get `undefined` instead of an error.
+
+`let` and `const` were added in **2015 (ES6)** to fix exactly these problems. They have <Term id="block-scope">block scope</Term>, and using a `let`/`const` variable before its line gives
+a clear error instead. (The zone before that line is nicknamed the <Term id="tdz">Temporal Dead Zone</Term>.)
+
+Think of `{ }` blocks as **rooms**. `let` and `const` stay in their room, while `var` walks through
+walls:
+
+<LetConstVar />
+
+### `const` locks the box, not what's inside an object
+
+```js
+const user = { name: 'Riya' };
+user.name = 'Aarav'; // ✅ allowed: we changed the object, not the box
+user = { name: 'Kabir' }; // ❌ TypeError: the box itself is locked
+```
+
+`const` means the box always points to the **same thing**. If that thing is an object, the object
+itself can still change. This will make total sense after the copy-vs-reference section below.
+
+## Data types: what kind of value is it?
+
+Every value in JavaScript has a **type**. The type decides what you can do with the value: you can
+multiply numbers, but you can't multiply "hello".
+
+JavaScript has **8 data types**. Seven of them are <Term id="primitive">primitives</Term>: simple,
+single values. The eighth is **object**, a container that can hold many values.
+
+| Type          | Example                                   | What it's for                                             |
+| ------------- | ----------------------------------------- | --------------------------------------------------------- |
+| **string**    | `"Hello"`, `'chai'`, `` `Hi ${name}` ``   | Text                                                      |
+| **number**    | `42`, `3.14`, `-7`                        | All ordinary numbers: whole numbers and decimals          |
+| **bigint**    | `9007199254740993n`                       | Huge whole numbers, beyond what `number` can hold exactly |
+| **boolean**   | `true`, `false`                           | Yes/no, on/off                                            |
+| **undefined** | `undefined`                               | "No value has been given yet"                             |
+| **null**      | `null`                                    | "Intentionally empty" (you chose this)                    |
+| **symbol**    | `Symbol("id")`                            | A guaranteed-unique ID (advanced, rarely needed early on) |
+| **object**    | `{ name: "Riya" }`, `[1, 2, 3]`           | Collections of values: objects, arrays, functions, dates… |
+
+You can ask JavaScript what type something is with the **`typeof`** operator. Explore the zoo, then
+try the sorting game:
+
+<TypeZoo />
+
+<Callout kind="warning" title="Famous bug alert">
+  `typeof null` says `"object"`. That's a mistake from 1995 that can never be fixed, because fixing
+  it would break old websites. Remember: **null is its own type**, whatever `typeof` claims. Also,
+  `typeof` on a function gives `"function"`, even though functions are technically objects.
+</Callout>
+
+### `undefined` vs `null`
+
+Both mean "no value", but they say it differently:
+
+- **`undefined`:** JavaScript's way of saying _"nothing has been put here yet."_ (`let x;` leaves
+  `x` undefined.)
+- **`null`:** **your** way of saying _"this is empty on purpose."_ (`let selectedUser = null;` means
+  no user is selected yet.)
+
+## A closer look at strings
+
+A **string** is text wrapped in quotes. You can use single `'...'`, double `"..."` or **backticks**
+`` `...` ``. Backticks are special: they let you **insert variables** with `${ }`. This is called a <Term id="template-literal">template literal</Term>.
+
+```js
+const name = 'Riya';
+const greeting = `Hi ${name}, you have ${3 + 2} new messages`;
+// "Hi Riya, you have 5 new messages"
+```
+
+Under the hood, a string is a **row of characters, each with a numbered position (an index),
+starting at 0**. Strings can't be changed in place (they're <Term id="immutable">immutable</Term>).
+Methods like `.toUpperCase()` give you a **new** string.
+
+<StringBoxes />
+
+## A closer look at numbers
+
+JavaScript keeps it simple: whole numbers and decimals are **both** just `number`. There's no
+separate "int" and "float" as in some languages. A few special values are worth knowing:
+
+- **`Infinity`**: try `1 / 0`
+- **`NaN`**: "Not a Number", the result of a maths operation that makes no sense, like
+  `"chai" * 2`. (Funny detail: `typeof NaN` is `"number"`!)
+- **Decimals aren't always exact:** `0.1 + 0.2` gives `0.30000000000000004`, because computers store
+  numbers in binary (remember [From Code to Electrons](/fundamentals/from-code-to-electrons)?). For
+  money, work in whole paise or cents.
+- **There's a "safe" limit:** whole numbers are only exact up to **9,007,199,254,740,991**
+  (`Number.MAX_SAFE_INTEGER`). Beyond that, use **BigInt** by adding an `n`: `9007199254740993n`.
+  You can't mix the two in maths without converting: `1n + 1` throws a `TypeError`.
+
+Play in the lab:
+
+<NumberLab />
+
+## The big one: copying vs referencing
+
+This is the idea that confuses beginners the most, and the one that matters most later in React.
+Take it slowly and use the visual.
+
+**Primitives are copied.** Each variable gets its **own box with its own value**:
+
+```js
+let a = 10;
+let b = a; // b gets a COPY of 10
+b = 99;
+console.log(a); // 10 (a is untouched)
+```
+
+**Objects are referenced.** The object lives in a separate area of memory (the <Term id="heap">heap</Term>), and the variable's box only holds an **arrow** (a <Term id="reference">reference</Term>) pointing to it. Copying the variable copies the **arrow**,
+not the object:
+
+```js
+const user1 = { name: 'Riya' };
+const user2 = user1; // copies the ARROW: both point to the SAME object
+user2.name = 'Aarav';
+console.log(user1.name); // "Aarav" 😱
+```
+
+There was only ever **one** object. You just had two arrows pointing at it. Step through it and
+watch the arrows:
+
+<CopyVsReference />
+
+**How do you make a real copy?** Use the **spread syntax** `{ ...obj }` for objects and `[...arr]`
+for arrays. Use `structuredClone(obj)` for a deep copy (objects nested inside objects).
+
+```js
+const user2 = { ...user1 }; // a NEW object with the same contents
+```
+
+<Callout kind="note" title="Why React cares">
+  React decides whether to re-render by checking if the _arrow_ changed, not the contents. If you
+  change an object in place, the arrow stays the same and React thinks nothing happened. That's why
+  React code always creates **new** objects and arrays with `{ ...old }` and `[...old]`. You've just
+  learned one of React's most important rules before even starting React!
+</Callout>
+
+## Type conversion: why `"5" + 3` is `"53"`
+
+JavaScript is <Term id="dynamic-typing">dynamically typed</Term>: a variable can hold any type, and
+when you mix types, JavaScript **converts** them automatically. This is called <Term id="type-coercion">type coercion</Term>. It follows rules, so once you know them it stops being
+magic:
+
+1. **`+` with a string anywhere** joins text: `"5" + 3` gives `"53"`.
+2. **Other maths operators** (`-` `*` `/` `%`) convert to numbers: `"5" - 3` gives `2`.
+3. **Text that isn't a number** becomes `NaN`: `"chai" * 2` gives `NaN`.
+4. **Booleans become numbers** in maths: `true` is `1`, `false` is `0`.
+5. **`==` converts before comparing. `===` never converts.** That's why `5 == "5"` is `true` but
+   `5 === "5"` is `false`.
+
+Feed the Coercion Machine and watch it work step by step:
+
+<CoercionMachine />
+
+**Converting on purpose (explicit conversion)** is clearer than letting JavaScript guess:
+
+```js
+Number('42'); // 42
+Number('chai'); // NaN
+String(42); // "42"
+Boolean(''); // false
+Boolean('hi'); // true
+```
+
+<Callout kind="tip" title="Rule for real code">
+  Always use `===` and `!==`, and convert types yourself with `Number()`, `String()` and `Boolean()`
+  when you need to.
+</Callout>
+
+## Quick recap
+
+- A **variable** is a labelled box that holds a value. `=` _puts_ a value in; it doesn't mean
+  "equals".
+- Use **`const`** by default, **`let`** when the value must change, and avoid **`var`**.
+- `let`/`const` stay inside their `{ }` block. `var` leaks out and is hoisted as `undefined`.
+- **8 types:** string, number, bigint, boolean, undefined, null, symbol (the primitives) plus object.
+- `typeof` tells you the type, except `typeof null` is `"object"` (a 1995 bug).
+- **Primitives are copied. Objects are referenced** (shared arrows). Use `{...obj}` / `[...arr]` to
+  copy.
+- JavaScript **converts types** automatically. Prefer `===` and explicit conversion.
+
+## Test yourself
+
+<VariablesQuiz />
+
+## What's next?
+
+**Step 3, Operators & Conditions** (coming soon): making decisions with `if`, `else` and `switch`,
+comparison operators, logical `&&` `||` `!`, and the mysterious world of **truthy and falsy**
+values.
