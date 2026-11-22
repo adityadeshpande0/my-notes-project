@@ -58,15 +58,27 @@ export interface Stepper {
   seek: (index: number) => void;
 }
 
+export interface StepperOptions {
+  /** Start playing as soon as the component mounts. */
+  autoPlay?: boolean;
+  /** Start on the last step (e.g. under reduced motion: show the result, no animation). */
+  startAtEnd?: boolean;
+}
+
 /**
  * @param total  how many steps there are
  * @param delay  milliseconds between steps while playing
+ * @param options  where to start. These only apply on mount: to "run again"
+ *   with new input, give the component a new `key` so React mounts it fresh.
  */
-export function useStepper(total: number, delay = 1400): Stepper {
+export function useStepper(total: number, delay = 1400, options: StepperOptions = {}): Stepper {
   const last = Math.max(0, total - 1);
   const [state, dispatch] = useReducer(
     (s: StepperState, a: StepperAction) => stepperReducer(s, a, last),
-    { index: 0, playing: false },
+    options,
+    // The third argument builds the first state once, from `options`.
+    (o): StepperState =>
+      o.startAtEnd ? { index: last, playing: false } : { index: 0, playing: Boolean(o.autoPlay) },
   );
 
   // While playing, schedule the next step. Changing `index` re-runs this
