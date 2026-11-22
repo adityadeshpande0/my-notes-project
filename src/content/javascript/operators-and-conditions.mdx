@@ -1,0 +1,357 @@
+---
+title: 'Operators & Conditions: Teaching JavaScript to Make Decisions'
+track: javascript
+level: beginner
+order: 3
+summary: Do maths, compare values, combine conditions with && || !, and make decisions with if, else, switch and the ternary operator, plus the mysteries of truthy and falsy, all with things you can play with.
+tags: [javascript, operators, conditions, if-else, switch, truthy-falsy, beginner]
+readingTime: 17
+---
+
+import {
+  ArithmeticLab,
+  ComparisonScale,
+  TruthyFalsyBouncer,
+  LogicShortCircuit,
+  IfElseFlow,
+  SwitchJunction,
+  SafeAccessLab,
+  PrecedenceTree,
+  ConditionsQuiz,
+} from '../../visualizers/javascript-conditions';
+
+So far our programs remember things (variables). But real programs also **decide** things:
+
+- _If_ the password is correct, log the user in. _Otherwise_ show an error.
+- _If_ the cart total is over ₹500, delivery is free.
+- _If_ it's after 10 PM _and_ the user has dark mode on, dim the screen.
+
+To make decisions, a program needs two skills:
+
+1. **Operators**: doing maths, comparing values and combining yes/no answers.
+2. **Conditions**: choosing which code to run based on those answers.
+
+By the end of this article you'll know:
+
+- The arithmetic, comparison and logical operators
+- What **truthy** and **falsy** mean (and the 8 values that are falsy)
+- `if`, `else if`, `else`, the **ternary** `? :`, and `switch`
+- Modern safety tools: `??` and `?.`
+- How JavaScript decides **which operator goes first**
+
+## Arithmetic operators: maths
+
+An <Term id="operator">operator</Term> is a symbol that does something with values. The first
+group does maths:
+
+| Operator | Name             | Example  | Result |
+| -------- | ---------------- | -------- | ------ |
+| `+`      | Add              | `7 + 2`  | `9`    |
+| `-`      | Subtract         | `7 - 2`  | `5`    |
+| `*`      | Multiply         | `7 * 2`  | `14`   |
+| `/`      | Divide           | `7 / 2`  | `3.5`  |
+| `%`      | Remainder        | `7 % 2`  | `1`    |
+| `**`     | Power (exponent) | `7 ** 2` | `49`   |
+
+The one beginners don't know is **`%`, the <Term id="remainder">remainder</Term> operator**. It
+answers: _"after dividing as many whole times as possible, what's left over?"_ Share 7 samosas
+between 2 friends: each gets 3, and **1 is left over**. So `7 % 2` is `1`.
+
+It's surprisingly useful:
+
+- **Is a number even?** `n % 2 === 0`
+- **Every 3rd item?** `i % 3 === 0`
+- **Wrap around** (like a clock): `(hour + 5) % 12`
+
+Play with the samosas:
+
+<ArithmeticLab />
+
+### Shortcuts: update a variable in place
+
+```js
+let score = 10;
+score += 5;   // same as score = score + 5  → 15
+score -= 3;   // → 12
+score *= 2;   // → 24
+score++;      // add 1 → 25
+score--;      // subtract 1 → 24
+```
+
+These are the **assignment operators**. You'll use `+=` and `++` constantly, especially in loops
+(next article!).
+
+## Comparison operators: asking questions
+
+A comparison asks a yes/no question. The answer is always a **boolean**: `true` or `false`.
+
+| Operator | Question                                  | Example     | Result  |
+| -------- | ----------------------------------------- | ----------- | ------- |
+| `===`    | Are they equal (same type _and_ value)?   | `5 === 5`   | `true`  |
+| `!==`    | Are they different?                       | `5 !== "5"` | `true`  |
+| `>`      | Greater than?                             | `10 > 3`    | `true`  |
+| `<`      | Less than?                                | `10 < 3`    | `false` |
+| `>=`     | Greater than or equal?                    | `18 >= 18`  | `true`  |
+| `<=`     | Less than or equal?                       | `17 <= 18`  | `true`  |
+
+Remember from the last article: **always use `===` and `!==`**. The loose versions `==` and `!=`
+convert types first, which leads to surprises.
+
+**Comparing strings** works alphabetically, character by character: `"apple" < "banana"` is
+`true`. But watch out: **`"10" < "9"` is also `true`!** As strings, `"1"` comes before `"9"`, just
+like in a dictionary. Convert to numbers first when you mean numbers.
+
+Put values on the scale and see how JavaScript weighs them:
+
+<ComparisonScale />
+
+## Truthy and falsy
+
+Here's something special about JavaScript: an `if` doesn't need a real `true` or `false`. You can
+give it **any value**, and JavaScript decides whether that value _counts as_ true or false.
+
+- Values that count as false are called <Term id="falsy">**falsy**</Term>.
+- **Everything else** is <Term id="truthy">**truthy**</Term>.
+
+There are only **8 falsy values**. Learn this list and you know everything:
+
+```js
+false
+0
+-0
+0n          // BigInt zero
+""          // empty string
+null
+undefined
+NaN
+```
+
+Everything else is truthy, **including some surprises**:
+
+```js
+"0"        // truthy! (a non-empty string)
+"false"    // truthy! (a non-empty string)
+[]         // truthy! (an empty array is still an object)
+{}         // truthy! (an empty object)
+" "        // truthy! (a space is a character)
+```
+
+This is why you'll often see code like:
+
+```js
+if (username) {
+  // runs only if username isn't empty, null or undefined
+}
+```
+
+Meet the bouncer. Only truthy values get into the party:
+
+<TruthyFalsyBouncer />
+
+## Logical operators: combining conditions
+
+| Operator | Name | Means                     | Example                  |
+| -------- | ---- | ------------------------- | ------------------------ |
+| `&&`     | AND  | Both must be true         | `age >= 18 && hasTicket` |
+| `\|\|`   | OR   | At least one must be true | `isAdmin \|\| isOwner`   |
+| `!`      | NOT  | Flip it                   | `!isLoggedIn`            |
+
+You met these in **From Code to Electrons** as logic gates built from transistors. Same idea, now in
+code!
+
+### Short-circuiting: JavaScript is lazy (in a good way)
+
+JavaScript reads `&&` and `||` **left to right** and **stops as soon as it knows the answer**.
+This is called <Term id="short-circuit">short-circuiting</Term>:
+
+- `false && anything` is false, so JavaScript **never even looks at** the right side.
+- `true || anything` is true, so it doesn't look at the right side either.
+
+And here's the twist: `&&` and `||` don't return `true`/`false`. They return **one of the actual
+values**:
+
+- `||` returns the **first truthy** value (or the last value if none are truthy).
+- `&&` returns the **first falsy** value (or the last value if all are truthy).
+
+```js
+"" || "Guest"          // "Guest"  ← common trick for default values
+"Riya" || "Guest"      // "Riya"
+user && user.name      // only reads user.name if user exists
+```
+
+Step through and watch JavaScript skip work:
+
+<LogicShortCircuit />
+
+## Making decisions: `if`, `else if`, `else`
+
+The `if` statement runs a block of code **only if** a condition is truthy:
+
+```js
+const marks = 72;
+
+if (marks >= 90) {
+  console.log("Grade A 🌟");
+} else if (marks >= 75) {
+  console.log("Grade B 👍");
+} else if (marks >= 50) {
+  console.log("Grade C 🙂");
+} else {
+  console.log("Try again 💪");
+}
+```
+
+How JavaScript reads this:
+
+1. Check the conditions **from top to bottom**.
+2. Run the block of the **first** condition that's true.
+3. **Skip all the rest**, even if they would also be true.
+4. If nothing matched, run the `else` block (if there is one).
+
+Order matters! If you checked `marks >= 50` first, _everyone_ above 50 would get a C. Drag the
+marks slider and follow the path:
+
+<IfElseFlow />
+
+### The ternary operator: a one-line if/else
+
+For simple "this or that" choices, there's a compact form:
+
+```js
+const label = age >= 18 ? "Adult" : "Minor";
+//            condition ? valueIfTrue : valueIfFalse
+```
+
+Read it as: _"Is age 18 or more? If yes, `"Adult"`. Otherwise `"Minor"`."_ It's perfect for
+choosing a value, and you'll see it **everywhere** in React:
+
+```jsx
+<p>{isLoggedIn ? "Welcome back!" : "Please log in"}</p>
+```
+
+<Callout kind="tip" title="Keep ternaries simple">
+  If you start nesting them (`a ? b : c ? d : e`), switch back to `if`/`else` for readability.
+</Callout>
+
+## `switch`: choosing from many options
+
+When you compare **one value** against many possible matches, `switch` can be cleaner than a long
+`if`/`else if` chain:
+
+```js
+const day = "Sat";
+
+switch (day) {
+  case "Sat":
+  case "Sun":
+    console.log("Weekend! 🎉");
+    break;
+  case "Fri":
+    console.log("Almost there…");
+    break;
+  default:
+    console.log("Work day 💼");
+}
+```
+
+Things to know:
+
+- `switch` compares using **strict equality `===`**.
+- Each `case` is a possible match. `default` runs when nothing matches.
+- **`break` is essential.** Without it, JavaScript keeps running _into the next case_ (this is
+  called <Term id="fall-through">fall-through</Term>). Sometimes that's useful (like `"Sat"` and
+  `"Sun"` above sharing one result), but forgetting `break` is a classic bug.
+
+Think of it as a railway junction: the train enters at the top and takes the first matching track.
+Try removing the `break`s:
+
+<SwitchJunction />
+
+## Modern safety tools: `??` and `?.`
+
+Two newer operators, added in **2020**, save you from common bugs.
+
+### Nullish coalescing `??`: a better default
+
+`||` gives a default for **any falsy** value, which is sometimes wrong:
+
+```js
+const volume = 0;
+volume || 50   // 50 😬  (0 is falsy, so your 0 is thrown away!)
+volume ?? 50   // 0  ✅  (?? only replaces null or undefined)
+```
+
+**`??` only uses the default when the value is `null` or `undefined`.** Use it when `0`, `""` or
+`false` are valid values.
+
+### Optional chaining `?.`: safe property access
+
+Reading a property of something that doesn't exist crashes your code:
+
+```js
+const user = { name: "Riya" };          // no address!
+user.address.city    // ❌ TypeError: Cannot read properties of undefined
+user.address?.city   // ✅ undefined (no crash)
+```
+
+`?.` means: _"if the thing on the left is `null` or `undefined`, stop and give `undefined` instead
+of crashing."_ Combine both for safe defaults:
+
+```js
+const city = user.address?.city ?? "Unknown";
+```
+
+Explore both:
+
+<SafeAccessLab />
+
+## Which operator goes first? (Precedence)
+
+Just like in school maths (BODMAS/PEMDAS), JavaScript has an order, called
+<Term id="precedence">operator precedence</Term>:
+
+1. `( )` parentheses, always first
+2. `!` NOT (and other single-value operators like `-x`)
+3. `**` power
+4. `*` `/` `%`
+5. `+` `-`
+6. `<` `>` `<=` `>=`
+7. `===` `!==`
+8. `&&`
+9. `||` and `??`
+10. `? :` ternary
+11. `=` `+=` etc. (assignment comes last)
+
+So `2 + 3 * 4` is `14`, not `20`. Watch JavaScript solve a big expression one piece at a time:
+
+<PrecedenceTree />
+
+<Callout kind="tip" title="Pro tip">
+  When in doubt, **add parentheses**. `(a && b) || c` is easier to read than relying on everyone
+  remembering the precedence table.
+</Callout>
+
+## Quick recap
+
+- **Arithmetic:** `+ - * / % **`. `%` gives the **remainder** (great for even/odd and
+  wrap-around).
+- **Assignment shortcuts:** `+=`, `-=`, `++`, `--`.
+- **Comparison:** `===` `!==` `>` `<` `>=` `<=` always give a boolean. Use `===`.
+- **Falsy values (8):** `false`, `0`, `-0`, `0n`, `""`, `null`, `undefined`, `NaN`. Everything else is truthy,
+  including `"0"`, `[]` and `{}`.
+- **Logical:** `&&`, `||`, `!`. They **short-circuit** and return actual values.
+- **Decisions:** `if / else if / else` checks top-down and runs the first match. The ternary
+  `? :` is for choosing a value. `switch` matches one value against many cases (don't forget
+  `break`).
+- **Modern safety:** `??` gives a default only for `null`/`undefined`, and `?.` reads properties
+  without crashing.
+- **Precedence:** like BODMAS. When unsure, use parentheses.
+
+## Test yourself
+
+<ConditionsQuiz />
+
+## What's next?
+
+**Step 4, Loops** (coming soon): making JavaScript repeat things with `for`, `while`, `for...of`
+and friends, using the operators and conditions you just learned.
