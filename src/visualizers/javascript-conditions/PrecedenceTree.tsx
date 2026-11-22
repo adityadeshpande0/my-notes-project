@@ -179,6 +179,10 @@ function Solver({ expr }: { expr: Expr }) {
   for (const st of result.steps.slice(0, s.index + 1))
     if (lines[lines.length - 1] !== st.text) lines.push(st.text);
 
+  // As the tree collapses, shrink the drawing to the nodes still showing.
+  const visibleBottom = Math.max(...tree.nodes.filter((n) => !swallowedBy(n.id)).map((n) => n.y));
+  const height = Math.min(tree.height, visibleBottom + PAD);
+
   const current = byId.get(step.id);
   const level = current
     ? precedenceLevel(current.bracketed ? { kind: 'group', expr: current.expr } : current.expr)
@@ -200,7 +204,7 @@ function Solver({ expr }: { expr: Expr }) {
           <div className="viz-scroll jc-tree-scroll">
             <svg
               className="jc-tree"
-              viewBox={`0 0 ${tree.width} ${tree.height}`}
+              viewBox={`0 0 ${tree.width} ${height}`}
               style={{ width: tree.width, maxWidth: 'none' }}
               role="img"
               aria-label={`Expression tree. Current step: ${step.text}`}
