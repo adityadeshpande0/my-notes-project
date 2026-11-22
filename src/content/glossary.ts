@@ -288,4 +288,39 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
     definition:
       'A variable can hold any type of value, and the type is checked while the code runs, not before.',
   },
+  operator: {
+    term: 'Operator',
+    definition:
+      'A symbol that does something with values, like + (add), === (compare) or && (and). The values it works on are called operands.',
+  },
+  remainder: {
+    term: 'Remainder (%)',
+    definition:
+      'What is left over after dividing as many whole times as possible. 7 % 2 is 1, because 2 fits into 7 three times with 1 left.',
+  },
+  truthy: {
+    term: 'Truthy',
+    definition:
+      'A value that counts as true when JavaScript needs a yes/no answer, like in an if. Every value is truthy except the 8 falsy ones.',
+  },
+  falsy: {
+    term: 'Falsy',
+    definition:
+      'A value that counts as false in an if: false, 0, -0, 0n, "" (empty string), null, undefined and NaN. That is the whole list.',
+  },
+  'short-circuit': {
+    term: 'Short-circuiting',
+    definition:
+      'When && or || already knows the answer from the left side, JavaScript skips the right side completely. It is never even run.',
+  },
+  precedence: {
+    term: 'Operator precedence',
+    definition:
+      'The order in which operators are worked out when there are no brackets, like BODMAS in maths. * goes before +, so 2 + 3 * 4 is 14.',
+  },
+  'fall-through': {
+    term: 'Fall-through',
+    definition:
+      'In a switch, when a matching case has no break, JavaScript keeps running the next cases too, without checking them.',
+  },
 };

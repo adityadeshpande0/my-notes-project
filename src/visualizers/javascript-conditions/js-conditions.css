@@ -1,0 +1,1099 @@
+/*
+ * Styles for the visuals in "Operators & Conditions". Imported by index.ts,
+ * so it only loads with that note. Colours come from the theme tokens:
+ * mint = current, amber = comparing / warning, coral = wrong, green = done.
+ */
+
+/* ─── Shared bits ───────────────────────────────────────────────── */
+.jc-muted {
+  color: var(--text-muted);
+}
+.jc-small {
+  font-size: 0.8rem;
+}
+.jc-big {
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+.jc-gap {
+  margin-top: 1rem;
+}
+.jc-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.jc-hint {
+  margin: 0.75rem 0;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+.jc-warn-text {
+  color: var(--warn);
+}
+.jc-error-text {
+  color: var(--danger);
+}
+.jc-arrow {
+  color: var(--text-muted);
+}
+.jc-result {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.25rem 0 0.75rem;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  font-size: 1.05rem;
+  font-variant-ligatures: none;
+}
+.jc-result strong {
+  color: var(--accent-2);
+}
+.jc-ops {
+  margin: 0.75rem 0;
+}
+.jc-op-name {
+  font-size: 0.75rem;
+  opacity: 0.75;
+}
+@container (max-width: 26rem) {
+  .jc-op-name {
+    display: none;
+  }
+}
+.jc-bool {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.7rem;
+  border: 1.5px solid;
+  border-radius: 999px;
+  font-weight: 700;
+}
+.jc-bool.is-true {
+  border-color: var(--success);
+  background: color-mix(in srgb, var(--success) 12%, transparent);
+  color: var(--success);
+}
+.jc-bool.is-false {
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  color: var(--danger);
+}
+.jc-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.jc-check input {
+  accent-color: var(--accent);
+}
+.jc-check:has(input:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.jc-switch {
+  margin: 0.5rem 0 0.75rem;
+}
+.jc-input,
+.jc-select {
+  min-width: 0;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+}
+.jc-input {
+  flex: 1 1 12rem;
+}
+.jc-input:focus-visible,
+.jc-select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.jc-slider {
+  display: flex;
+  flex: 1 1 14rem;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  font-size: 0.9rem;
+}
+.jc-slider input {
+  width: 100%;
+  accent-color: var(--accent-2);
+}
+.jc-slider-row {
+  margin-bottom: 0.5rem;
+}
+
+/* Number stepper (− value +) */
+.jc-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.jc-stepper-name {
+  min-width: 1.2rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.jc-stepper-input {
+  width: 3.4rem;
+  padding: 0.35rem 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.95rem;
+  text-align: center;
+  appearance: textfield;
+}
+.jc-stepper-input::-webkit-inner-spin-button,
+.jc-stepper-input::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+/* Code with marks */
+.jc-code {
+  margin: 0;
+  overflow-x: auto;
+  font-size: 12.5px;
+  line-height: 1.7;
+  font-variant-ligatures: none;
+}
+.jc-line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0 0.35rem;
+  border-left: 3px solid transparent;
+  border-radius: 6px;
+  white-space: pre;
+  transition:
+    background-color 0.2s,
+    opacity 0.2s;
+}
+.jc-line.is-on {
+  border-left-color: var(--accent-2);
+  background: color-mix(in srgb, var(--accent-2) 16%, transparent);
+}
+.jc-line.is-dim {
+  opacity: 0.45;
+}
+.jc-ln {
+  min-width: 2ch;
+  color: var(--text-muted);
+  text-align: right;
+  user-select: none;
+}
+.jc-badge {
+  margin-left: auto;
+  padding-left: 0.5rem;
+  font-size: 11px;
+  font-weight: 700;
+}
+.jc-badge.is-yes {
+  color: var(--success);
+}
+.jc-badge.is-no {
+  color: var(--danger);
+}
+.jc-badge.is-muted {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.jc-badge.is-warn {
+  color: var(--warn);
+}
+.jc-console {
+  margin-top: 0.75rem;
+  font-size: 13px;
+}
+.jc-out {
+  animation: viz-fade 0.3s ease both;
+}
+.jc-out > span {
+  color: var(--accent-2);
+}
+
+/* Code on one side, a diagram on the other (stacked on phones). */
+.jc-split {
+  display: grid;
+  gap: 0.75rem;
+}
+/* Let long code lines scroll inside their panel instead of widening the card. */
+.jc-split > * {
+  min-width: 0;
+}
+@container (min-width: 44rem) {
+  .jc-split {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+.jc-flow-panel svg {
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+/* ─── #1 Samosa maths ───────────────────────────────────────────── */
+.jc-deal {
+  display: grid;
+  gap: 0.75rem;
+  align-items: start;
+}
+@container (min-width: 40rem) {
+  .jc-deal {
+    grid-template-columns: 7rem minmax(0, 1fr) 7rem;
+  }
+}
+.jc-pile,
+.jc-leftover {
+  min-height: 4.5rem;
+  padding: 0.5rem;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+}
+.jc-leftover {
+  position: relative;
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
+}
+.jc-leftover.is-on {
+  border: 1.5px solid var(--warn);
+  background: color-mix(in srgb, var(--warn) 10%, transparent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--warn) 35%, transparent);
+}
+.jc-plates {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+}
+.jc-plate {
+  position: relative;
+  min-height: 4.5rem;
+  padding: 0.45rem 0.45rem 1.3rem;
+  border: 1.5px solid var(--border);
+  border-radius: 999px / 60%;
+  background: var(--surface);
+  text-align: center;
+}
+.jc-plate--value {
+  display: grid;
+  place-items: center;
+  min-height: 3rem;
+  padding: 0.4rem;
+  color: var(--accent-2);
+  font-weight: 600;
+}
+.jc-plate-count {
+  position: absolute;
+  right: 0;
+  bottom: 0.25rem;
+  left: 0;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-align: center;
+}
+.jc-samosas {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1px;
+  font-size: 15px;
+  line-height: 1.2;
+}
+.jc-samosa {
+  animation: jc-drop 0.3s ease-out both;
+}
+@keyframes jc-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.6);
+  }
+}
+.jc-vis {
+  margin-top: 0.25rem;
+}
+.jc-square {
+  display: grid;
+  gap: 2px;
+  margin: 0 auto;
+}
+.jc-square > span {
+  aspect-ratio: 1;
+  border-radius: 3px;
+  background: var(--accent-2);
+  animation: jc-pop 0.25s ease-out both;
+}
+@keyframes jc-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+}
+.jc-cube-stage {
+  display: grid;
+  place-items: center;
+  min-height: 12rem;
+  padding: 1.5rem 0 2.5rem;
+  perspective: 600px;
+}
+.jc-cube {
+  position: relative;
+  transform: rotateX(58deg) rotateZ(-40deg);
+  transform-style: preserve-3d;
+}
+.jc-cube-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  gap: 2px;
+  animation: jc-rise 0.4s ease-out both;
+}
+.jc-cube-layer > span {
+  border: 1px solid color-mix(in srgb, var(--accent-2) 70%, var(--bg));
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--accent-2) 30%, transparent);
+}
+@keyframes jc-rise {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* No 3D under reduced motion: the layers lie flat, side by side. */
+  .jc-cube-stage {
+    perspective: none;
+  }
+  .jc-cube {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    width: auto !important;
+    height: auto !important;
+    transform: none;
+  }
+  .jc-cube-layer {
+    position: static;
+    transform: none !important;
+  }
+}
+.jc-written {
+  overflow-wrap: anywhere;
+}
+.jc-rows {
+  display: grid;
+  gap: 4px;
+}
+.jc-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+.jc-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent-2);
+}
+.jc-dot.is-b {
+  background: var(--violet);
+}
+.jc-dot.is-crossed {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--danger);
+  position: relative;
+}
+.jc-dot.is-crossed::after {
+  content: '';
+  position: absolute;
+  inset: 5px -1px;
+  background: var(--danger);
+  transform: rotate(-45deg);
+}
+
+/* Clock */
+.jc-clock-wrap {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px dashed var(--border);
+}
+.jc-clock-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+.jc-clock-row > div {
+  flex: 1 1 14rem;
+}
+.viz svg.jc-clock {
+  width: 130px;
+  flex-shrink: 0;
+}
+.jc-clock-face {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 2;
+}
+.viz svg .jc-clock-num {
+  font-size: 11px;
+  fill: var(--text-muted);
+}
+.viz svg .jc-clock-num.is-on {
+  fill: var(--accent-2);
+  font-weight: 700;
+}
+.jc-clock-hand {
+  stroke: var(--accent-2);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  transform-origin: 60px 60px;
+  transition: transform 0.6s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.jc-clock-pin {
+  fill: var(--accent-2);
+}
+
+/* ─── #2 Balance scale ──────────────────────────────────────────── */
+.jc-pans {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 1fr 1fr;
+}
+.jc-panpick {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.jc-panpick .jc-select {
+  width: 100%;
+}
+.jc-own {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+}
+.jc-own .jc-input {
+  flex: 1 1 0;
+  width: 0;
+}
+.jc-scale-stage {
+  max-width: 440px;
+  margin: 0.5rem auto 0.25rem;
+  transition: transform 0.5s ease;
+  transform-style: preserve-3d;
+}
+@media (prefers-reduced-motion: reduce) {
+  .jc-scale-stage {
+    transform: none !important;
+  }
+}
+.jc-scale-post {
+  fill: none;
+  stroke: var(--text-muted);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+.jc-scale-pivot {
+  fill: var(--accent);
+}
+.jc-scale-beam {
+  transform-origin: 160px 46px;
+  transition: transform 0.6s cubic-bezier(0.3, 1.3, 0.5, 1);
+}
+.jc-scale-beam rect {
+  fill: var(--text-muted);
+  transition:
+    fill 0.3s,
+    filter 0.3s;
+}
+.jc-scale-beam.is-true rect {
+  fill: var(--success);
+  filter: drop-shadow(0 0 6px var(--success));
+}
+.jc-scale-beam.is-false rect {
+  fill: var(--danger);
+  filter: drop-shadow(0 0 6px var(--danger));
+}
+.jc-scale-pan {
+  transition: transform 0.6s cubic-bezier(0.3, 1.3, 0.5, 1);
+}
+.jc-scale-string {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 1.5;
+}
+.jc-scale-dish {
+  fill: var(--surface);
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+.viz svg .jc-scale-value {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 600;
+}
+.viz svg .jc-scale-type {
+  fill: var(--text-muted);
+  font-size: 11px;
+}
+.jc-cmp-ops {
+  display: grid;
+  width: 100%;
+  margin: 0.5rem 0 0.75rem;
+}
+/* Phones: the seven operators wrap onto two rows instead of overflowing. */
+@container (max-width: 30rem) {
+  .jc-cmp-ops {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.jc-strdiff {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 0.5rem;
+}
+.jc-chars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+.jc-char {
+  display: grid;
+  place-items: center;
+  min-width: 1.6rem;
+  height: 1.6rem;
+  padding: 0 0.2rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  font-size: 0.85rem;
+}
+.jc-char.is-same {
+  opacity: 0.55;
+}
+.jc-char.is-decide {
+  border: 2px solid var(--warn);
+  background: color-mix(in srgb, var(--warn) 16%, transparent);
+  color: var(--warn);
+  font-weight: 700;
+}
+.jc-char.is-end {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+}
+
+/* ─── #4 Short-circuit tiles ────────────────────────────────────── */
+.jc-toggles {
+  margin-bottom: 0.75rem;
+}
+.jc-lane {
+  min-width: 0;
+}
+.jc-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1.6rem 0.4rem; /* tall rows leave room for the labels under each tile */
+  padding: 0.9rem 0.75rem 1.6rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.jc-tile {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 2.4rem;
+  padding: 0.35rem 0.6rem;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  font-size: 0.95rem;
+  font-variant-ligatures: none;
+  transition:
+    border-color 0.25s,
+    background-color 0.25s,
+    opacity 0.25s,
+    box-shadow 0.25s;
+}
+.jc-tile.is-op,
+.jc-tile.is-paren {
+  border-style: dashed;
+  background: transparent;
+  color: var(--accent);
+  font-weight: 700;
+}
+.jc-tile.is-paren {
+  border-color: transparent;
+  padding-inline: 0.15rem;
+}
+.jc-tile.is-active {
+  border-color: var(--accent-2);
+  border-style: solid;
+  background: color-mix(in srgb, var(--accent-2) 16%, var(--surface));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent-2) 40%, transparent);
+}
+.jc-tile.is-skipped {
+  opacity: 0.4;
+  border-style: dotted;
+  text-decoration: line-through;
+}
+.jc-stamp {
+  position: absolute;
+  top: 100%;
+  margin-top: 3px;
+  color: var(--text-muted);
+  font-size: 10.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.jc-tile-badge,
+.jc-tile-value {
+  position: absolute;
+  top: 100%;
+  margin-top: 3px;
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.jc-tile-badge.is-truthy {
+  color: var(--success);
+}
+.jc-tile-badge.is-falsy {
+  color: var(--danger);
+}
+.jc-tile-value {
+  color: var(--accent-2);
+}
+.jc-calls {
+  margin: 0.6rem 0 0;
+  font-size: 0.9rem;
+}
+.jc-calls strong {
+  color: var(--accent-2);
+}
+.jc-returns {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.85rem;
+  border: 1.5px dashed var(--border);
+  border-radius: 10px;
+}
+.jc-returns .viz-label {
+  margin: 0;
+}
+.jc-returns.is-on {
+  border-style: solid;
+  border-color: var(--success);
+  background: color-mix(in srgb, var(--success) 8%, transparent);
+  animation: viz-fade 0.35s ease both;
+}
+.jc-returns.is-on code {
+  color: var(--success);
+}
+
+/* ─── #5 Decision paths ─────────────────────────────────────────── */
+.jc-ternary-code {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  white-space: pre-wrap;
+}
+.jc-part {
+  border-radius: 5px;
+  padding: 0 2px;
+  transition:
+    background-color 0.25s,
+    opacity 0.25s;
+}
+.jc-part.is-on {
+  background: color-mix(in srgb, var(--accent-2) 22%, transparent);
+  box-shadow: inset 0 -2px 0 var(--accent-2);
+}
+.jc-part.is-dim {
+  opacity: 0.4;
+}
+.jc-ternary {
+  max-width: 380px;
+  margin: 0.75rem auto 0;
+}
+.jc-ternary-box {
+  display: flex;
+  justify-content: center;
+}
+.jc-order {
+  margin-top: 0.75rem;
+}
+.jc-order-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.15rem 0;
+  font-size: 0.9rem;
+}
+.jc-order-row.is-total {
+  margin-top: 0.25rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--border);
+  font-weight: 700;
+}
+
+/* ─── #6 Switch junction ────────────────────────────────────────── */
+.jc-values .viz-btn {
+  min-width: 3.2rem;
+}
+.jc-train {
+  transition: transform 0.55s cubic-bezier(0.45, 0, 0.3, 1);
+}
+.jc-train-tag {
+  fill: var(--accent-2);
+}
+.viz svg .jc-train-value {
+  fill: var(--bg);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+}
+.viz svg .jc-train-icon {
+  font-size: 18px;
+}
+
+/* ─── #7 Safe access ────────────────────────────────────────────── */
+.jc-table-wrap {
+  overflow-x: auto;
+}
+.jc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  font-variant-ligatures: none;
+}
+.jc-table th,
+.jc-table td {
+  padding: 0.4rem 0.6rem;
+  text-transform: none;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+}
+.jc-table thead th {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.jc-table tr.is-differ {
+  background: color-mix(in srgb, var(--warn) 10%, transparent);
+}
+.jc-table tr.is-differ th {
+  box-shadow: inset 3px 0 0 var(--warn);
+}
+.jc-differ-tag {
+  color: var(--warn);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.jc-volume {
+  display: grid;
+  gap: 0.35rem;
+  border-width: 1.5px;
+}
+.jc-volume.is-wrong {
+  border-color: var(--danger);
+}
+.jc-volume.is-wrong .jc-small {
+  color: var(--danger);
+}
+.jc-volume.is-right {
+  border-color: var(--success);
+}
+.jc-volume.is-right .jc-small {
+  color: var(--success);
+}
+.jc-volume-line {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.jc-volume-icon {
+  font-size: 1.6rem;
+}
+.jc-walk-grid {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+@container (min-width: 44rem) {
+  .jc-walk-grid {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    align-items: start;
+  }
+}
+.jc-memory {
+  position: relative; /* RefArrows draws against this box */
+}
+.jc-mem-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  padding-right: 2.25rem;
+}
+.jc-walks {
+  display: grid;
+  gap: 0.75rem;
+}
+.jc-walks .viz-controls {
+  margin-top: 0;
+}
+.jc-walk-title {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.jc-path {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0 0 0.3rem;
+  list-style: none;
+}
+.jc-path-node {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  min-width: 5.5rem;
+  padding: 0.35rem 0.55rem;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  font-size: 0.82rem;
+  transition:
+    border-color 0.25s,
+    background-color 0.25s;
+}
+.jc-path-node.is-read {
+  border-color: var(--accent-2);
+}
+.jc-path-node.is-crash {
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  animation: jc-shake 0.4s ease;
+}
+.jc-path-node.is-stop {
+  border-color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 12%, transparent);
+}
+@keyframes jc-shake {
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+.jc-path-val {
+  min-height: 1.2em;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+.jc-walker {
+  position: absolute;
+  top: -0.9rem;
+  right: -0.3rem;
+  font-size: 1rem;
+}
+.jc-walk-result {
+  margin-top: 0.4rem;
+  font-size: 0.9rem;
+}
+.jc-walk-result code {
+  color: var(--accent-2);
+  font-weight: 600;
+}
+.jc-crash {
+  color: var(--danger);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+
+/* ─── #8 Precedence tree ────────────────────────────────────────── */
+.jc-prec {
+  display: grid;
+  gap: 0.75rem;
+}
+@container (min-width: 46rem) {
+  .jc-prec {
+    grid-template-columns: minmax(0, 1fr) 16rem;
+    align-items: start;
+  }
+}
+.jc-prec-main {
+  min-width: 0;
+}
+.jc-lines {
+  margin: 0 0 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  font-size: 0.85rem;
+  list-style: none;
+  font-variant-ligatures: none;
+  overflow-x: auto;
+}
+.jc-lines li {
+  color: var(--text-muted);
+  white-space: pre;
+}
+.jc-lines li.is-on {
+  color: var(--text);
+  font-weight: 600;
+}
+.jc-lines li.is-on::before {
+  content: '→ ';
+  color: var(--accent-2);
+}
+.jc-tree-scroll {
+  padding: 0.25rem 0;
+}
+.viz svg.jc-tree {
+  margin: 0 auto;
+}
+.jc-tree-edge {
+  stroke: var(--border);
+  stroke-width: 2;
+  transition: opacity 0.4s;
+}
+.jc-tree-edge.is-hidden {
+  opacity: 0;
+}
+.jc-tree-edge.is-skipped {
+  stroke-dasharray: 4 4;
+  opacity: 0.4;
+}
+.jc-tree-node {
+  transition:
+    transform 0.5s cubic-bezier(0.45, 0, 0.3, 1),
+    opacity 0.4s;
+}
+.jc-tree-node rect {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.5;
+  transition:
+    fill 0.25s,
+    stroke 0.25s;
+}
+.jc-tree-node.is-op rect {
+  stroke: var(--accent);
+  stroke-dasharray: 4 3;
+}
+.viz svg .jc-tree-node text {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+}
+.viz svg .jc-tree-node.is-op text {
+  fill: var(--accent);
+}
+.jc-tree-node.is-done rect {
+  fill: color-mix(in srgb, var(--success) 14%, var(--surface));
+  stroke: var(--success);
+  stroke-dasharray: none;
+}
+.viz svg .jc-tree-node.is-done text {
+  fill: var(--text);
+}
+.jc-tree-node.is-active rect {
+  fill: color-mix(in srgb, var(--accent-2) 20%, var(--surface));
+  stroke: var(--accent-2);
+  stroke-width: 2.5;
+  stroke-dasharray: none;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent-2) 60%, transparent));
+}
+.jc-tree-node.is-hidden {
+  opacity: 0;
+}
+.jc-tree-node.is-skipped {
+  opacity: 0.4;
+}
+.viz svg .jc-tree-skip {
+  fill: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 500;
+}
+.jc-ladder {
+  margin: 0;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  list-style: none;
+  font-size: 0.78rem;
+}
+.jc-ladder li {
+  display: grid;
+  grid-template-columns: 1.3rem 5.6rem 1fr;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.18rem 0.35rem;
+  border-radius: 6px;
+  color: var(--text-muted);
+  transition:
+    background-color 0.25s,
+    color 0.25s;
+}
+.jc-ladder li.is-on {
+  background: color-mix(in srgb, var(--accent-2) 18%, transparent);
+  color: var(--text);
+  box-shadow: inset 3px 0 0 var(--accent-2);
+}
+.jc-ladder-n {
+  font-weight: 700;
+  text-align: right;
+}
+.jc-ladder-ops {
+  white-space: pre;
+  font-variant-ligatures: none;
+}
+.jc-own-expr {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px dashed var(--border);
+}
+.jc-own-expr p {
+  margin: 0.4rem 0 0;
+}
