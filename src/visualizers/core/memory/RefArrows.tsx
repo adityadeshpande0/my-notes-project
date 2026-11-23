@@ -26,9 +26,9 @@ export function RefArrows({
   const [paths, setPaths] = useState<Path[]>([]);
 
   useLayoutEffect(() => {
-    const root = container.current;
-    if (!root) return;
     const measure = () => {
+      const root = container.current;
+      if (!root) return;
       const box = root.getBoundingClientRect();
       const next: Path[] = [];
       let gutter = 0; // each lane-routed arrow gets its own lane on the right
@@ -64,10 +64,28 @@ export function RefArrows({
       });
       setPaths(next);
     };
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(root);
-    return () => ro.disconnect();
+    // RefArrows usually sits INSIDE the container it measures. React runs a
+    // child's layout effect before it attaches the parent's ref, so on the
+    // very first render `container.current` can still be null. If so, start
+    // on the next animation frame, when the ref is ready.
+    let ro: ResizeObserver | undefined;
+    let live = true;
+    const start = () => {
+      const root = container.current;
+      if (!root || !live || ro) return;
+      measure();
+      ro = new ResizeObserver(measure);
+      ro.observe(root);
+    };
+    start();
+    // Measure again once layout has settled, and when web fonts arrive.
+    const frame = requestAnimationFrame(() => (ro ? measure() : start()));
+    document.fonts?.ready.then(() => live && measure());
+    return () => {
+      live = false;
+      cancelAnimationFrame(frame);
+      ro?.disconnect();
+    };
   }, [container, deps]);
 
   return (
