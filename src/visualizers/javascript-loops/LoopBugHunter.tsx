@@ -122,7 +122,9 @@ function CaseFile({
 
       {answered && (
         <p className="viz-caption">
-          <strong>{pick === c.answer ? 'Correct. ' : 'Not quite. '}</strong>
+          <strong className={pick === c.answer ? undefined : 'jl-wrong-text'}>
+            {pick === c.answer ? 'Correct. ' : 'Not quite. '}
+          </strong>
           {c.why}
         </p>
       )}

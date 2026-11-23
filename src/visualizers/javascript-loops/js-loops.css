@@ -275,7 +275,7 @@
 }
 .jl-track {
   fill: color-mix(in srgb, var(--accent) 6%, transparent);
-  stroke: color-mix(in srgb, var(--danger) 45%, var(--surface));
+  stroke: color-mix(in srgb, var(--violet) 32%, var(--surface));
   stroke-width: 26;
 }
 .jl-track-line {
@@ -443,6 +443,16 @@
   gap: 0.5rem;
   align-items: start;
   margin-top: 0.5rem;
+}
+@container (max-width: 30rem) {
+  .jl-lane-body {
+    grid-template-columns: 1fr;
+  }
+  .jl-lane-side {
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 }
 .jl-lane-side {
   display: flex;
@@ -707,7 +717,7 @@
   display: grid;
   gap: 3px;
   width: max-content;
-  min-width: 100%;
+  margin: 0 auto;
   transform: rotateX(14deg);
   transform-origin: 50% 100%;
 }
@@ -743,6 +753,11 @@
   transition:
     background-color 0.2s,
     border-color 0.2s;
+}
+.jl-cell.is-out {
+  border-style: dashed;
+  background: transparent;
+  opacity: 0.35;
 }
 .jl-cell.is-row {
   border-color: var(--accent);
@@ -951,4 +966,7 @@
   border-radius: 8px;
   background: color-mix(in srgb, var(--danger) 10%, transparent);
   font-size: 0.85rem;
+}
+.viz-caption .jl-wrong-text {
+  color: var(--danger);
 }

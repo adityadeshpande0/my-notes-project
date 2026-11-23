@@ -65,6 +65,7 @@ export default function NestedLoopGrid() {
         </label>
       </div>
       <Tabs
+        twoUp
         label="Patterns"
         tabs={[
           { id: 'table', name: 'Times table' },
@@ -158,7 +159,7 @@ function GridRun({ pattern, n, delay }: { pattern: GridPattern; n: number; delay
             <div className="jl-grid-stage">
               <div
                 className={`jl-grid is-${pattern}`}
-                style={{ gridTemplateColumns: `auto repeat(${n}, minmax(26px, 1fr))` }}
+                style={{ gridTemplateColumns: `auto repeat(${n}, minmax(26px, 44px))` }}
                 role="img"
                 aria-label={`${n} by ${n} grid. ${step.message}`}
               >
@@ -173,6 +174,7 @@ function GridRun({ pattern, n, delay }: { pattern: GridPattern; n: number; delay
                     key={r}
                     r={r + 1}
                     n={n}
+                    pattern={pattern}
                     step={step}
                     filled={filled}
                     label={label}
@@ -222,6 +224,7 @@ function GridRun({ pattern, n, delay }: { pattern: GridPattern; n: number; delay
 function Row({
   r,
   n,
+  pattern,
   step,
   filled,
   label,
@@ -229,6 +232,7 @@ function Row({
 }: {
   r: number;
   n: number;
+  pattern: GridPattern;
   step: GridStep;
   filled: (r: number, c: number) => boolean;
   label: (r: number, c: number) => string;
@@ -242,10 +246,13 @@ function Row({
         const col = c + 1;
         const here = step.phase === 'cell' && step.row === r && step.col === col;
         const on = filled(r, col);
+        // Cells the inner loop never reaches for this pattern (e.g. below the diagonal).
+        const [from, to] = innerRange(pattern, r, n);
+        const out = col < from || col > to;
         return (
           <span
             key={col}
-            className={`jl-cell viz-mono ${current ? 'is-row' : ''} ${on ? 'is-filled' : ''} ${here ? 'is-here' : ''}`}
+            className={`jl-cell viz-mono ${current ? 'is-row' : ''} ${on ? 'is-filled' : ''} ${here ? 'is-here' : ''} ${out ? 'is-out' : ''}`}
           >
             {on ? label(r, col) : ''}
           </span>
