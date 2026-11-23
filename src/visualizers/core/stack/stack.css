@@ -99,6 +99,9 @@
   justify-content: center;
   gap: 0.35rem;
 }
+.sf-plate.is-compact .sf-head {
+  flex-wrap: nowrap;
+}
 .sf-plate:not(.is-compact) .sf-head {
   justify-content: flex-start;
 }

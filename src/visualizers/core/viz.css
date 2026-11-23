@@ -397,6 +397,11 @@
   display: grid;
   gap: 6px;
 }
+/* Long code in an answer wraps instead of widening the page. */
+.viz-quiz-options > * {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 @container (min-width: 36rem) {
   .viz-quiz-options {
     grid-template-columns: 1fr 1fr;

@@ -39,7 +39,8 @@ export interface ParamsPreset {
   call: (args: unknown[]) => CallResult;
 }
 
-function makeChai(sugar?: unknown, milk?: unknown) {
+/** The article's makeChai message, for real. */
+export function makeChai(sugar?: unknown, milk?: unknown) {
   return 'Chai with ' + sugar + ' spoons of sugar and ' + milk + ' milk';
 }
 function makeChaiDefaults(sugar: unknown = 1, milk: unknown = 'half') {
