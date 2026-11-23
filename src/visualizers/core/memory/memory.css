@@ -183,21 +183,86 @@
   font-size: 13px;
 }
 .heap-prop {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr); /* an `extra` adds a third column */
+  align-items: baseline;
   gap: 0.75rem;
   padding: 0.15rem 0.25rem;
   border-radius: 6px;
+  transition:
+    background-color 0.25s,
+    opacity 0.25s;
 }
 .heap-prop dt {
   color: var(--text-muted);
 }
 .heap-prop dd {
   margin: 0;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+/* Values coloured by type (always paired with how they're written). */
+.heap-prop dd.is-string {
+  color: var(--accent-2);
+}
+.heap-prop dd.is-number {
+  color: var(--warn);
+}
+.heap-prop dd.is-boolean {
+  color: var(--accent);
+}
+.heap-prop dd.is-null,
+.heap-prop dd.is-undefined {
+  color: var(--text-muted);
+  font-style: italic;
+}
+.heap-prop dd.is-function {
+  color: var(--violet);
+}
+.heap-extra {
+  display: inline-flex;
+  align-items: center;
+}
+/* Highlight roles */
+.heap-prop.is-read {
+  background: color-mix(in srgb, var(--accent-2) 18%, transparent);
+  box-shadow: inset 3px 0 0 var(--accent-2);
 }
 .heap-prop.is-changed {
   animation: mem-flash 0.9s ease-out;
   background: color-mix(in srgb, var(--warn) 14%, transparent);
+}
+.heap-prop.is-added {
+  background: color-mix(in srgb, var(--success) 14%, transparent);
+  box-shadow: inset 3px 0 0 var(--success);
+  animation: heap-add 0.45s ease-out both;
+}
+@keyframes heap-add {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+}
+.heap-prop.is-deleted {
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  opacity: 0.55;
+  text-decoration: line-through;
+  animation: heap-del 0.6s ease both;
+}
+@keyframes heap-del {
+  from {
+    opacity: 1;
+  }
+}
+/* A nested object or array shown inline (tree views). */
+.heap-nested {
+  grid-column: 1 / -1;
+  margin-left: 0.6rem;
+  padding-left: 0.5rem;
+  border-left: 1px dashed var(--border);
+}
+.heap-nested .heap-props {
+  padding: 0.1rem 0;
 }
 .heap-empty {
   color: var(--text-muted);
