@@ -1,0 +1,355 @@
+---
+title: 'Loops: Making JavaScript Repeat Things'
+track: javascript
+level: beginner
+order: 4
+summary: Learn for, while, do...while, for...of and for...in loops, how to break and continue, nested loops, and how to avoid the classic loop bugs, all with things you can play with.
+tags: [javascript, loops, for, while, iteration, beginner]
+readingTime: 16
+---
+
+import {
+  CopyPasteVsLoop,
+  ForLoopTrack,
+  WhileVsDoWhile,
+  ForOfForIn,
+  BreakContinueRoute,
+  NestedLoopGrid,
+  FizzBuzzBoard,
+  LoopBugHunter,
+  LoopsQuiz,
+} from '../../visualizers/javascript-loops';
+
+Computers are amazing at one thing humans hate: **doing the same thing over and over without getting
+bored or making mistakes.**
+
+- Send a "Happy Diwali!" message to **500 contacts**
+- Add up the prices of **every item** in a cart
+- Check **every square** on a chess board
+- Keep asking for a password **until** it's correct
+
+Writing the same line 500 times would be crazy. Instead, we tell JavaScript: **"repeat this"**.
+That's a <Term id="loop">**loop**</Term>.
+
+By the end of this article you'll know:
+
+- The `for` loop and its three parts
+- `while` and `do...while` (and when each one fits)
+- `for...of` for lists and `for...in` for objects
+- How to **stop early** (`break`) or **skip one round** (`continue`)
+- **Nested loops**: loops inside loops
+- How to spot the two most common loop bugs
+
+## Why do we need loops?
+
+Say you want to print the numbers 1 to 5. Without a loop:
+
+```js
+console.log(1);
+console.log(2);
+console.log(3);
+console.log(4);
+console.log(5);
+```
+
+Fine for 5. Now do 1 to 1000. With a loop, it's the **same 3 lines** whether you want 5 or 5
+million:
+
+```js
+for (let i = 1; i <= 5; i++) {
+  console.log(i);
+}
+```
+
+Drag the slider and compare:
+
+<CopyPasteVsLoop />
+
+Each time a loop runs its body once is called an <Term id="iteration">**iteration**</Term> (think:
+one **lap** around a track).
+
+## The `for` loop
+
+The `for` loop is the most common loop. It has **three parts** inside the brackets, separated by
+semicolons:
+
+```js
+for (let i = 1; i <= 5; i++) {
+  console.log("Lap " + i);
+}
+```
+
+| Part                         | Code        | When it runs                    | Job                        |
+| ---------------------------- | ----------- | ------------------------------- | -------------------------- |
+| ① **Start** (initialisation) | `let i = 1` | **Once**, at the very beginning | Create the counter         |
+| ② **Condition**              | `i <= 5`    | **Before every lap**            | Should we run another lap? |
+| ③ **Update**                 | `i++`       | **After every lap**             | Move the counter forward   |
+
+The order is always: **① → ② → body → ③ → ② → body → ③ → ② … until ② is false.**
+
+Think of a runner on a track. ① puts the runner at the start line. Before each lap, ② asks _"run
+another lap?"_ After each lap, ③ adds 1 to the lap counter. When ② says no, the runner stops.
+
+<Callout kind="tip" title="Why is the counter usually called i?">
+  It's short for **index** (or "iteration"). It's just a convention. `lap`, `n` or `count` work just
+  as well.
+</Callout>
+
+Set up your own loop and watch it run. Try counting by 2s, counting down, or breaking it on
+purpose!
+
+<ForLoopTrack />
+
+### Looping over an array with an index
+
+Arrays (lists) start at index **0**, and their last index is `length - 1`. So the classic array
+loop is:
+
+```js
+const snacks = ["samosa", "vada pav", "jalebi"];
+
+for (let i = 0; i < snacks.length; i++) {
+  console.log(i + ": " + snacks[i]);
+}
+// 0: samosa
+// 1: vada pav
+// 2: jalebi
+```
+
+Notice: `i = 0` and `i < snacks.length` (**less than**, not less-than-or-equal). That pairing is
+worth memorising.
+
+## The `while` loop
+
+A `while` loop only has a **condition**. It keeps going **while** the condition is true:
+
+```js
+let cupLevel = 0;
+
+while (cupLevel < 100) {
+  cupLevel += 25;        // pour some chai
+  console.log("Cup at " + cupLevel + "%");
+}
+```
+
+Use `while` when **you don't know in advance how many times** you'll need to repeat. For example:
+keep pouring _until_ the cup is full, or keep rolling a dice _until_ you get a 6.
+
+<Callout kind="warning" title="You are in charge of stopping it">
+  Change something inside the loop so the condition eventually becomes false. Forget it, and the
+  loop runs forever (an **infinite loop**), freezing the page.
+</Callout>
+
+## The `do...while` loop
+
+A `do...while` loop is a `while` loop that **checks the condition at the end** instead of the
+start. That means **the body always runs at least once**:
+
+```js
+let guess;
+do {
+  guess = prompt("Guess the secret number (1-10):");
+} while (guess !== "7");
+```
+
+Asking the question at least once, _then_ deciding whether to ask again, is exactly what you want
+here. Compare them side by side, especially when the condition starts out **false**:
+
+<WhileVsDoWhile />
+
+| Loop         | Checks the condition… | Minimum runs | Best for                            |
+| ------------ | --------------------- | ------------ | ----------------------------------- |
+| `for`        | Before each lap       | 0            | A known number of repeats, counting |
+| `while`      | Before each lap       | 0            | "Repeat until something happens"    |
+| `do...while` | **After** each lap    | **1**        | "Do it once, then maybe repeat"     |
+
+## `for...of` and `for...in`
+
+Counting indexes by hand is common, but often you just want **each item**. Modern JavaScript has
+two shortcuts:
+
+**`for...of` gives you each _value_** in an array, a string or other lists (added in 2015):
+
+```js
+const snacks = ["samosa", "vada pav", "jalebi"];
+
+for (const snack of snacks) {
+  console.log("I love " + snack);
+}
+
+for (const letter of "chai") {
+  console.log(letter);   // c, h, a, i
+}
+```
+
+There's no index, no `.length` and no `i++`, so there's much less to get wrong. **Use `for...of`
+for arrays by default.**
+
+**`for...in` gives you each _key_ (property name)** of an object:
+
+```js
+const marks = { maths: 92, science: 85, english: 78 };
+
+for (const subject in marks) {
+  console.log(subject + ": " + marks[subject]);
+}
+// maths: 92
+// science: 85
+// english: 78
+```
+
+<Callout kind="tip" title="Memory trick">
+  for…**of** gives you the **values** _of_ a list. For…**in** gives you the keys _in_ an object.
+</Callout>
+
+<Callout kind="warning" title="Don't use for...in on arrays">
+  It gives you the indexes as **strings** (`"0"`, `"1"`, `"2"`), not the items.
+</Callout>
+
+Watch the conveyor belt:
+
+<ForOfForIn />
+
+## `break` and `continue`
+
+Sometimes you need to change a loop's plan halfway:
+
+- **`break`:** _"Stop the whole loop right now."_ Jump straight out.
+- **`continue`:** _"Skip the rest of this lap, and go to the next one."_
+
+```js
+const houses = ["open", "closed", "open", "no-stock", "open"];
+
+for (let i = 0; i < houses.length; i++) {
+  if (houses[i] === "closed") {
+    continue;   // skip this house, go to the next
+  }
+  if (houses[i] === "no-stock") {
+    break;      // out of stock: stop delivering completely
+  }
+  console.log("Delivered to house " + i);
+}
+// Delivered to house 0
+// Delivered to house 2
+```
+
+Ride along with the delivery scooter:
+
+<BreakContinueRoute />
+
+## Nested loops: loops inside loops
+
+You can put a loop **inside** another loop. For **every lap of the outer loop**, the inner loop runs
+**all of its laps**:
+
+```js
+for (let row = 1; row <= 3; row++) {
+  let line = "";
+  for (let col = 1; col <= 3; col++) {
+    line += row * col + "\t";
+  }
+  console.log(line);
+}
+// 1  2  3
+// 2  4  6
+// 3  6  9
+```
+
+That's a multiplication table! Nested loops are how you work with **grids**: game boards,
+spreadsheets, image pixels, seating charts.
+
+**Watch the cost, though.** If both loops run `n` times, the body runs **n × n** times. 10 × 10 is
+100. 1,000 × 1,000 is **a million**. Watch the grid fill up and count the operations:
+
+<NestedLoopGrid />
+
+<Callout kind="note" title="DSA connection">
+  This "how many operations as `n` grows" idea is called **time complexity**. A single loop over `n`
+  items is **O(n)**. Two nested loops are **O(n²)**. You'll meet this again and again in the DSA
+  track, written in <Term id="big-o">Big-O notation</Term>.
+</Callout>
+
+## Your turn: FizzBuzz
+
+**FizzBuzz** is a famous beginner exercise, and it's even used in job interviews. Loop from 1 to
+100, and for each number:
+
+- If it's divisible by **3**, print `"Fizz"`
+- If it's divisible by **5**, print `"Buzz"`
+- If it's divisible by **both**, print `"FizzBuzz"`
+- Otherwise print the number
+
+It uses everything so far: a loop, `%` (remainder), `if`/`else if` and the order of conditions.
+
+```js
+for (let i = 1; i <= 100; i++) {
+  if (i % 3 === 0 && i % 5 === 0) {
+    console.log("FizzBuzz");
+  } else if (i % 3 === 0) {
+    console.log("Fizz");
+  } else if (i % 5 === 0) {
+    console.log("Buzz");
+  } else {
+    console.log(i);
+  }
+}
+```
+
+Why must the "both" check come **first**? (Hint: remember
+[article #3](/javascript/operators-and-conditions), where the first true condition wins!) See it on
+the board:
+
+<FizzBuzzBoard />
+
+## The two classic loop bugs
+
+**1. The <Term id="infinite-loop">infinite loop</Term>:** the condition never becomes false.
+
+```js
+for (let i = 0; i < 5; i--) { ... }   // i goes DOWN, so it's always < 5 😱
+
+let n = 0;
+while (n < 5) {
+  console.log(n);   // forgot n++, so n stays 0 forever 😱
+}
+```
+
+The browser tab freezes, and you'll have to close it. Always check: _does something in the loop
+move me toward the condition becoming false?_
+
+**2. The <Term id="off-by-one">off-by-one error</Term>:** running one lap too many or too few.
+
+```js
+const arr = ["a", "b", "c"];
+for (let i = 0; i <= arr.length; i++) {   // <= is wrong here!
+  console.log(arr[i]);                     // a, b, c, undefined 😬
+}
+```
+
+`arr.length` is 3, but the last index is 2. Use `<` with `length`, not `<=`.
+
+Put on your detective hat:
+
+<LoopBugHunter />
+
+## Quick recap
+
+- A **loop** repeats code. Each repeat is an **iteration**.
+- **`for (start; condition; update)`:** start runs once, the condition is checked before every lap,
+  and the update runs after every lap.
+- **`while`** checks first and may run 0 times. **`do...while`** checks last and always runs at
+  least once.
+- **`for...of`** gives **values** (use it for arrays and strings). **`for...in`** gives **keys**
+  (use it for objects).
+- **`break`** stops the loop. **`continue`** skips to the next lap.
+- **Nested loops** multiply: n × n operations.
+- Watch out for **infinite loops** and **off-by-one** errors (`i < arr.length`!).
+
+## Test yourself
+
+<LoopsQuiz />
+
+## What's next?
+
+**Step 5, Functions** (coming soon): packaging code into reusable, named blocks that take inputs and
+give back results. You'll also finally see the **call stack** from article #1 in full action.
