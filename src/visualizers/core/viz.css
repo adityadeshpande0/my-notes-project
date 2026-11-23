@@ -50,6 +50,15 @@
 .viz-mono {
   font-family: var(--font-mono);
 }
+/* Show code as typed: no ligatures, and no font turning => into an arrow. */
+.viz-mono,
+.viz code,
+.viz select,
+.viz-btn,
+.viz-seg-btn {
+  font-variant-ligatures: none;
+  font-feature-settings: 'calt' 0;
+}
 
 /* Buttons */
 .viz-btn {

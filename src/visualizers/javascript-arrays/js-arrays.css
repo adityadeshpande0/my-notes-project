@@ -1,0 +1,419 @@
+/*
+ * Styles for the visuals in "Arrays". Imported by index.ts, so it only loads
+ * with that note. Colours come from the theme tokens: mint = current, amber =
+ * comparing / mutating, coral = rejected / error, green = kept / done.
+ */
+
+/* ─── Shared bits ───────────────────────────────────────────────── */
+.ja-muted {
+  color: var(--text-muted);
+}
+.ja-small {
+  font-size: 0.8rem;
+}
+.ja-gap {
+  margin-top: 0.9rem;
+}
+.ja-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+.ja-input {
+  max-width: 100%;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+}
+.ja-input:focus-visible,
+.ja-toggle:focus-visible,
+.ja-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.ja-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.ja-check input {
+  accent-color: var(--accent);
+}
+.ja-badge {
+  display: inline-block;
+  padding: 0.05rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+.ja-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* An array living in memory: a heap card with a strip inside. */
+.ja-memory {
+  position: relative; /* RefArrows draws against this box */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1rem 2.5rem;
+}
+.ja-memory--two {
+  margin-top: 0.9rem;
+}
+.ja-vars,
+.ja-heap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+.ja-heap {
+  flex: 1 1 14rem;
+  min-width: 0;
+  padding-right: 1.5rem;
+}
+.ja-card {
+  min-width: 0;
+  max-width: 100%;
+}
+.ja-card.is-changed {
+  border-color: var(--warn);
+}
+.ja-card.is-new {
+  border-color: var(--accent-2);
+  animation: viz-fade 0.4s ease both;
+}
+.ja-card-body {
+  padding: 0 0.6rem 0.5rem;
+}
+.ja-length {
+  color: var(--accent-2);
+  font-size: 0.72rem;
+}
+
+/* ─── #1 Shelf ──────────────────────────────────────────────────── */
+.ja-groups {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+}
+@container (min-width: 46rem) {
+  .ja-groups {
+    grid-template-columns: 1fr 1.4fr 0.8fr;
+  }
+}
+.ja-group {
+  display: grid;
+  gap: 0.4rem;
+  align-content: start;
+  padding: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.ja-group .viz-label {
+  margin: 0;
+}
+.ja-mutates {
+  margin-left: 0.3rem;
+  color: var(--warn);
+  letter-spacing: 0;
+  text-transform: none;
+}
+.ja-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.ja-result {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.9rem;
+  margin-top: 0.9rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent-2);
+  border-radius: 10px;
+  background: var(--surface);
+  font-variant-ligatures: none;
+}
+.ja-result code {
+  overflow-wrap: anywhere;
+}
+.ja-result strong {
+  color: var(--accent-2);
+}
+.ja-result.is-miss,
+.ja-result.is-miss strong {
+  border-left-color: var(--danger);
+  color: var(--danger);
+}
+.ja-result.is-good {
+  border-left-color: var(--success);
+}
+.ja-result.is-warn {
+  border-left-color: var(--warn);
+}
+.ja-result.is-warn strong {
+  color: var(--warn);
+}
+.ja-note {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+.ja-history {
+  margin: 0.5rem 0 0;
+  padding-left: 1.2rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+/* ─── #2 Factory ────────────────────────────────────────────────── */
+.ja-picker {
+  margin-bottom: 0.75rem;
+}
+.ja-toggle {
+  padding: 0.25rem 0.6rem;
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.ja-toggle[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--text);
+}
+/* Phones: input on top, machine in the middle, output at the bottom. */
+.ja-factory {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+.ja-factory > * {
+  min-width: 0;
+}
+@container (min-width: 50rem) {
+  .ja-factory {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+.ja-belt-wrap .viz-label {
+  margin-bottom: 0;
+}
+.ja-belt {
+  perspective: 700px;
+}
+.ja-belt .as-strip {
+  padding-bottom: 0.6rem;
+  border-bottom: 6px solid transparent;
+  border-image: repeating-linear-gradient(90deg, var(--border) 0 10px, var(--surface) 10px 20px) 6;
+  transform: rotateX(18deg);
+  transform-origin: 50% 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ja-belt .as-strip {
+    transform: none;
+  }
+}
+.ja-machine {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.75rem;
+  border: 2px solid var(--accent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--accent) 6%, var(--bg));
+  transition:
+    box-shadow 0.25s,
+    border-color 0.25s;
+}
+.ja-machine.is-working {
+  border-color: var(--accent-2);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--accent-2) 35%, transparent);
+}
+.ja-machine.is-done {
+  border-color: var(--success);
+}
+.ja-machine-head {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  text-transform: capitalize;
+}
+.ja-panel {
+  padding: 0.35rem 0.5rem;
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--accent-2);
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+}
+.ja-calc {
+  min-height: 2.6rem;
+  font-size: 0.82rem;
+  overflow-wrap: anywhere;
+}
+.ja-acc {
+  display: flex;
+  justify-content: center;
+}
+.ja-acc .mem-box {
+  border-color: var(--accent-2);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent-2) 30%, transparent);
+}
+.ja-bin {
+  margin: 0.4rem 0 0;
+  color: var(--danger);
+  font-size: 0.82rem;
+}
+.ja-final {
+  display: inline-grid;
+  place-items: center;
+  min-width: 4rem;
+  min-height: 2.6rem;
+  margin-top: 0.4rem;
+  padding: 0.3rem 0.8rem;
+  border: 1.5px dashed var(--border);
+  border-radius: 10px;
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+.ja-final.is-on {
+  border: 2px solid var(--success);
+  color: var(--success);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--success) 30%, transparent);
+  animation: viz-fade 0.35s ease both;
+}
+.ja-final.is-bad {
+  border: 2px solid var(--danger);
+  color: var(--danger);
+  font-size: 0.82rem;
+}
+.ja-table {
+  width: 100%;
+  margin-top: 0.75rem;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+.ja-table th,
+.ja-table td {
+  padding: 0.3rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.ja-table thead th {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.ja-table tr.is-now {
+  background: color-mix(in srgb, var(--accent-2) 12%, transparent);
+}
+.ja-table strong {
+  color: var(--accent-2);
+}
+.ja-code {
+  flex: 1 1 14rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  background: var(--bg);
+  font-size: 0.82rem;
+  overflow-wrap: anywhere;
+}
+.ja-chain {
+  display: grid;
+  gap: 0.6rem;
+}
+.ja-chain-step {
+  display: grid;
+  gap: 0.4rem;
+}
+@container (min-width: 40rem) {
+  .ja-chain-step {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr);
+    align-items: center;
+  }
+}
+.ja-machine.is-mini {
+  padding: 0.45rem 0.6rem;
+  font-size: 0.8rem;
+}
+.ja-chain-code {
+  margin-top: 0.75rem;
+}
+
+/* ─── #3 Sort ───────────────────────────────────────────────────── */
+.ja-sort-strip {
+  margin: 0.4rem 0 0.6rem;
+}
+.ja-why {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border: 1px dashed var(--warn);
+  border-radius: 10px;
+}
+.ja-why-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ja-why-list li {
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.ja-first {
+  padding: 0 0.15rem;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--warn) 30%, transparent);
+  color: var(--warn);
+  font-weight: 700;
+}
+.ja-why p {
+  margin: 0.6rem 0 0;
+}
+.ja-log {
+  max-height: 12rem;
+  margin: 0.5rem 0 0;
+  padding: 0.5rem 0.5rem 0.5rem 2rem;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  font-size: 0.8rem;
+}
+.ja-log .is-neg {
+  color: var(--accent-2);
+}
+.ja-log .is-pos {
+  color: var(--warn);
+}
+.ja-log .is-zero {
+  color: var(--text-muted);
+}

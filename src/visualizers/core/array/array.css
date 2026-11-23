@@ -1,0 +1,143 @@
+/*
+ * ArrayStrip (visualizers/core/array): an array as a row of tiles with index
+ * numbers underneath. Roles use the fixed visualizer colours: mint = current,
+ * amber = comparing, coral = swapping / miss, green = done / match.
+ */
+.as-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0.9rem 0 0.25rem; /* room for tags above the tiles */
+  list-style: none;
+}
+.as-strip.has-tags {
+  row-gap: 1.2rem; /* tags sit above the tiles, so wrapped rows need room */
+}
+.as-empty {
+  padding: 0.5rem 0.8rem;
+  border: 1.5px dashed var(--border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+.as-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 2.4rem;
+  padding: 0.4rem 0.5rem 0.25rem;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  animation: as-in 0.35s ease-out both;
+  transition:
+    border-color 0.2s,
+    background-color 0.2s,
+    opacity 0.25s;
+}
+@keyframes as-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.9);
+  }
+}
+.as-strip.is-sm .as-tile {
+  min-width: 2rem;
+  padding: 0.25rem 0.35rem 0.15rem;
+}
+.as-label {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+.as-strip.is-sm .as-label {
+  font-size: 0.8rem;
+}
+.as-sub {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+.as-index {
+  margin-top: 0.15rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.as-tag {
+  position: absolute;
+  top: -0.95rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.as-mark {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  font-size: 9px;
+  font-weight: 700;
+}
+.as-tile.is-current {
+  border-color: var(--accent-2);
+  background: color-mix(in srgb, var(--accent-2) 18%, var(--surface));
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent-2) 40%, transparent);
+}
+.as-tile.is-current .as-mark,
+.as-tile.is-current .as-index {
+  color: var(--accent-2);
+}
+.as-tile.is-compare {
+  border-color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 14%, var(--surface));
+}
+.as-tile.is-compare .as-mark {
+  color: var(--warn);
+}
+.as-tile.is-swap,
+.as-tile.is-miss {
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 12%, var(--surface));
+}
+.as-tile.is-swap .as-mark,
+.as-tile.is-miss .as-mark {
+  color: var(--danger);
+}
+.as-tile.is-done,
+.as-tile.is-match {
+  border-color: var(--success);
+  background: color-mix(in srgb, var(--success) 14%, var(--surface));
+}
+.as-tile.is-done .as-mark,
+.as-tile.is-match .as-mark {
+  color: var(--success);
+}
+.as-tile.is-muted {
+  opacity: 0.4;
+}
+.as-tile.is-ghost {
+  border-style: dashed;
+  opacity: 0.45;
+  animation: as-out 0.6s ease both;
+}
+.as-tile.is-ghost .as-label {
+  text-decoration: line-through;
+}
+.as-tile.is-ghost .as-index {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  white-space: nowrap;
+}
+@keyframes as-out {
+  from {
+    opacity: 1;
+  }
+}
