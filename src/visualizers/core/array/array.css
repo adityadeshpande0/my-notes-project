@@ -11,6 +11,9 @@
   padding: 0.9rem 0 0.25rem; /* room for tags above the tiles */
   list-style: none;
 }
+.as-strip.has-tags {
+  row-gap: 1.2rem; /* tags sit above the tiles, so wrapped rows need room */
+}
 .as-empty {
   padding: 0.5rem 0.8rem;
   border: 1.5px dashed var(--border);

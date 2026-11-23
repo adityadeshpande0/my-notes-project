@@ -102,7 +102,7 @@ export function ArrayStrip({
 
   return (
     <ol
-      className={`as-strip is-${size}`}
+      className={`as-strip is-${size} ${Object.keys(labels).length ? 'has-tags' : ''}`}
       aria-label={ariaLabel ?? `Array of ${items.length} item${items.length === 1 ? '' : 's'}`}
     >
       {row.length === 0 && <li className="as-empty">[ ] empty</li>}
