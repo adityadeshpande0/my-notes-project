@@ -78,7 +78,7 @@ export const CURRICULUM: Record<Track, CurriculumGroup[]> = {
       name: 'Working with data',
       topics: [
         {
-          slug: 'arrays-and-array-methods',
+          slug: 'arrays',
           title: 'Arrays & Array Methods',
           blurb: 'Lists of values, with map, filter and reduce shown as conveyor belts.',
         },
