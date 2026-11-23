@@ -78,42 +78,6 @@
   }
 }
 
-.el-stack {
-  display: flex;
-  flex-direction: column-reverse;
-  gap: 0.35rem;
-  min-height: 7rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.el-plate {
-  padding: 0.35rem 0.6rem;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--surface);
-  font-size: 12.5px;
-  text-align: center;
-  overflow-wrap: anywhere;
-  animation: el-drop 0.3s ease both;
-}
-/* The top plate is the one running right now: mint. */
-.el-plate[data-top] {
-  border-color: var(--accent-2);
-  background: color-mix(in srgb, var(--accent-2) 14%, transparent);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--accent-2) 35%, transparent);
-}
-.el-plate[data-top]::before {
-  content: '▶ ';
-  color: var(--accent-2);
-}
-@keyframes el-drop {
-  from {
-    opacity: 0;
-    transform: translateY(-14px);
-  }
-}
-
 .el-clock {
   margin: 0 0 0.4rem;
   color: var(--text-muted);

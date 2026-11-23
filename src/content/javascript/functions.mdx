@@ -1,0 +1,393 @@
+---
+title: 'Functions: Reusable Blocks of Code'
+track: javascript
+level: beginner
+order: 5
+summary: Learn to package code into functions, pass inputs with parameters, get results back with return, write arrow functions, pass functions around like values, and watch the call stack and recursion in action.
+tags: [javascript, functions, parameters, return, arrow-functions, call-stack, recursion, beginner]
+readingTime: 18
+---
+
+import {
+  FunctionMachine,
+  ParamsArgsSlots,
+  ReturnVsLog,
+  ArrowMorph,
+  FunctionsAsValues,
+  CallStackTower,
+  ScopeBubbles,
+  TipCalculator,
+  RecursionTree,
+  FunctionsQuiz,
+} from '../../visualizers/javascript-functions';
+
+Imagine making chai. Every time, you do the same steps: boil water, add tea leaves, add milk, add
+sugar, strain. You don't reinvent the process each morning. You follow the **recipe**.
+
+A <Term id="function">**function**</Term> is a recipe for your code: a named set of steps that you
+write once and use as many times as you like, with different ingredients each time.
+
+You've already used functions without knowing it: `console.log()`, `Number()`, `Math.round()` and
+`prompt()` are all functions someone else wrote. Now you'll write your own.
+
+By the end of this article you'll know:
+
+- How to create (**declare**) and use (**call**) a function
+- **Parameters** and **arguments**: sending inputs in
+- **`return`**: getting a result back (and why it's not the same as `console.log`)
+- **Arrow functions**, the short modern syntax
+- How functions can be **passed around like values**
+- **The call stack**: how JavaScript keeps track of function calls
+- **Recursion**: a function that calls itself
+
+## Your first function
+
+```js
+function greet() {
+  console.log("Namaste! 🙏");
+}
+
+greet();   // Namaste! 🙏
+greet();   // Namaste! 🙏
+```
+
+Two separate things happened here:
+
+1. **Declaring** the function (`function greet() { ... }`) is writing the recipe on a card.
+   **Nothing runs yet!**
+2. **Calling** the function (`greet()`) is actually cooking. The `()` brackets mean "run it now".
+
+A function is like a machine: you build it once, then press its button whenever you want. Build one
+and press the button:
+
+<FunctionMachine />
+
+<Callout kind="tip" title="Name functions with verbs">
+  Functions do things: `greet`, `calculateTotal`, `sendMessage`, `isValidEmail`. If a function
+  answers a yes/no question, start it with `is`, `has` or `can`.
+</Callout>
+
+## Parameters and arguments: sending inputs in
+
+A recipe that always makes the same chai is limited. What if someone wants less sugar? Functions can
+take **inputs**:
+
+```js
+function makeChai(sugar, milk) {
+  console.log("Chai with " + sugar + " spoons of sugar and " + milk + " milk");
+}
+
+makeChai(2, "full");     // Chai with 2 spoons of sugar and full milk
+makeChai(0, "no");       // Chai with 0 spoons of sugar and no milk
+```
+
+Two words people mix up:
+
+- <Term id="parameter">**Parameters**</Term> are the **names** in the function definition: `sugar`,
+  `milk`. They're like empty labelled boxes waiting to be filled.
+- **Arguments** are the **actual values** you pass when calling: `2`, `"full"`.
+
+Arguments fill the parameters **in order**: first to first, second to second.
+
+What if the counts don't match?
+
+- **Too few** arguments? The missing parameters are `undefined`.
+- **Too many**? The extras are ignored.
+- **Default parameters** give a fallback value, written in the definition: `sugar = 1`,
+  `milk = "half"`.
+- **Rest parameters** (`...items`) gather "all the rest" into an array.
+
+Drop arguments into the slots and see what happens:
+
+<ParamsArgsSlots />
+
+## `return`: getting a result back
+
+So far our functions only *print* things. But usually you want a function to **calculate something
+and hand the answer back**, so you can use it:
+
+```js
+function addGST(price) {
+  return price * 1.18;
+}
+
+const total = addGST(500);   // the call is replaced by its result: 590
+console.log(total);          // 590
+console.log(addGST(100) + addGST(200)); // 118 + 236 = 354
+```
+
+`return` does two things:
+
+1. It **sends a value back** to wherever the function was called. The call `addGST(500)` is
+   replaced by `590`.
+2. It **stops the function immediately**. Any code after `return` doesn't run.
+
+If a function has no `return`, it gives back `undefined`.
+
+**`return` vs `console.log`: the #1 beginner confusion**
+
+- `console.log(x)` **shows** a value on the screen for you, the developer. The program can't use
+  it.
+- `return x` **gives** the value back to the program, so it can be stored, used in maths or passed
+  on.
+
+It's the difference between a shop **displaying** your bill on a screen and actually **handing you
+the receipt**. Only one of them lets you take it home. See it in action:
+
+<ReturnVsLog />
+
+## Three ways to write a function
+
+**1. Function declaration** (what we've been using):
+
+```js
+function square(n) {
+  return n * n;
+}
+```
+
+**2. Function expression:** a function stored in a variable.
+
+```js
+const square = function (n) {
+  return n * n;
+};
+```
+
+**3. Arrow function:** the short modern syntax (added in 2015).
+
+```js
+const square = (n) => {
+  return n * n;
+};
+
+// Even shorter: with one expression, skip the {} and the return:
+const square = (n) => n * n;
+
+// One parameter? The brackets are optional:
+const square = n => n * n;
+```
+
+All three make a function that works the same way when you call it: `square(4)` gives `16`. Watch a
+regular function shrink into an <Term id="arrow-function">arrow function</Term>, step by step:
+
+<ArrowMorph />
+
+**Which should you use?**
+
+- **Arrow functions** for short functions and anything you pass to another function (you'll see
+  this constantly in React and with arrays).
+- **Function declarations** for main, named functions. They can be called **before** the line
+  where they're written (they're hoisted), while `const` functions can't.
+
+<Callout kind="note" title="React sneak peek">
+  A React component is just a function that returns what should appear on screen. Everything in
+  this article applies directly to React.
+</Callout>
+
+```jsx
+const Greeting = ({ name }) => <h1>Hello, {name}!</h1>;
+```
+
+## Functions are values
+
+Here's an idea that makes JavaScript powerful: **a function is a value**, just like a number or a
+string. You can store it in a variable, put it in an array, and even **pass it into another
+function**.
+
+```js
+function doTwice(action) {
+  action();
+  action();
+}
+
+doTwice(() => console.log("Clap! 👏"));
+// Clap! 👏
+// Clap! 👏
+```
+
+A function passed into another function is called a <Term id="callback">**callback**</Term>:
+"here's what to do, call it back when you need it." You've seen callbacks already:
+
+```js
+setTimeout(() => console.log("Chai is ready ☕"), 2000);   // article #1!
+button.addEventListener("click", () => alert("Clicked!"));
+```
+
+Notice the difference: `doTwice(sayHi)` passes **the function itself** (the recipe card), while
+`doTwice(sayHi())` would **call it first** and pass its result (the cooked chai). That's a very
+common bug. Try both:
+
+<FunctionsAsValues />
+
+## The call stack: how JavaScript keeps track
+
+Functions can call other functions, which call other functions… How does JavaScript remember where
+to come back to?
+
+It uses the <Term id="call-stack">**call stack**</Term>, the stack of plates from
+[article #1](/javascript/what-is-javascript):
+
+- **Calling** a function puts a new plate on top. The plate holds that call's arguments and local
+  variables.
+- JavaScript always works on the **top** plate.
+- When a function **returns**, its plate is removed, and its return value is handed to the plate
+  underneath, which carries on exactly where it left off.
+
+```js
+function applyDiscount(amount) {
+  return amount * 0.9;
+}
+
+function calculateTotal(price, qty) {
+  const subtotal = price * qty;
+  return applyDiscount(subtotal);
+}
+
+function placeOrder() {
+  const total = calculateTotal(200, 3);
+  console.log("Pay ₹" + total);
+}
+
+placeOrder();   // Pay ₹540
+```
+
+Watch the plates stack up and come back down:
+
+<CallStackTower />
+
+## Scope: what happens in a function, stays in a function
+
+Variables created **inside** a function are **local**: they exist only while that function runs,
+and the outside world can't see them. Variables created outside any function are **global**:
+visible everywhere.
+
+```js
+const shopName = "Chai Corner";   // global
+
+function makeBill() {
+  const tax = 18;                  // local to makeBill
+  console.log(shopName + " adds " + tax + "% tax"); // ✅ can see both
+}
+
+makeBill();
+console.log(tax);   // ❌ ReferenceError: tax is not defined
+```
+
+**The rule of <Term id="scope">scope</Term>: you can look outward, but never inward.** A function can
+see variables from the places around it. The outside can't see into a function. (These are the
+"rooms" from article #2, now with functions as rooms.)
+
+If a local variable has the **same name** as an outer one, the local one wins inside the function.
+This is called **shadowing**.
+
+<ScopeBubbles />
+
+<Callout kind="tip" title="Good habit">
+  Keep variables as local as possible, and have functions get what they need through parameters and
+  give results back with `return`. A function that only depends on its inputs and doesn't change
+  anything outside itself is called a **pure function**. Pure functions are easy to test and to
+  trust (and React loves them).
+</Callout>
+
+## Your turn: build a tip calculator
+
+Time to use everything: a function with parameters, a default value and a `return`, used by a real
+interface.
+
+```js
+function calculateTip(bill, tipPercent = 10, people = 1) {
+  const tip = bill * (tipPercent / 100);
+  const total = bill + tip;
+  return {
+    tip: tip,
+    total: total,
+    perPerson: total / people,
+  };
+}
+
+calculateTip(1200, 15, 4);
+// { tip: 180, total: 1380, perPerson: 345 }
+```
+
+The function does the maths, and the interface just calls it whenever an input changes:
+
+<TipCalculator />
+
+## Recursion: a function that calls itself
+
+A function can call **itself**. This is called <Term id="recursion">**recursion**</Term>. It sounds
+like a trick, but it's a natural way to solve problems that contain smaller copies of themselves.
+
+Think of a countdown: to count down from 3, say "3", then *count down from 2*. To count down from 2,
+say "2", then *count down from 1*…
+
+```js
+function countdown(n) {
+  if (n === 0) {              // base case: when to STOP
+    console.log("Liftoff! 🚀");
+    return;
+  }
+  console.log(n);
+  countdown(n - 1);           // recursive case: a smaller version of the same problem
+}
+
+countdown(3);   // 3, 2, 1, Liftoff! 🚀
+```
+
+Every recursive function needs two parts:
+
+1. **A base case:** the simplest version, which **stops** the recursion.
+2. **A recursive case:** calling itself with a **smaller** problem, moving toward the base case.
+
+Forget the base case, and the function calls itself forever until the call stack runs out of space.
+JavaScript gives up with this error:
+
+```text
+RangeError: Maximum call stack size exceeded
+```
+
+That's a **stack overflow** (yes, that's where the website's name comes from!).
+
+The classic example is the factorial: `5! = 5 × 4 × 3 × 2 × 1 = 120`.
+
+```js
+function factorial(n) {
+  if (n <= 1) return 1;          // base case
+  return n * factorial(n - 1);   // recursive case
+}
+```
+
+Watch the calls go down to the base case, then the answers bubble back up:
+
+<RecursionTree />
+
+<Callout kind="note" title="DSA connection">
+  Recursion powers many famous algorithms you'll meet in the DSA track: tree traversal, merge sort,
+  quick sort and backtracking. The Fibonacci tab above shows why a naive recursive solution can get
+  very slow. Fixing that is called **memoization**.
+</Callout>
+
+## Quick recap
+
+- A **function** is a reusable, named block of code. Declaring writes the recipe, and calling
+  (`name()`) runs it.
+- **Parameters** are the input names, and **arguments** are the values passed in, filled in order.
+  Missing ones are `undefined`. Defaults (`= value`) and rest (`...items`) help.
+- **`return`** hands a value back and stops the function. With no `return`, you get `undefined`.
+  `console.log` only *shows* a value.
+- Three styles: **declaration**, **expression**, and **arrow** (`(a, b) => a + b`).
+- **Functions are values:** store them, and pass them as callbacks. Pass `fn`, not `fn()`.
+- **The call stack** tracks calls: plates go on when you call and come off when you return.
+- **Scope:** local variables stay inside their function. You can look outward, never inward.
+- **Recursion:** a function calling itself, which needs a **base case** or it overflows the stack.
+
+## Test yourself
+
+<FunctionsQuiz />
+
+## What's next?
+
+**Step 6, Arrays & Array Methods** (coming soon): lists of data, and the super-useful functions
+`map`, `filter` and `reduce`. They take callbacks, so everything you just learned pays off
+immediately.
