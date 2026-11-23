@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from 'react';
 import type { BoxState } from './MemoryBox';
+import { typeOfCode, type ValueType } from './valueType';
 
 /**
  * An object or array living in the heap, drawn as a card of property rows:
@@ -15,8 +16,6 @@ import type { BoxState } from './MemoryBox';
  * - hold an extra control on the right (`extra`, e.g. a delete button).
  */
 export type PropRole = 'read' | 'changed' | 'added' | 'deleted';
-export type ValueType =
-  'string' | 'number' | 'boolean' | 'null' | 'undefined' | 'object' | 'array' | 'function';
 
 export interface HeapProp {
   key: string;
@@ -34,18 +33,6 @@ export interface HeapProp {
   childIsArray?: boolean;
   /** Something extra at the end of the row (a button, a note). */
   extra?: ReactNode;
-}
-
-/** Guess a value's type from how it's written as code. */
-export function typeOfCode(code: string): ValueType {
-  if (code.startsWith('"') || code.startsWith("'")) return 'string';
-  if (/^-?(\d|Infinity|NaN)/.test(code)) return 'number';
-  if (code === 'true' || code === 'false') return 'boolean';
-  if (code === 'null') return 'null';
-  if (code === 'undefined') return 'undefined';
-  if (code.startsWith('[')) return 'array';
-  if (code.startsWith('ƒ') || code.includes('=>') || code.endsWith('()')) return 'function';
-  return 'object';
 }
 
 export function HeapCard({
