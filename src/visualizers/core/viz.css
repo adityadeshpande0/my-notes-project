@@ -405,3 +405,41 @@
 .viz-choices > .viz-btn {
   padding-inline: 0.65rem;
 }
+
+/* ── IterationCounter: a lap / operations counter chip ── */
+.viz-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+.viz-counter-n {
+  color: var(--accent-2);
+  font-size: 0.95rem;
+  animation: viz-count 0.35s ease-out;
+}
+.viz-counter-total {
+  color: var(--text-muted);
+}
+.viz-counter.is-done {
+  border-color: var(--success);
+}
+.viz-counter.is-done .viz-counter-n {
+  color: var(--success);
+}
+.viz-counter.is-danger {
+  border-color: var(--danger);
+}
+.viz-counter.is-danger .viz-counter-n {
+  color: var(--danger);
+}
+@keyframes viz-count {
+  from {
+    transform: scale(1.5);
+  }
+}

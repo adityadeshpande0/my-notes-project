@@ -169,67 +169,13 @@
   margin: 0;
 }
 
-/* Code with marks */
+/* Code block (used by the ternary in #5) */
 .jc-code {
   margin: 0;
   overflow-x: auto;
   font-size: 12.5px;
   line-height: 1.7;
   font-variant-ligatures: none;
-}
-.jc-line {
-  display: flex;
-  align-items: baseline;
-  gap: 0.6rem;
-  padding: 0 0.35rem;
-  border-left: 3px solid transparent;
-  border-radius: 6px;
-  white-space: pre;
-  transition:
-    background-color 0.2s,
-    opacity 0.2s;
-}
-.jc-line.is-on {
-  border-left-color: var(--accent-2);
-  background: color-mix(in srgb, var(--accent-2) 16%, transparent);
-}
-.jc-line.is-dim {
-  opacity: 0.45;
-}
-.jc-ln {
-  min-width: 2ch;
-  color: var(--text-muted);
-  text-align: right;
-  user-select: none;
-}
-.jc-badge {
-  margin-left: auto;
-  padding-left: 0.5rem;
-  font-size: 11px;
-  font-weight: 700;
-}
-.jc-badge.is-yes {
-  color: var(--success);
-}
-.jc-badge.is-no {
-  color: var(--danger);
-}
-.jc-badge.is-muted {
-  color: var(--text-muted);
-  font-weight: 500;
-}
-.jc-badge.is-warn {
-  color: var(--warn);
-}
-.jc-console {
-  margin-top: 0.75rem;
-  font-size: 13px;
-}
-.jc-out {
-  animation: viz-fade 0.3s ease both;
-}
-.jc-out > span {
-  color: var(--accent-2);
 }
 
 /* Code on one side, a diagram on the other (stacked on phones). */
