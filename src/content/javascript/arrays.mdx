@@ -1,0 +1,289 @@
+---
+title: 'Arrays: Working with Lists of Data'
+track: javascript
+level: beginner
+order: 6
+summary: Store lists in arrays, read and change them, and transform them with map, filter, reduce and friends, the tools you'll use in every JavaScript and React project.
+tags: [javascript, arrays, map, filter, reduce, sort, beginner]
+readingTime: 15
+---
+
+import {
+  ArrayShelf,
+  MethodFactory,
+  SortLab,
+  CartSummary,
+  ArraysQuiz,
+} from '../../visualizers/javascript-arrays';
+
+Most real data comes in **lists**: messages in a chat, products in a shop, songs in a playlist,
+students in a class. Storing each one in its own variable (`song1`, `song2`, `song3`…) would be a
+nightmare.
+
+An <Term id="array">**array**</Term> is a single variable that holds an **ordered list of
+values**.
+
+By the end of this article you'll know:
+
+- How to create arrays, read items and find the length
+- How to add, remove and find items
+- The difference between methods that **change** an array and ones that make a **new** one (super
+  important for React)
+- The big three: **`map`**, **`filter`** and **`reduce`**
+- Sorting, and the strange `sort()` trap
+
+## Creating and reading arrays
+
+```js
+const playlist = ["Kesariya", "Tum Hi Ho", "Apna Bana Le"];
+```
+
+- Square brackets `[ ]` make an array, with items separated by commas.
+- Items can be **any type**, even mixed: `[42, "chai", true, null]`. In practice, keep one kind of
+  thing per array.
+- Each item has an <Term id="index">**index**</Term> (position) **starting at 0**.
+
+```js
+playlist[0]        // "Kesariya"     (first item)
+playlist[2]        // "Apna Bana Le" (third item)
+playlist.length    // 3
+playlist[playlist.length - 1]  // "Apna Bana Le" (last item)
+playlist.at(-1)    // "Apna Bana Le" (modern shortcut for the last item)
+playlist[5]        // undefined (no error, just nothing there)
+```
+
+Why start at 0? Think of the index as **"how many steps from the start"**. The first item is 0
+steps away.
+
+### Changing arrays
+
+```js
+const playlist = ["Kesariya", "Tum Hi Ho"];
+
+playlist.push("Apna Bana Le");   // add to the END
+playlist.pop();                  // remove from the END
+playlist.unshift("Raataan Lambiyan"); // add to the START
+playlist.shift();                // remove from the START
+playlist[1] = "Kun Faya Kun";    // replace the item at index 1
+```
+
+Notice we used `const`, yet we could still change the array. Remember article #2: **`const` locks
+the box (the arrow), not the object it points to.**
+
+**Finding things:**
+
+```js
+playlist.includes("Tum Hi Ho")   // true / false: is it there?
+playlist.indexOf("Tum Hi Ho")    // its index, or -1 if not found
+```
+
+Try every method on a real shelf of items:
+
+<ArrayShelf />
+
+### Change it, or copy it?
+
+Array methods come in two kinds, and mixing them up causes some of the most confusing bugs:
+
+| Changes (**mutates**) the original array | Returns a **new** array, leaving the original alone |
+| ---------------------------------------- | --------------------------------------------------- |
+| `push`, `pop`, `shift`, `unshift`        | `map`, `filter`, `slice`, `concat`                  |
+| `splice`                                 | `toSpliced`                                         |
+| `sort`, `reverse`                        | `toSorted`, `toReversed`                            |
+| `arr[i] = x`                             | `with(i, x)`, `[...arr, x]`                         |
+
+<Callout kind="note" title="React rule">
+  Never change an array that's in React state. Create a **new** one instead: `[...items, newItem]`
+  to add, `items.filter(...)` to remove, `items.map(...)` to update. React only notices a change
+  when it gets a **new array** (a new arrow, from article #2). That's why the right-hand column is
+  the React toolbox.
+</Callout>
+
+## Looping over arrays
+
+You already know how from [article #4](/javascript/loops):
+
+```js
+for (const song of playlist) {
+  console.log("🎵 " + song);
+}
+```
+
+Arrays also have a built-in looping method, **`forEach`**, which takes a
+<Term id="callback">**callback**</Term> (article #5!) and calls it once for each item:
+
+```js
+playlist.forEach((song, index) => {
+  console.log(index + 1 + ". " + song);
+});
+```
+
+`forEach` is handy, but it can't `break` early and it returns nothing. For most jobs there's a more
+specific method that does the work *and* gives you a result. Meet the big three.
+
+## The big three: `map`, `filter`, `reduce`
+
+These methods each take a **callback** and run it on every item. Think of them as machines in a
+factory, each doing one kind of job.
+
+### `map`: transform every item
+
+**`map` makes a new array of the same length, where each item is changed by your function.**
+
+```js
+const prices = [100, 200, 50];
+const withGST = prices.map(price => price * 1.18);
+// [118, 236, 59]
+
+const names = ["riya", "aarav"];
+const shouting = names.map(name => name.toUpperCase());
+// ["RIYA", "AARAV"]
+```
+
+🏭 *Every item goes into the machine and comes out changed. Same number in, same number out.*
+
+### `filter`: keep only some items
+
+**`filter` makes a new array with only the items where your function returns `true`** (truthy, from
+article #3).
+
+```js
+const marks = [92, 45, 78, 30, 88];
+const passed = marks.filter(m => m >= 50);
+// [92, 78, 88]
+```
+
+🏭 *A gate that only lets some items through. Fewer (or equal) items come out, and they're
+unchanged.*
+
+### `reduce`: boil everything down to one value
+
+**`reduce` walks through the array, carrying an *accumulator* (a running result), and ends with a
+single value.**
+
+```js
+const cart = [120, 80, 200];
+const total = cart.reduce((sum, price) => sum + price, 0);
+// 400
+```
+
+How to read it: start with `sum = 0` (the second argument). For each `price`, the new `sum` is
+`sum + price`. When the items run out, return `sum`.
+
+| Step | `sum` (before) | `price` | New `sum` |
+| ---- | -------------- | ------- | --------- |
+| 1    | 0              | 120     | 120       |
+| 2    | 120            | 80      | 200       |
+| 3    | 200            | 200     | **400**   |
+
+🏭 *A machine that squashes the whole list into one thing: a total, a maximum, a count, even an
+object.*
+
+<Callout kind="warning" title="Always give reduce a starting value">
+  That's the `0` above. Without one, reduce uses the first item as the start, and on an empty
+  array it crashes with a TypeError: "Reduce of empty array with no initial value".
+</Callout>
+
+### Their helpful cousins
+
+| Method          | Question it answers                         | Returns                    |
+| --------------- | ------------------------------------------- | -------------------------- |
+| `find(fn)`      | "What is the **first** item that matches?"  | The item, or `undefined`   |
+| `findIndex(fn)` | "**Where** is the first match?"             | The index, or `-1`         |
+| `some(fn)`      | "Does **at least one** match?"              | `true` / `false`           |
+| `every(fn)`     | "Do **all** of them match?"                 | `true` / `false`           |
+
+### Chaining: combining machines
+
+Because `map` and `filter` return new arrays, you can **chain** them into a production line:
+
+```js
+const orders = [
+  { item: "Chai", price: 30, delivered: true },
+  { item: "Samosa", price: 20, delivered: false },
+  { item: "Vada Pav", price: 25, delivered: true },
+];
+
+const revenue = orders
+  .filter(o => o.delivered)       // keep delivered orders
+  .map(o => o.price)              // take just the prices
+  .reduce((sum, p) => sum + p, 0); // add them up
+// 55
+```
+
+Read it top to bottom like a recipe. Run the factory and watch the items move through each machine:
+
+<MethodFactory />
+
+**Cheat sheet: which method do I need?**
+
+- Change every item? → `map`
+- Keep some items? → `filter`
+- One final answer (total, max, count)? → `reduce`
+- One specific item? → `find`
+- A yes/no question? → `some` / `every` / `includes`
+- Just do something for each item, with no result needed? → `forEach` or `for...of`
+
+## Sorting (and its famous trap)
+
+`sort()` puts an array in order. But try this:
+
+```js
+[10, 1, 5, 100].sort();   // [1, 10, 100, 5] 😱
+```
+
+By default, **`sort()` compares items as text**, character by character, like a dictionary, so
+`"100"` comes before `"5"`. (It's the same thing as `"10" < "9"` in
+[article #3](/javascript/operators-and-conditions)!)
+
+To sort **numbers**, give `sort` a **compare function**:
+
+```js
+[10, 1, 5, 100].sort((a, b) => a - b);   // [1, 5, 10, 100]  ascending
+[10, 1, 5, 100].sort((a, b) => b - a);   // [100, 10, 5, 1]  descending
+```
+
+How it works: the compare function looks at two items, `a` and `b`, and returns:
+
+- a **negative** number → `a` goes first
+- a **positive** number → `b` goes first
+- `0` → keep them as they are
+
+`a - b` gives exactly that for numbers. Also remember that **`sort()` changes the original array**.
+Use **`toSorted()`** to get a sorted copy instead.
+
+<SortLab />
+
+<Callout kind="note" title="DSA connection">
+  *How* does `sort` actually put things in order? That's what sorting algorithms like bubble sort
+  and merge sort are about. You'll build and visualise them in the DSA track.
+</Callout>
+
+## Your turn: a shopping cart summary
+
+Put it all together: `map` to show the items, `filter` to remove some, and `reduce` to total them
+up.
+
+<CartSummary />
+
+## Quick recap
+
+- An **array** is an ordered list: `[a, b, c]`. Indexes start at **0**, the last is `length - 1`
+  (or use `.at(-1)`).
+- **Add/remove:** `push`/`pop` (end), `unshift`/`shift` (start), `splice` (middle). These
+  **change** the original.
+- **Find:** `includes`, `indexOf`, `find`, `findIndex`, `some`, `every`.
+- **`map`** transforms every item, **`filter`** keeps some, and **`reduce`** combines everything
+  into one value. They return new results and can be **chained**.
+- **`sort()`** compares as text by default, so use `(a, b) => a - b` for numbers. It changes the
+  original, while `toSorted()` doesn't.
+- **React:** never change state arrays. Make new ones with `map`, `filter` and spread `[...arr]`.
+
+## Test yourself
+
+<ArraysQuiz />
+
+## What's next?
+
+**Step 7, Objects & JSON** (coming soon): storing data with named properties (`user.name`,
+`user.age`), arrays of objects, and JSON, the format almost every app uses to send data around.
