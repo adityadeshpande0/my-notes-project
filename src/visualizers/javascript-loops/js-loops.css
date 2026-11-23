@@ -1,0 +1,954 @@
+/*
+ * Styles for the visuals in "Loops". Imported by index.ts, so it only loads
+ * with that note. Colours come from the theme tokens. The loop's three parts
+ * keep one colour everywhere: ① start = periwinkle (accent), ② condition =
+ * amber (warn: comparing), ③ update = mint (accent-2).
+ */
+
+/* ─── Shared bits ───────────────────────────────────────────────── */
+.jl-muted {
+  color: var(--text-muted);
+}
+.jl-small {
+  font-size: 0.8rem;
+}
+.jl-big {
+  font-size: 1.15rem;
+}
+.jl-gap {
+  margin-top: 0.9rem;
+}
+.jl-mb {
+  margin-bottom: 0.75rem;
+}
+.jl-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.jl-inline-label {
+  margin: 0 0.25rem 0 0;
+}
+.jl-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.jl-check input {
+  accent-color: var(--accent);
+}
+.jl-input {
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+}
+.jl-input:focus-visible,
+.jl-builder select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.jl-slider {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+}
+.jl-slider input {
+  width: 100%;
+  accent-color: var(--accent-2);
+}
+.jl-slider--short {
+  flex: 1 1 12rem;
+  max-width: 20rem;
+}
+.jl-split {
+  display: grid;
+  gap: 0.75rem;
+}
+.jl-split > * {
+  min-width: 0;
+}
+@container (min-width: 44rem) {
+  .jl-split {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+.jl-mini-console {
+  margin-top: 0.6rem;
+  min-height: 2.4rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 12.5px;
+}
+
+/* ─── #1 Why loops ──────────────────────────────────────────────── */
+.jl-copy {
+  max-height: 15rem;
+  overflow: hidden;
+}
+.jl-more {
+  margin-top: 0.25rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+.jl-lines {
+  margin: 0.6rem 0 0;
+  font-size: 0.9rem;
+}
+.jl-lines strong {
+  color: var(--accent-2);
+}
+.jl-bump {
+  display: inline-block;
+  border-radius: 4px;
+  color: var(--warn);
+  font-weight: 700;
+  animation: jl-bump 0.5s ease-out;
+}
+@keyframes jl-bump {
+  from {
+    background: color-mix(in srgb, var(--warn) 35%, transparent);
+    transform: scale(1.3);
+  }
+}
+.jl-bars {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 1rem;
+}
+.jl-bar-row {
+  display: grid;
+  grid-template-columns: 6rem 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+.jl-bar-row > :nth-child(2) {
+  grid-column: 2;
+}
+.jl-bar {
+  display: block;
+  min-width: 4px;
+  height: 14px;
+  border-radius: 0 4px 4px 0;
+  transition: width 0.5s ease;
+}
+.jl-bar.is-copy {
+  background: var(--violet);
+}
+.jl-bar.is-loop {
+  background: var(--accent-2);
+}
+.jl-bar-n {
+  min-width: 3.5rem;
+  text-align: right;
+}
+
+/* ─── #2 Running track ──────────────────────────────────────────── */
+.jl-builder {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.9rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  font-size: 0.95rem;
+  font-variant-ligatures: none;
+}
+.jl-slot {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.4rem;
+  border: 1.5px solid;
+  border-radius: 8px;
+}
+.jl-slot select {
+  padding: 0.15rem 0.25rem;
+  border: 0;
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+}
+.jl-slot.is-start,
+.jl-part.is-start {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.jl-slot.is-cond,
+.jl-part.is-cond {
+  border-color: var(--warn);
+  color: var(--warn);
+}
+.jl-slot.is-update,
+.jl-part.is-update {
+  border-color: var(--accent-2);
+  color: var(--accent-2);
+}
+.jl-part {
+  padding: 0 2px;
+  border-bottom: 2px solid transparent;
+  border-radius: 3px;
+}
+.jl-part.is-lit {
+  background: color-mix(in srgb, currentColor 22%, transparent);
+  border-bottom-color: currentColor;
+}
+.jl-guess {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+}
+.jl-reveal {
+  margin: 0.6rem 0 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px dashed var(--accent);
+  border-radius: 10px;
+  font-weight: 600;
+}
+.jl-track-grid {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+}
+.jl-track-grid > * {
+  min-width: 0;
+}
+@container (min-width: 50rem) {
+  .jl-track-grid {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+.jl-side {
+  display: grid;
+  gap: 0.6rem;
+}
+.jl-code {
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.jl-stadium-wrap {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
+}
+.jl-stadium-wrap.is-guard {
+  border-color: var(--danger);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--danger) 40%, transparent);
+}
+.jl-stadium {
+  padding: 0.5rem;
+  perspective: 900px;
+}
+.jl-stadium svg {
+  transform: rotateX(24deg);
+  transform-origin: 50% 70%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .jl-stadium svg {
+    transform: none;
+  }
+}
+.jl-track {
+  fill: color-mix(in srgb, var(--accent) 6%, transparent);
+  stroke: color-mix(in srgb, var(--danger) 45%, var(--surface));
+  stroke-width: 26;
+}
+.jl-track-line {
+  fill: none;
+  stroke: var(--bg);
+  stroke-width: 1.5;
+  stroke-dasharray: 8 8;
+}
+.jl-gate line {
+  stroke: var(--accent);
+  stroke-width: 4;
+}
+.viz svg .jl-gate text,
+.viz svg .jl-cp-label {
+  fill: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+.viz svg .jl-gate.is-on text {
+  fill: var(--accent);
+}
+.viz svg .jl-gate.is-end text {
+  fill: var(--success);
+}
+.viz svg .jl-cp-label.is-on.is-cond {
+  fill: var(--warn);
+}
+.viz svg .jl-cp-label.is-body {
+  font-family: var(--font-mono);
+}
+.viz svg .jl-cp-label.is-on.is-body {
+  fill: var(--text);
+}
+.jl-board rect {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.5;
+  transition:
+    stroke 0.25s,
+    fill 0.25s;
+}
+.jl-board.is-on rect {
+  fill: color-mix(in srgb, var(--accent-2) 18%, var(--surface));
+  stroke: var(--accent-2);
+}
+.viz svg .jl-board-op {
+  fill: var(--accent-2);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+}
+.viz svg .jl-board-i {
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.jl-runner {
+  offset-rotate: 0deg;
+  transition: offset-distance 0.6s ease-in-out;
+}
+.jl-runner circle {
+  fill: var(--accent-2);
+  opacity: 0.25;
+}
+.jl-runner.is-guard circle {
+  fill: var(--danger);
+  opacity: 0.5;
+}
+.viz svg .jl-runner text {
+  font-size: 16px;
+}
+.jl-guard {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  color: var(--text);
+  text-align: center;
+  animation: viz-fade 0.35s ease both;
+}
+.jl-guard strong {
+  color: var(--danger);
+  font-size: 1.05rem;
+}
+.jl-lane {
+  display: none;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0.6rem;
+  list-style: none;
+}
+.jl-lane-row {
+  display: grid;
+  grid-template-columns: 1.6rem 1fr auto;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.4rem;
+  padding: 0.3rem 0.5rem;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.85rem;
+  transition:
+    border-color 0.25s,
+    background-color 0.25s;
+}
+.jl-lane-row.is-on.is-start {
+  border-color: var(--accent);
+}
+.jl-lane-row.is-on.is-cond {
+  border-color: var(--warn);
+}
+.jl-lane-row.is-on.is-body,
+.jl-lane-row.is-on.is-update {
+  border-color: var(--accent-2);
+}
+.jl-lane-row.is-on.is-end {
+  border-color: var(--success);
+}
+.jl-lane-row.is-on {
+  background: var(--surface);
+}
+.jl-lane-note {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+/* Narrow cards: the oval becomes a straight lane. */
+@container (max-width: 34rem) {
+  .jl-stadium {
+    display: none;
+  }
+  .jl-lane {
+    display: grid;
+  }
+  .jl-guard {
+    position: static;
+  }
+}
+
+/* ─── #3 while vs do...while ────────────────────────────────────── */
+.jl-lane-panel {
+  min-width: 0;
+  transition: border-color 0.3s;
+}
+.jl-lane-panel.is-done {
+  border-color: var(--success);
+}
+.jl-lane-head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+  font-weight: 700;
+}
+.jl-done {
+  color: var(--success);
+  font-size: 0.85rem;
+}
+.jl-lane-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 0.5rem;
+  align-items: start;
+  margin-top: 0.5rem;
+}
+.jl-lane-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+.jl-lane-side .mem-box {
+  min-width: 6rem;
+}
+.viz svg.jl-cup,
+.viz svg.jl-die {
+  width: 64px;
+}
+.jl-chai {
+  fill: color-mix(in srgb, var(--warn) 70%, var(--surface));
+  transition:
+    y 0.5s ease,
+    height 0.5s ease;
+}
+.jl-cup-outline {
+  fill: none;
+  stroke: var(--text-muted);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+.viz svg .jl-cup-text {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+}
+.jl-spill {
+  fill: color-mix(in srgb, var(--warn) 70%, var(--surface));
+  stroke: color-mix(in srgb, var(--warn) 70%, var(--surface));
+  stroke-width: 4;
+  stroke-linecap: round;
+  animation: jl-spill 0.6s ease-out both;
+}
+.jl-spill path {
+  fill: none;
+}
+@keyframes jl-spill {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+.jl-die rect {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 2;
+}
+.jl-die circle {
+  fill: var(--text);
+}
+.jl-die.is-six rect {
+  stroke: var(--success);
+  fill: color-mix(in srgb, var(--success) 15%, var(--surface));
+}
+.viz svg.jl-die text {
+  font-size: 22px;
+  fill: var(--text-muted);
+}
+
+/* ─── #4 Conveyor belt ──────────────────────────────────────────── */
+.jl-belt-panel {
+  min-width: 0;
+}
+.jl-belt-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+.jl-belt {
+  position: relative;
+  flex: 1 1 14rem;
+  min-width: 0;
+  padding: 0.5rem 0.5rem 1rem;
+}
+.jl-belt-track {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 10px;
+  border-radius: 999px;
+  background: repeating-linear-gradient(90deg, var(--border) 0 10px, var(--surface) 10px 20px);
+  background-size: 20px 10px;
+  animation: jl-belt 1s linear infinite;
+}
+@keyframes jl-belt {
+  to {
+    background-position: 20px 0;
+  }
+}
+.jl-belt-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.jl-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.6rem;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  font-size: 0.85rem;
+  transition:
+    transform 0.35s ease,
+    border-color 0.25s,
+    opacity 0.25s;
+}
+.jl-item.is-picked {
+  border-color: var(--accent-2);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent-2) 40%, transparent);
+  transform: translateY(-6px);
+}
+.jl-item.is-done {
+  opacity: 0.45;
+}
+.jl-item-index {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+.jl-belt-out {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.jl-hand {
+  font-size: 1.4rem;
+}
+.jl-type {
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.75rem;
+}
+.jl-type.is-warn {
+  border-color: var(--warn);
+  color: var(--warn);
+  font-weight: 600;
+}
+.jl-lookup {
+  color: var(--accent-2);
+  font-size: 0.85rem;
+}
+
+/* ─── #5 Delivery route ─────────────────────────────────────────── */
+.jl-street {
+  position: relative;
+  display: flex;
+  gap: 0.5rem;
+  width: max-content;
+  padding: 2.4rem 7rem 0.5rem; /* room for the depot (left) and the finish (right) */
+  border-bottom: 3px dashed var(--border);
+}
+.jl-street::before {
+  content: '🏪 depot';
+  position: absolute;
+  bottom: 0.9rem;
+  left: 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+.jl-scooter {
+  position: absolute;
+  top: 0.4rem;
+  left: calc((var(--at) + 1) * 7rem + 2.4rem);
+  font-size: 1.5rem;
+  transition: left 0.6s ease-in-out;
+}
+.jl-house {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  width: 6.5rem;
+  padding: 0.4rem 0.25rem;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  transition:
+    border-color 0.25s,
+    opacity 0.25s;
+}
+.jl-house.is-here {
+  border-color: var(--accent-2);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent-2) 35%, transparent);
+}
+.jl-house.is-deliver {
+  border-color: var(--success);
+}
+.jl-house.is-continue {
+  border-style: dashed;
+}
+.jl-house.is-break {
+  border-color: var(--danger);
+}
+.jl-house.is-unvisited {
+  opacity: 0.4;
+}
+.jl-house-icon {
+  font-size: 1.4rem;
+}
+.jl-house-n {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+.jl-status {
+  appearance: none;
+  padding: 0.15rem 0.55rem;
+  border: 1.5px solid;
+  border-radius: 999px;
+  background: transparent;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.jl-status:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.jl-status.is-open {
+  border-color: var(--success);
+  color: var(--success);
+}
+.jl-status.is-closed {
+  border-color: var(--text-muted);
+  color: var(--text-muted);
+}
+.jl-status.is-no-stock {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.jl-house-result {
+  min-height: 1.1rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+/* ─── #6 Nested grid ────────────────────────────────────────────── */
+.jl-reset {
+  margin: 0.4rem 0 0;
+  color: var(--accent-2);
+  animation: viz-fade 0.3s ease both;
+}
+.jl-grid-stage {
+  padding: 0.25rem;
+  perspective: 900px;
+}
+.jl-grid {
+  display: grid;
+  gap: 3px;
+  width: max-content;
+  min-width: 100%;
+  transform: rotateX(14deg);
+  transform-origin: 50% 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .jl-grid {
+    transform: none;
+  }
+}
+.jl-grid-head {
+  display: grid;
+  place-items: center;
+  padding: 0 0.3rem;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+.jl-grid-head.is-row {
+  color: var(--accent);
+  font-weight: 700;
+}
+.jl-grid.is-pairs .jl-grid-head--col {
+  writing-mode: vertical-rl;
+  padding: 0.2rem 0;
+}
+.jl-cell {
+  display: grid;
+  place-items: center;
+  min-width: 26px;
+  aspect-ratio: 1;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--surface);
+  font-size: 0.75rem;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+.jl-cell.is-row {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+}
+.jl-cell.is-filled {
+  background: color-mix(in srgb, var(--success) 14%, var(--surface));
+}
+.jl-cell.is-here {
+  border: 2px solid var(--accent-2);
+  background: color-mix(in srgb, var(--accent-2) 28%, var(--surface));
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent-2) 45%, transparent);
+}
+.jl-growth {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--border);
+}
+.jl-growth-row {
+  display: grid;
+  gap: 1rem;
+}
+@container (min-width: 40rem) {
+  .jl-growth-row {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: center;
+  }
+}
+.jl-chart-grid {
+  stroke: var(--border);
+  stroke-width: 1;
+  opacity: 0.6;
+}
+.viz svg .jl-chart-tick {
+  fill: var(--text-muted);
+  font-size: 10px;
+}
+.jl-chart-line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.jl-chart-line.is-nested {
+  stroke: var(--pink);
+}
+.jl-chart-line.is-single {
+  stroke: var(--accent);
+  stroke-dasharray: 5 4;
+}
+.jl-chart-dot {
+  stroke: var(--bg-elevated);
+  stroke-width: 2;
+}
+.jl-chart-dot.is-nested {
+  fill: var(--pink);
+}
+.jl-chart-dot.is-single {
+  fill: var(--accent);
+}
+.viz svg .jl-chart-label {
+  fill: var(--text);
+  font-size: 10.5px;
+  font-weight: 600;
+}
+.jl-legend {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0 0 0.6rem;
+  padding: 0;
+  list-style: none;
+  font-size: 0.82rem;
+}
+.jl-swatch {
+  display: inline-block;
+  width: 18px;
+  height: 0;
+  margin-right: 0.35rem;
+  vertical-align: middle;
+  border-top: 2px solid;
+}
+.jl-swatch.is-nested {
+  border-color: var(--pink);
+}
+.jl-swatch.is-single {
+  border-top-style: dashed;
+  border-color: var(--accent);
+}
+.jl-growth-table {
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+.jl-growth-table th,
+.jl-growth-table td {
+  padding: 0.2rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  font-weight: 500;
+}
+.jl-growth-table thead th {
+  color: var(--text-muted);
+}
+
+/* ─── #8 Bug hunter ─────────────────────────────────────────────── */
+.jl-case-dots {
+  display: flex;
+  gap: 0.35rem;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+.jl-case-dots li {
+  display: grid;
+  place-items: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  border: 1.5px solid var(--border);
+  border-radius: 50%;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.jl-case-dots li.is-on {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.jl-case-dots li.is-right {
+  border-color: var(--success);
+  color: var(--success);
+}
+.jl-case-dots li.is-wrong {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.jl-folder {
+  position: relative;
+  padding: 1.5rem 1rem 1rem;
+  border: 1.5px solid color-mix(in srgb, var(--warn) 45%, var(--border));
+  border-radius: 4px 12px 12px 12px;
+  background: color-mix(in srgb, var(--warn) 5%, var(--bg));
+}
+.jl-folder-tab {
+  position: absolute;
+  top: -0.9rem;
+  left: -1.5px;
+  margin: 0;
+  padding: 0.15rem 0.8rem;
+  border: 1.5px solid color-mix(in srgb, var(--warn) 45%, var(--border));
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  background: var(--bg-elevated);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.jl-verdict {
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
+}
+.jl-verdict strong {
+  color: var(--accent-2);
+}
+.jl-case-code {
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.jl-question {
+  margin: 0.75rem 0 0.5rem;
+  font-weight: 600;
+}
+.jl-option {
+  text-align: left;
+}
+.jl-option:disabled {
+  opacity: 1;
+  cursor: default;
+}
+.jl-option.is-right {
+  border-color: var(--success);
+  background: color-mix(in srgb, var(--success) 10%, transparent);
+  color: var(--success);
+}
+.jl-option.is-wrong {
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+  color: var(--danger);
+}
+.jl-del {
+  background: color-mix(in srgb, var(--danger) 22%, transparent);
+  color: var(--danger);
+  text-decoration: line-through;
+}
+.jl-ins {
+  background: color-mix(in srgb, var(--success) 22%, transparent);
+  color: var(--success);
+  text-decoration: none;
+}
+.jl-fixed-run {
+  border-color: var(--success);
+}
+.jl-guard-inline {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.65rem;
+  border: 1.5px solid var(--danger);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+  font-size: 0.85rem;
+}
