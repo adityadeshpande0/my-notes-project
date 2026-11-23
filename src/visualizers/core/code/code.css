@@ -1,0 +1,68 @@
+/*
+ * Code views and console panels (visualizers/core/code). Shared across the
+ * JavaScript course.
+ */
+.vc-code {
+  margin: 0;
+  overflow-x: auto;
+  font-size: 12.5px;
+  line-height: 1.7;
+  font-variant-ligatures: none;
+}
+.vc-line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0 0.35rem;
+  border-left: 3px solid transparent;
+  border-radius: 6px;
+  white-space: pre;
+  transition:
+    background-color 0.2s,
+    opacity 0.2s;
+}
+.vc-line.is-on {
+  border-left-color: var(--accent-2);
+  background: color-mix(in srgb, var(--accent-2) 16%, transparent);
+}
+.vc-line.is-dim {
+  opacity: 0.45;
+}
+.vc-ln {
+  min-width: 2ch;
+  color: var(--text-muted);
+  text-align: right;
+  user-select: none;
+}
+.vc-badge {
+  margin-left: auto;
+  padding-left: 0.5rem;
+  font-size: 11px;
+  font-weight: 700;
+}
+.vc-badge.is-yes {
+  color: var(--success);
+}
+.vc-badge.is-no {
+  color: var(--danger);
+}
+.vc-badge.is-muted {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.vc-badge.is-warn {
+  color: var(--warn);
+}
+.vc-console {
+  margin-top: 0.75rem;
+  font-size: 13px;
+}
+.vc-out {
+  animation: viz-fade 0.3s ease both;
+}
+.vc-out > span {
+  color: var(--accent-2);
+}
+.vc-muted {
+  color: var(--text-muted);
+}

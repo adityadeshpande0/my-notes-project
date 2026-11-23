@@ -4,6 +4,7 @@
 import '../core/viz.css';
 import '../core/memory/memory.css';
 import '../core/flow/flow.css';
+import '../core/code/code.css';
 import './js-conditions.css';
 
 export { default as ArithmeticLab } from './ArithmeticLab';

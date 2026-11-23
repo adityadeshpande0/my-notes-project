@@ -323,4 +323,18 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
     definition:
       'In a switch, when a matching case has no break, JavaScript keeps running the next cases too, without checking them.',
   },
+  loop: {
+    term: 'Loop',
+    definition:
+      'Code that repeats a block of instructions, either a set number of times or until a condition becomes false.',
+  },
+  iteration: {
+    term: 'Iteration',
+    definition: 'One run of a loop’s body: one lap. A loop that prints 1 to 5 does 5 iterations.',
+  },
+  'infinite-loop': {
+    term: 'Infinite loop',
+    definition:
+      'A loop whose condition never becomes false, so it never stops. In a browser, it freezes the page.',
+  },
 };
