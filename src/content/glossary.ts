@@ -337,4 +337,33 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
     definition:
       'A loop whose condition never becomes false, so it never stops. In a browser, it freezes the page.',
   },
+  function: {
+    term: 'Function',
+    definition:
+      'A named, reusable block of code. You write it once (declare it) and run it whenever you like (call it).',
+  },
+  parameter: {
+    term: 'Parameter',
+    definition:
+      'A name in a function’s definition that waits for a value, like sugar in makeChai(sugar). The values passed in a call are the arguments.',
+  },
+  'arrow-function': {
+    term: 'Arrow function',
+    definition: 'A short way to write a function: (n) => n * 2. Added to JavaScript in 2015.',
+  },
+  scope: {
+    term: 'Scope',
+    definition:
+      'Where a variable can be seen. Code can look outward to the scopes around it, but never into a function from outside.',
+  },
+  'pure-function': {
+    term: 'Pure function',
+    definition:
+      'A function whose result depends only on its inputs, and which changes nothing outside itself. Same inputs, same answer, every time.',
+  },
+  recursion: {
+    term: 'Recursion',
+    definition:
+      'When a function calls itself to solve a smaller version of the same problem. It needs a base case to stop.',
+  },
 };
