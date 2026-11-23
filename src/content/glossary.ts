@@ -366,4 +366,24 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
     definition:
       'When a function calls itself to solve a smaller version of the same problem. It needs a base case to stop.',
   },
+  object: {
+    term: 'Object',
+    definition:
+      'A collection of named values (properties), like { name: "Riya", age: 19 }. Each value is found by its name, not its position.',
+  },
+  property: {
+    term: 'Property',
+    definition:
+      'One key–value pair in an object, like name: "Riya". The key is the name, the value is the data.',
+  },
+  method: {
+    term: 'Method',
+    definition:
+      'A function stored as a property of an object, like console.log or array.push. You call it with object.method().',
+  },
+  json: {
+    term: 'JSON',
+    definition:
+      'JavaScript Object Notation: a strict text format for data, with double-quoted keys and strings. Almost every app uses it to send and save data.',
+  },
 };

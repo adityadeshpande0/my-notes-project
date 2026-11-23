@@ -1,0 +1,317 @@
+---
+title: 'Objects & JSON: Data with Names'
+track: javascript
+level: beginner
+order: 7
+summary: Group related data into objects, read and change properties, work with nested data and lists of objects, and turn it all into JSON, the format apps use to send data to each other.
+tags: [javascript, objects, json, properties, nested-data, beginner]
+readingTime: 15
+---
+
+import {
+  ObjectCard,
+  DataExplorer,
+  JsonConverter,
+  ProfileEditor,
+  ObjectsQuiz,
+} from '../../visualizers/javascript-objects';
+
+An array is great for a list of similar things. But how would you store **one student**?
+
+```js
+const student = ["Riya", 19, "Pune", true];   // 🤔 what's 19? what's true?
+```
+
+You'd have to remember that position 1 is the age and position 3 is… something. That's fragile and
+confusing.
+
+An <Term id="object">**object**</Term> solves this by giving every value a **name**:
+
+```js
+const student = {
+  name: "Riya",
+  age: 19,
+  city: "Pune",
+  isEnrolled: true,
+};
+```
+
+Now the data describes itself. Objects are everywhere in JavaScript: a user, a product, a message, a
+game character, a settings panel. And **JSON**, the format almost every app and website uses to send
+data, is built on them.
+
+By the end of this article you'll know:
+
+- How to create objects and read, add, change and delete properties
+- Dot vs bracket notation, and when you **need** brackets
+- How to loop over an object
+- How to work with **nested data** and **arrays of objects** (real app data!)
+- What **JSON** is, and how to convert to and from it
+
+## Creating an object
+
+An object is a collection of **key–value pairs**, called
+<Term id="property">**properties**</Term>:
+
+```js
+const chai = {
+  name: "Masala Chai",   // key: name    value: "Masala Chai"
+  price: 30,
+  sizes: ["small", "large"],
+  isHot: true,
+};
+```
+
+- Curly braces `{ }` make an object.
+- Each property is `key: value`, separated by commas.
+- Keys are names (strings). Values can be **anything**: numbers, strings, booleans, arrays, other
+  objects, even functions.
+
+Think of an object as an **ID card** or a **form**: a set of labelled fields, each with a value.
+
+## Reading properties: dot vs brackets
+
+There are two ways to read a property:
+
+```js
+chai.name        // "Masala Chai"   ← dot notation (the usual way)
+chai["price"]    // 30              ← bracket notation
+chai.discount    // undefined       ← missing property: no error, just undefined
+```
+
+**Dot notation** is shorter and cleaner, so use it most of the time. **Bracket notation** is needed
+when:
+
+1. **The key is stored in a variable:**
+
+   ```js
+   const field = "price";
+   chai[field]    // 30  ✅  (looks up the key "price")
+   chai.field     // undefined ❌ (looks for a key literally called "field")
+   ```
+
+2. **The key has spaces or special characters:** `scores["final exam"]`
+
+## Adding, changing and deleting
+
+```js
+chai.price = 35;          // change an existing property
+chai.discount = 5;        // add a new one (just assign it!)
+delete chai.isHot;        // remove a property
+
+"price" in chai           // true:  does this key exist?
+Object.hasOwn(chai, "isHot") // false: it was deleted
+```
+
+And yes, all of this works even though `chai` is a `const`. As you learned in
+[article #2](/javascript/variables-and-data-types), `const` locks the arrow, not the object.
+
+## Looping over an object
+
+Three built-in helpers turn an object into **arrays**, so you can use everything from
+[article #6](/javascript/arrays):
+
+```js
+Object.keys(chai)     // ["name", "price", "sizes", "discount"]
+Object.values(chai)   // ["Masala Chai", 35, ["small", "large"], 5]
+Object.entries(chai)  // [["name", "Masala Chai"], ["price", 35], ...]
+
+for (const [key, value] of Object.entries(chai)) {
+  console.log(key + " → " + value);
+}
+```
+
+(You also met `for...in` in article #4. It works too, but `Object.entries` with `for...of` is the
+modern favourite.)
+
+Build and inspect your own object card:
+
+<ObjectCard />
+
+### Methods: functions inside objects
+
+A property whose value is a function is called a <Term id="method">**method**</Term>. You've been
+using them all along: `console.log` is the `log` method of the `console` object, and `push` is a
+method of every array.
+
+```js
+const counter = {
+  count: 0,
+  increment() {
+    this.count++;
+  },
+};
+
+counter.increment();
+counter.count   // 1
+```
+
+Inside a method, **`this`** means "the object this method was called on", so `this.count` is
+`counter.count`. (`this` has some tricky rules, especially with arrow functions, which we'll come
+back to later. For now: inside a normal method, `this` is the object before the dot.)
+
+<Callout kind="tip" title="Shorthand">
+  When a variable has the same name as the key, you can write it once:
+  `const user = { name, age };` is the same as `{ name: name, age: age }`.
+</Callout>
+
+## Real data: nested objects and arrays of objects
+
+Real app data is **nested**: objects inside objects, arrays inside objects, and very often **arrays
+of objects**. Here's what a food delivery order might look like:
+
+```js
+const order = {
+  id: 1042,
+  customer: {
+    name: "Aarav",
+    address: {
+      city: "Mumbai",
+      pincode: "400001",
+    },
+  },
+  items: [
+    { name: "Vada Pav", price: 25, qty: 2 },
+    { name: "Cutting Chai", price: 15, qty: 3 },
+  ],
+  status: "on the way",
+};
+```
+
+To reach something deep inside, **chain** dots and brackets, one step at a time:
+
+```js
+order.customer.name              // "Aarav"
+order.customer.address.city      // "Mumbai"
+order.items[1].name              // "Cutting Chai"
+order.items.length               // 2
+order.coupon?.code               // undefined (safe, thanks to ?. from article #3)
+```
+
+Read `order.items[1].name` left to right like directions: *"go to `order` → open `items` → take the
+item at index `1` → read its `name`."*
+
+And because `items` is an **array of objects**, all the array methods from article #6 work:
+
+```js
+const total = order.items.reduce((sum, item) => sum + item.price * item.qty, 0);
+// 25×2 + 15×3 = 95
+
+const names = order.items.map(item => item.name);
+// ["Vada Pav", "Cutting Chai"]
+```
+
+This combination, **arrays of objects plus `map`/`filter`/`reduce`**, is honestly how most real
+JavaScript and React code works. Explore the order, and click anything to see the path to it:
+
+<DataExplorer />
+
+### Copying objects
+
+Objects are **referenced**, not copied (article #2). To make a real copy, use spread:
+
+```js
+const updated = { ...chai, price: 40 };   // a NEW object: all of chai's properties, with price overridden
+```
+
+Remember, spread is a **shallow** copy: nested objects inside are still shared. Use
+`structuredClone(obj)` when you need a full deep copy.
+
+<Callout kind="note" title="React rule">
+  To update an object in state, make a new one: `setUser({ ...user, name: "Riya" })`. Never
+  `user.name = "Riya"`, because React won't notice the change.
+</Callout>
+
+## JSON: how apps send data
+
+When your app talks to a server (to load products, send a message or save a score), the data has to
+travel over the internet **as text**. You can't send a live JavaScript object through a network
+cable.
+
+<Term id="json">**JSON**</Term> (JavaScript Object Notation) is the standard **text format** for
+data. It looks almost exactly like a JavaScript object:
+
+```json
+{
+  "name": "Masala Chai",
+  "price": 30,
+  "sizes": ["small", "large"],
+  "isHot": true,
+  "discount": null
+}
+```
+
+It was popularised by Douglas Crockford in the early 2000s. Today almost every web API speaks JSON,
+and not just JavaScript: Python, Java, Go and every other major language can read and write it.
+
+### JSON's strict rules
+
+JSON *looks* like JavaScript, but it's stricter:
+
+- **Keys must be in double quotes:** `"name"`, not `name`
+- **Strings use double quotes only:** `"chai"`, not `'chai'`
+- **No trailing commas** after the last item
+- **No comments**
+- **No functions, `undefined`, `NaN` or `Infinity`.** Only strings, numbers, booleans, `null`,
+  arrays and objects are allowed.
+
+### Converting: `JSON.stringify` and `JSON.parse`
+
+```js
+const chai = { name: "Masala Chai", price: 30 };
+
+// Object → text (to SEND or SAVE)
+const text = JSON.stringify(chai);
+// '{"name":"Masala Chai","price":30}'
+
+// Text → object (after RECEIVING or LOADING)
+const back = JSON.parse(text);
+back.price   // 30
+```
+
+- **`JSON.stringify(value)`** packs an object into a JSON string. Add `JSON.stringify(value, null, 2)`
+  for pretty, indented output.
+- **`JSON.parse(text)`** unpacks a JSON string back into a real object. If the text breaks the
+  rules, it throws a `SyntaxError`, so wrap it in `try...catch` when the text comes from outside.
+
+Think of it as **packing a suitcase** (stringify) to travel, then **unpacking** (parse) at the
+destination. Try packing and unpacking, and try breaking the rules:
+
+<JsonConverter />
+
+<Callout kind="tip" title="You'll use JSON constantly">
+  `localStorage` can only store text (so you `stringify` before saving and `parse` after loading),
+  and data from APIs arrives as JSON (article #12 covers `fetch`).
+</Callout>
+
+## Your turn: a profile editor
+
+Build a small profile editor where the data lives in an object, gets updated the React way, and is
+shown as JSON:
+
+<ProfileEditor />
+
+## Quick recap
+
+- An **object** stores key–value pairs (properties): `{ name: "Riya", age: 19 }`.
+- Read with **dot** (`obj.name`) or **brackets** (`obj["name"]`, `obj[variable]`). A missing
+  property gives `undefined`.
+- Add/change with `obj.key = value`, remove with `delete obj.key`, and check with `"key" in obj` or
+  `Object.hasOwn`.
+- **`Object.keys` / `values` / `entries`** turn an object into arrays, for looping.
+- A **method** is a function in an object. Inside it, `this` is the object before the dot.
+- Real data is **nested**: chain the access (`order.items[1].name`), and use `?.` for safety.
+- **Arrays of objects + `map`/`filter`/`reduce`** = most real app code.
+- Copy with `{ ...obj }` (shallow). In React, update state objects by making new ones.
+- **JSON** is the text format for data. `JSON.stringify` makes text, and `JSON.parse` turns text
+  back into objects. JSON is stricter than JS (double quotes, no trailing commas, no functions).
+
+## Test yourself
+
+<ObjectsQuiz />
+
+## What's next?
+
+**Step 8, Scope, Hoisting & Closures** (coming soon): the rules for where variables live, why some
+exist before their line, and **closures**, the "backpack" functions carry with them. It's one of
+JavaScript's most powerful ideas (and a favourite interview question).
