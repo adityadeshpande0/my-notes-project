@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { StackFrame, StackTower } from '../core/stack';
 import { alpha, C } from '../core/colors';
 import { StepControls } from '../core/StepControls';
 import { useStepper, type Stepper } from '../core/useStepper';
@@ -189,21 +190,14 @@ function CodeView({ code, line }: { code: string; line: number | null }) {
 }
 
 function Stack({ frames }: { frames: string[] }) {
-  if (frames.length === 0) return <p className="el-empty">empty</p>;
+  // The shared call-stack plates (core/stack), so the stack looks the same in
+  // every article. Keyed by position + name, so a pushed plate drops in.
   return (
-    // column-reverse: the first frame (bottom of the stack) sits at the bottom.
-    <ol className="el-stack">
+    <StackTower keys={frames.map((f, i) => `${i}-${f}`)}>
       {frames.map((f, i) => (
-        // Keyed by position + name, so a new plate mounts (and drops in) when pushed.
-        <li
-          key={`${i}-${f}`}
-          className="el-plate viz-mono"
-          data-top={i === frames.length - 1 || undefined}
-        >
-          {f}
-        </li>
+        <StackFrame key={i} compact name={f} state={i === frames.length - 1 ? 'top' : 'waiting'} />
       ))}
-    </ol>
+    </StackTower>
   );
 }
 

@@ -5,6 +5,7 @@
 // the note's own lazy chunk. The 3D part of WhereJsRuns is split out even
 // further: it's a separate chunk loaded only when that visual nears the screen.
 import '../core/viz.css';
+import '../core/stack/stack.css';
 import './js-basics.css';
 
 export { default as WebsiteLayers } from './WebsiteLayers';

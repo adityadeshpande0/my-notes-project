@@ -1,0 +1,192 @@
+/*
+ * The call stack (visualizers/core/stack): plates stack upwards, and the top
+ * plate (the one JavaScript is working on) glows mint. Waiting plates are
+ * dimmed; a plate that returns turns green and lifts off; built-ins are faint.
+ */
+.sf-tower {
+  display: flex;
+  flex-direction: column-reverse; /* the first plate (bottom of the stack) sits at the bottom */
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sf-tower.is-tilted {
+  transform: perspective(900px) rotateX(16deg);
+  transform-origin: 50% 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sf-tower.is-tilted {
+    transform: none;
+  }
+}
+@container (max-width: 30rem) {
+  .sf-tower.is-tilted {
+    transform: none;
+  }
+}
+.sf-empty {
+  margin: 0;
+  padding: 0.6rem;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.sf-plate {
+  padding: 0.45rem 0.75rem;
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--border) 80%, transparent); /* the plate's rim */
+  font-size: 0.82rem;
+  animation: sf-drop 0.3s ease both;
+  transition:
+    opacity 0.25s,
+    border-color 0.25s,
+    background-color 0.25s;
+}
+@keyframes sf-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+}
+.sf-plate.is-compact {
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  text-align: center;
+}
+.sf-plate.is-top {
+  border-color: var(--accent-2);
+  background: color-mix(in srgb, var(--accent-2) 14%, var(--surface));
+  box-shadow:
+    0 3px 0 color-mix(in srgb, var(--accent-2) 45%, transparent),
+    0 0 12px color-mix(in srgb, var(--accent-2) 35%, transparent);
+}
+.sf-plate.is-waiting:not(.is-compact) {
+  opacity: 0.72;
+}
+.sf-plate.is-returning {
+  border-color: var(--success);
+  background: color-mix(in srgb, var(--success) 12%, var(--surface));
+  animation: sf-lift 0.9s ease both;
+}
+@keyframes sf-lift {
+  70% {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0.55;
+    transform: translateY(-6px);
+  }
+}
+.sf-plate.is-overflow {
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 12%, var(--surface));
+}
+.sf-plate.is-builtin {
+  border-style: dashed;
+  opacity: 0.75;
+}
+.sf-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+.sf-plate:not(.is-compact) .sf-head {
+  justify-content: flex-start;
+}
+.sf-now {
+  color: var(--accent-2);
+  font-size: 0.75rem;
+}
+.sf-sig {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.sf-plate.is-compact .sf-sig {
+  font-weight: 400;
+  font-size: 12.5px;
+}
+.sf-tag {
+  padding: 0 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+}
+.sf-locals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+}
+/* A local variable: a tiny version of the course's MemoryBox. */
+.sf-var {
+  display: inline-flex;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font-size: 0.76rem;
+}
+.sf-var-name {
+  padding: 0.05rem 0.35rem;
+  border-right: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-muted);
+}
+.sf-var-value {
+  padding: 0.05rem 0.4rem;
+}
+.sf-var.is-fresh {
+  border-color: var(--warn);
+  animation: sf-flash 0.6s ease;
+}
+@keyframes sf-flash {
+  from {
+    background: color-mix(in srgb, var(--warn) 30%, transparent);
+  }
+}
+.sf-wait {
+  margin-top: 0.3rem;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+}
+.sf-slot {
+  color: var(--text);
+}
+.sf-received {
+  margin-top: 0.3rem;
+  font-size: 0.78rem;
+}
+.sf-returns {
+  margin-top: 0.3rem;
+  font-size: 0.78rem;
+}
+/* The value being handed back: a glowing token. */
+.sf-token {
+  display: inline-block;
+  margin-left: 0.25rem;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  background: var(--success);
+  color: var(--bg);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--success) 60%, transparent);
+}
+.sf-token.is-landed {
+  animation: sf-land 0.5s ease-out both;
+}
+@keyframes sf-land {
+  from {
+    opacity: 0;
+    transform: translateY(-18px) scale(1.2);
+  }
+}
