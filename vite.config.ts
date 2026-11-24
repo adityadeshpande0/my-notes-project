@@ -46,6 +46,8 @@ export default defineConfig({
   ],
   test: {
     include: ['src/**/*.test.ts'],
+    // Most tests run in plain Node; DOM tests opt in with a
+    // `// @vitest-environment jsdom` comment at the top of the file.
     environment: 'node',
   },
 });
