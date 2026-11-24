@@ -401,4 +401,39 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
     definition:
       'A function together with the variables from the place it was created. It keeps a live link to them, so they stay alive as long as the function does.',
   },
+  dom: {
+    term: 'DOM',
+    definition:
+      'The Document Object Model: the tree of objects the browser builds from your HTML. JavaScript changes the page by changing this tree.',
+  },
+  'dom-node': {
+    term: 'Node',
+    definition:
+      'One box in the DOM tree. Elements like <li> are element nodes; the text inside them is a text node.',
+  },
+  'css-selector': {
+    term: 'CSS selector',
+    definition:
+      'A pattern that picks elements, like h1, .price, #cart or ul li. querySelector uses the same patterns as your CSS.',
+  },
+  nodelist: {
+    term: 'NodeList',
+    definition:
+      'The list querySelectorAll returns. You can loop over it with for...of or forEach; turn it into a real array with Array.from to use map or filter.',
+  },
+  xss: {
+    term: 'XSS',
+    definition:
+      'Cross-site scripting: an attack where text typed by a user ends up running as code on the page, usually through innerHTML.',
+  },
+  imperative: {
+    term: 'Imperative',
+    definition:
+      'Writing out every step to get a result: find this, change that, append this. Plain DOM code is imperative.',
+  },
+  declarative: {
+    term: 'Declarative',
+    definition:
+      'Describing what the result should look like and letting a tool work out the steps. React components are declarative.',
+  },
 };

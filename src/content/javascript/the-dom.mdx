@@ -1,0 +1,339 @@
+---
+title: 'The DOM: How JavaScript Changes Web Pages'
+track: javascript
+level: beginner
+order: 9
+summary: Discover how the browser turns HTML into a tree of objects, and how JavaScript finds, changes, creates and removes elements on a real page. It's the foundation of everything React does for you.
+tags: [javascript, dom, querySelector, elements, web, beginner]
+readingTime: 15
+---
+
+import {
+  HtmlToTree,
+  DomRemote,
+  BuildAndCompare,
+  MoodBoard,
+  DomQuiz,
+} from '../../visualizers/javascript-dom';
+
+So far, everything we've done has happened inside JavaScript: variables, loops, functions and
+objects, printed to a console. But JavaScript was invented ([article #1](/javascript/what-is-javascript)!)
+to **make web pages come alive**. Changing a button's text, showing a menu, adding a message to a
+chat… How does JavaScript actually reach the page?
+
+Through the <Term id="dom">**DOM**</Term>.
+
+By the end of this article you'll know:
+
+- What the DOM is, and how HTML becomes a **tree**
+- How to **find** elements (`querySelector` and friends)
+- How to **change** text, styles, classes and attributes
+- How to **create**, **insert** and **remove** elements
+- Why `innerHTML` can be dangerous
+- How the DOM connects to **React**
+
+## What is the DOM?
+
+When the browser loads your HTML, it doesn't keep it as text. It **reads the HTML and builds a tree
+of objects** in memory, one object for every element. That tree is the **DOM**: the **Document
+Object Model**.
+
+```html
+<body>
+  <h1>Chai Corner</h1>
+  <ul>
+    <li>Masala Chai</li>
+    <li>Ginger Chai</li>
+  </ul>
+</body>
+```
+
+becomes this tree:
+
+```text
+document
+ └─ html
+     └─ body
+         ├─ h1  → "Chai Corner"
+         └─ ul
+             ├─ li → "Masala Chai"
+             └─ li → "Ginger Chai"
+```
+
+Some words you'll hear:
+
+- Each box in the tree is a <Term id="dom-node">**node**</Term>. Elements (`<h1>`, `<li>`) are
+  **element nodes**, and the text inside them is a **text node**.
+- `ul` is the **parent** of the `li`s. The `li`s are its **children**, and they're **siblings** of
+  each other. (It's a family tree!)
+- The whole thing starts at the **`document`** object, your entry point to the page.
+
+**The key idea:** the page you _see_ is drawn from this tree. **Change the tree, and the browser
+redraws the page.** JavaScript doesn't edit your HTML file. It edits the live tree.
+
+<Callout kind="tip">
+  The DOM isn't part of the JavaScript language itself. It's an **API the browser gives
+  JavaScript**, like `setTimeout` (article #1). That's why there's no DOM in Node.js.
+</Callout>
+
+Hover over anything in the HTML, the tree or the page, and watch all three light up together (this
+is exactly how your browser's **DevTools → Elements** panel works):
+
+<HtmlToTree />
+
+## Finding elements
+
+Before you can change something, you have to **find** it. The modern, do-everything tools use
+<Term id="css-selector">**CSS selectors**</Term>, the same ones you write in CSS:
+
+```js
+document.querySelector('h1'); // the FIRST <h1>
+document.querySelector('.price'); // the first element with class="price"
+document.querySelector('#cart'); // the element with id="cart"
+document.querySelector('ul li:last-child'); // any CSS selector works!
+
+document.querySelectorAll('li'); // ALL <li> elements → a NodeList
+```
+
+- **`querySelector`** returns the **first** match, or **`null`** if there's none.
+- **`querySelectorAll`** returns **all** matches as a <Term id="nodelist">**NodeList**</Term>. It's
+  like an array: you can loop over it with `for...of` or `.forEach`. Use `Array.from(...)` or
+  `[...list]` when you need `map`/`filter`.
+- **`getElementById("cart")`** is the classic, slightly faster way to find one element by its `id`.
+
+<Callout kind="warning">
+  If `querySelector` finds nothing, it returns `null`, and `null.textContent` crashes with a
+  TypeError. Remember `?.` from [article #3](/javascript/operators-and-conditions):
+  `promo?.remove()` only calls `remove()` when `promo` isn't `null`.
+</Callout>
+
+## Changing elements
+
+Once you have an element (an object!), you change it through its properties and methods:
+
+**Text:**
+
+```js
+const title = document.querySelector('h1');
+title.textContent = 'Chai Corner ☕ Open Now!';
+```
+
+**Classes (the best way to change styles):**
+
+```js
+const card = document.querySelector('.card');
+card.classList.add('highlight');
+card.classList.remove('hidden');
+card.classList.toggle('dark'); // add if missing, remove if present
+card.classList.contains('dark'); // true / false
+```
+
+**Inline styles** (fine for one-off or dynamic values):
+
+```js
+card.style.backgroundColor = 'gold'; // CSS names become camelCase
+card.style.width = progress + '%';
+```
+
+**Attributes:**
+
+```js
+const img = document.querySelector('img');
+img.setAttribute('src', 'ginger-chai.png');
+img.alt = 'A cup of ginger chai'; // many attributes are also properties
+img.getAttribute('src');
+
+// Custom data with data-* attributes:
+// <button data-product-id="42">
+button.dataset.productId; // "42"
+```
+
+<Callout kind="tip" title="Good habit">
+  Keep the _looks_ in CSS and use JavaScript to **switch classes**. `classList.toggle("dark")` plus
+  a `.dark` class in your CSS is cleaner than setting ten `style` properties from JavaScript.
+</Callout>
+
+Here's a remote control for a real mini page. Type any CSS selector to find elements, then press
+buttons to change them. The code for each action is shown, so you can see exactly what JavaScript
+would do:
+
+<DomRemote />
+
+## Creating, inserting and removing elements
+
+You can build brand-new elements from scratch:
+
+```js
+// 1. Create it (it exists in memory, but isn't on the page yet)
+const li = document.createElement('li');
+
+// 2. Fill it in
+li.textContent = 'Cardamom Chai';
+li.classList.add('new');
+
+// 3. Put it on the page
+const menu = document.querySelector('ul');
+menu.append(li); // add as the LAST child
+// menu.prepend(li);       // add as the FIRST child
+// existing.before(li);    // insert right before another element
+// existing.after(li);     // insert right after
+
+// Remove an element
+document.querySelector('.sold-out')?.remove();
+```
+
+Notice step 3: until you `append` it, your new element is just an object floating in memory.
+**Nothing appears on the page until it's attached to the tree.**
+
+### `textContent` vs `innerHTML`: a security warning ⚠️
+
+There's a shortcut that sets an element's content from an HTML string:
+
+```js
+menu.innerHTML = '<li>Masala Chai</li><li>Ginger Chai</li>';
+```
+
+It's handy, but **dangerous with any text that comes from a user**. If a user types a "name" like
+this:
+
+```html
+<img src="x" onerror="stealCookies()" />
+```
+
+and you do `greeting.innerHTML = "Hello " + name`, the browser builds a real `<img>` element, and
+its `onerror` code **runs**. This kind of attack is called
+<Term id="xss">**XSS (cross-site scripting)**</Term>, and it's one of the most common web security
+bugs.
+
+**The rule:** use **`textContent`** for text. It always treats the value as plain text, never as
+HTML. Only use `innerHTML` with HTML **you wrote yourself**.
+
+|                        | `textContent`           | `innerHTML`    |
+| ---------------------- | ----------------------- | -------------- |
+| Treats the value as…   | Plain text              | HTML to build  |
+| `"<b>Hi</b>"` shows as | `<b>Hi</b>` (literally) | **Hi** (bold)  |
+| Safe with user input?  | ✅ Yes                  | ❌ No          |
+
+<BuildAndCompare />
+
+## Where to put your `<script>`
+
+JavaScript can only find elements that **already exist** in the tree. If your script runs before
+the browser has read the HTML below it, `querySelector` returns `null`. The modern fix is one
+attribute:
+
+```html
+<head>
+  <script src="app.js" defer></script>
+</head>
+```
+
+**`defer`** means "download the script now, but run it **after** the HTML has been fully read."
+(The older alternative is to put the `<script>` tag at the end of `<body>`.)
+
+## The DOM and React
+
+Look at what we did in this article: _find the element, change its text, add a class, create an
+`li`, append it…_ We told the browser **every step**. That style is called
+<Term id="imperative">**imperative**</Term> programming: _how_ to do it, step by step.
+
+In a big app (a chat with thousands of messages, a shop with filters and a cart), keeping all those
+manual updates correct becomes very hard. Forget one update, and the page shows stale data.
+
+**React flips this around.** You describe **what** the page should look like for the current data,
+and React works out the DOM changes for you. That's <Term id="declarative">**declarative**</Term>:
+
+```jsx
+// Declarative: "the list should show these items"
+<ul>
+  {items.map((item) => (
+    <li key={item.id}>{item.name}</li>
+  ))}
+</ul>
+```
+
+When `items` changes, React compares the new description with the old one and makes only the
+**minimum DOM changes** needed (`createElement`, `append`, `remove`… the exact methods you learned
+today). That's why understanding the DOM makes React make sense. Compare them side by side in the
+last tab of the visual above.
+
+<Callout kind="note" title="React connection: don't change React's elements by hand">
+  React expects to own every element it renders. If your own code changes those elements behind its
+  back, React's picture of the page goes stale and things break in confusing ways. The visuals on
+  this page change a real mini page by hand, so they do it the safe way: React renders one empty
+  box, never puts anything inside it, and plain DOM code is in charge inside. In the React track
+  you'll meet `ref`s, the tool for those rare times you really need the DOM.
+</Callout>
+
+## Your turn: build a mood board (plain JavaScript!)
+
+Before React does the DOM work for you, build one small page **by hand**: plain HTML, CSS and
+JavaScript, no framework. Add colour swatches, remove them and switch themes, all with the DOM
+methods from this article:
+
+<MoodBoard />
+
+<Callout kind="tip" title="Your turn: what to build">
+  Make three files in `public/demos/mood-board/`: `index.html`, `style.css` and `script.js` (load
+  it with `defer` in the `<head>`). Your page needs:
+
+- A header "My Mood Board 🎨" with a **theme button** that switches a `dark` class on
+  `document.body` with `classList.toggle`.
+- A colour picker (`<input type="color">`), a **name** box and an **Add swatch** button. Each
+  swatch is a card made with `createElement`: its colour set with `style.backgroundColor`, its
+  name set with **`textContent`** (never innerHTML: the name is user input!), the hex code shown,
+  and a ✕ button that removes the card with `.remove()`.
+- A counter ("5 swatches") that updates after every add or remove, and the message "No colours yet.
+  Add your first!" when there are none.
+- A **Shuffle** button: read the swatches with `querySelectorAll`, shuffle the array, then `append`
+  them back in the new order. (Appending an element that's already on the page _moves_ it.)
+
+</Callout>
+
+Some hints, if you get stuck:
+
+1. Grab the elements you need once, at the top of `script.js` (see the first line below).
+2. Write a function `createSwatch(color, name)` that **returns** a new element
+   ([article #5](/javascript/functions)!), and `append` what it returns.
+3. For the ✕ button, use the last part of the snippet below. It's a sneak peek at Events (next article), and the
+   arrow function is a **closure** that remembers its own `swatch`
+   ([article #8](/javascript/scope-hoisting-closures)!).
+4. Write `updateCount()` once and call it after every change. Notice how easy it is to forget.
+   That's exactly the problem React solves.
+5. Stretch goal: save the swatches to `localStorage` as JSON
+   ([article #7](/javascript/objects-and-json)) and rebuild them when the page loads.
+
+```js
+const board = document.querySelector('#board'); // hint 1: find things once
+
+// hint 3: inside createSwatch, after making `swatch`
+swatch.querySelector('.remove').addEventListener('click', () => {
+  swatch.remove();
+  updateCount();
+});
+```
+
+## Quick recap
+
+- The **DOM** is the browser's **tree of objects** built from your HTML. Change the tree, and the
+  page updates.
+- **Find:** `querySelector` (first match or `null`), `querySelectorAll` (all matches, as a
+  NodeList), `getElementById`.
+- **Change:** `textContent`, `classList.add/remove/toggle`, `style.camelCase`, `setAttribute` /
+  `dataset`.
+- **Create & insert:** `createElement` → fill it in → `append` / `prepend` / `before` / `after`.
+  **Remove:** `el.remove()`.
+- Use **`textContent`** for text. `innerHTML` with user input risks **XSS**.
+- Load scripts with **`defer`**, so the elements exist when your code runs.
+- Manual DOM code is **imperative**. React is **declarative**: you describe the UI, and React
+  updates the DOM for you.
+
+## Test yourself
+
+<DomQuiz />
+
+## What's next?
+
+**Step 10, Events** (coming soon): making pages respond to clicks, typing, scrolling and key
+presses with `addEventListener`, plus event bubbling, delegation and preventing default behaviour.
+It's the other half of interactivity.
