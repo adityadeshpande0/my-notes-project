@@ -241,11 +241,18 @@ export function lexicalPreset(moved: boolean): ScopePreset {
   return {
     id: moved ? 'lexical-moved' : 'lexical',
     code,
-    rooms: [
-      { id: 'global', name: 'Global', parent: null },
-      { id: 'party', name: 'party', parent: 'global' },
-      { id: 'printChai', name: 'printChai', parent: moved ? 'party' : 'global' },
-    ],
+    // In the order they're written.
+    rooms: moved
+      ? [
+          { id: 'global', name: 'Global', parent: null },
+          { id: 'party', name: 'party', parent: 'global' },
+          { id: 'printChai', name: 'printChai', parent: 'party' },
+        ]
+      : [
+          { id: 'global', name: 'Global', parent: null },
+          { id: 'printChai', name: 'printChai', parent: 'global' },
+          { id: 'party', name: 'party', parent: 'global' },
+        ],
     run: () =>
       Sim.run((s) => {
         s.env('global', 'Global', null);
