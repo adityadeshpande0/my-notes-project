@@ -665,66 +665,10 @@
 .jf-bubbles {
   margin-top: 0.9rem;
 }
-.jf-bubble {
-  display: grid;
-  gap: 0.6rem;
-  padding: 0.7rem 0.8rem;
-  border: 2px solid;
-  border-radius: 18px;
-  transition:
-    box-shadow 0.25s,
-    border-color 0.25s;
-}
-.jf-bubble + .jf-bubble {
-  margin-top: 0.6rem;
-}
-.jf-bubble.depth-0 {
-  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
-  background: color-mix(in srgb, var(--accent) 6%, transparent);
-}
-.jf-bubble.depth-1 {
-  border-color: color-mix(in srgb, var(--accent-2) 60%, transparent);
-  background: color-mix(in srgb, var(--accent-2) 6%, transparent);
-}
-.jf-bubble.depth-2 {
-  border-color: color-mix(in srgb, var(--violet) 60%, transparent);
-  background: color-mix(in srgb, var(--violet) 7%, transparent);
-}
-.jf-bubble.is-searching {
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--warn) 45%, transparent);
-}
-.jf-bubble-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 700;
-}
-.jf-lens {
-  padding: 0 0.5rem;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--warn) 20%, transparent);
-  color: var(--warn);
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  animation: viz-fade 0.3s ease both;
-}
 .jf-wall {
   color: var(--danger);
   font-size: 0.75rem;
   font-weight: 600;
-}
-.jf-var {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-.jf-var.is-found .mem-box {
-  border-color: var(--success);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--success) 40%, transparent);
-}
-.jf-var.is-shadowed {
-  opacity: 0.45;
 }
 .jf-pure {
   margin-top: 1.25rem;
