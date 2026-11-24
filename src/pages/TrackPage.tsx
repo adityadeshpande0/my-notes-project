@@ -3,15 +3,16 @@ import { Link } from 'react-router';
 import { LevelChip } from '../components/LevelChip';
 import { topics } from '../lib/content';
 import { outlineFor, pathFor, pathPosition, type PathStep } from '../lib/curriculum';
-import { useReveal } from '../lib/hooks';
+import { useMediaQuery, useReveal } from '../lib/hooks';
 import { useReadingHistory, wasVisited } from '../lib/readingHistory';
+import { snakeCell, type SnakeCell } from '../lib/snake';
 import { TRACKS, type Track } from '../lib/types';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
 /**
  * A collection's page, drawn as a learning path: modules in order, and inside
- * each one numbered steps on a line. Written steps are cards you can open;
+ * each one numbered steps laid out as a snake (left → right, down, right → left…). Written steps are cards you can open;
  * planned ones are marked "coming soon". Steps you've read get a tick, and the
  * step to read next is highlighted.
  */
@@ -22,6 +23,13 @@ export function TrackPage({ track }: { track: Track }) {
   const history = useReadingHistory();
   const listRef = useRef<HTMLDivElement>(null);
   useReveal(listRef);
+
+  // How many steps fit side by side. The path snakes across that many columns
+  // and wraps; on a phone it's a single column, i.e. a plain vertical list.
+  const sm = useMediaQuery('(min-width: 640px)');
+  const lg = useMediaQuery('(min-width: 1024px)');
+  const xl = useMediaQuery('(min-width: 1280px)');
+  const cols = xl ? 4 : lg ? 3 : sm ? 2 : 1;
 
   const firstWritten = path.find((s) => s.href);
   // "Up next": the written step after the last one you opened here, or step 1.
@@ -119,17 +127,12 @@ export function TrackPage({ track }: { track: Track }) {
                 </h2>
               </div>
 
-              {/* The line runs down the left; each step sits on it as a dot. */}
-              <ol className="relative ml-3 border-l-2 border-border sm:ml-4">
-                {steps.map((s) => (
-                  <Step
-                    key={s.slug}
-                    step={s}
-                    visited={wasVisited(history, track, s.slug)}
-                    upNext={s.slug === upNext?.slug}
-                  />
-                ))}
-              </ol>
+              <SnakePath
+                steps={steps}
+                cols={cols}
+                visited={(slug) => wasVisited(history, track, slug)}
+                upNextSlug={upNext?.slug}
+              />
             </section>
           );
         })}
@@ -138,64 +141,144 @@ export function TrackPage({ track }: { track: Track }) {
   );
 }
 
-function Step({ step, visited, upNext }: { step: PathStep; visited: boolean; upNext: boolean }) {
-  // The dot on the line: mint ring = read next, green tick = read, dashed = not written yet.
-  const dot = upNext
-    ? 'border-accent-2 bg-accent-2 path-pulse'
-    : visited
-      ? 'border-success bg-success'
-      : step.href
-        ? 'border-accent bg-bg'
-        : 'border-dashed border-muted/60 bg-bg';
+/**
+ * One module's steps as boxes joined by lines, snaking across `cols` columns.
+ *
+ * The list stays in step order in the HTML (so Tab and screen readers go 1, 2,
+ * 3…); only the CSS grid position changes. Each box draws the line *leaving*
+ * it: sideways to its neighbour, or down at the end of a row.
+ */
+function SnakePath({
+  steps,
+  cols,
+  visited,
+  upNextSlug,
+}: {
+  steps: PathStep[];
+  cols: number;
+  visited: (slug: string) => boolean;
+  upNextSlug?: string;
+}) {
+  return (
+    <ol
+      className="grid gap-x-10 gap-y-10"
+      style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+    >
+      {steps.map((s, i) => {
+        const cell = snakeCell(i, steps.length, cols);
+        return (
+          <li
+            key={s.slug}
+            data-reveal
+            className="relative flex"
+            // Grid lines are 1-based, the layout helper is 0-based.
+            style={{ gridRow: cell.row + 1, gridColumn: cell.col + 1 }}
+          >
+            <Step step={s} visited={visited(s.slug)} upNext={s.slug === upNextSlug} />
+            {cell.exit !== 'end' && <Connector exit={cell.exit} done={visited(s.slug)} />}
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+/**
+ * The line out of a box, filling the 2.5rem gap (gap-x-10 / gap-y-10) to the
+ * next one, with a small arrowhead in the middle showing which way to go.
+ * It turns green once you've read the step it leaves from.
+ */
+function Connector({ exit, done }: { exit: Exclude<SnakeCell['exit'], 'end'>; done: boolean }) {
+  const place = {
+    right: 'top-1/2 left-full h-0.5 w-10 -translate-y-1/2',
+    left: 'top-1/2 right-full h-0.5 w-10 -translate-y-1/2',
+    down: 'top-full left-1/2 h-10 w-0.5 -translate-x-1/2',
+  }[exit];
+  const rotate = { right: 0, down: 90, left: 180 }[exit];
 
   return (
-    <li data-reveal className="relative pb-6 pl-8 last:pb-0 sm:pl-10">
-      <span
-        aria-hidden="true"
-        className={`absolute top-5 -left-[9px] grid size-4 place-items-center rounded-full border-2 ${dot}`}
+    <span
+      aria-hidden="true"
+      className={`absolute ${place} ${done ? 'bg-success/70 text-success' : 'bg-border text-muted'}`}
+    >
+      <svg
+        viewBox="0 0 10 10"
+        className="absolute top-1/2 left-1/2 size-3 -translate-1/2 bg-bg"
+        style={{ rotate: `${rotate}deg` }}
       >
-        {visited && !upNext && (
-          <svg viewBox="0 0 12 12" className="size-2.5 text-bg">
-            <path d="M2.5 6.5l2.2 2.2 4.8-5" fill="none" stroke="currentColor" strokeWidth="2" />
-          </svg>
-        )}
-      </span>
+        <path d="M3 1.5L6.5 5 3 8.5" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      </svg>
+    </span>
+  );
+}
 
-      {step.href ? (
-        <Link
-          to={step.href}
-          className={`group block rounded-card border bg-elevated p-5 transition-[border-color,box-shadow,translate] duration-200 hover:-translate-y-0.5 hover:border-accent/60 hover:shadow-glow sm:p-6 ${
-            upNext ? 'border-accent-2/70 shadow-glow' : 'border-border'
-          }`}
-        >
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <span className="font-mono text-xs text-muted">Step {pad(step.step)}</span>
-            {upNext && (
-              <span className="rounded-full bg-accent-2/15 px-2 py-0.5 font-mono text-xs text-accent-2">
-                up next
-              </span>
-            )}
-            {visited && !upNext && <span className="font-mono text-xs text-success">✓ read</span>}
-            <span className="ml-auto">{step.level && <LevelChip level={step.level} />}</span>
-          </div>
-          <h3 className="mt-2 text-xl group-hover:text-accent">{step.title}</h3>
-          {step.summary && <p className="mt-2 max-w-[46rem] text-muted">{step.summary}</p>}
-          <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-accent">
-            {visited ? 'Read again' : 'Start this step'} <span aria-hidden="true">→</span>
-          </span>
-        </Link>
+function Step({ step, visited, upNext }: { step: PathStep; visited: boolean; upNext: boolean }) {
+  // The number badge: mint = read next, green tick = read, ring = ready, dashed = not written yet.
+  const badge = upNext
+    ? 'border-accent-2 bg-accent-2 text-bg path-pulse'
+    : visited
+      ? 'border-success bg-success text-bg'
+      : step.href
+        ? 'border-accent text-accent'
+        : 'border-dashed border-muted/60 text-muted';
+
+  const number = (
+    <span
+      aria-hidden="true"
+      className={`grid size-8 shrink-0 place-items-center rounded-full border-2 font-mono text-xs ${badge}`}
+    >
+      {visited && !upNext ? (
+        <svg viewBox="0 0 12 12" className="size-3.5">
+          <path d="M2.5 6.5l2.2 2.2 4.8-5" fill="none" stroke="currentColor" strokeWidth="2" />
+        </svg>
       ) : (
-        <div className="py-3.5 text-muted">
-          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <span className="font-mono text-xs">Step {pad(step.step)}</span>
-            <span className="text-[1.05rem]">{step.title}</span>
-            <span className="rounded-full border border-dashed border-border px-2 py-0.5 font-mono text-[0.7rem]">
-              coming soon
-            </span>
-          </div>
-          {step.blurb && <p className="mt-1 text-sm text-muted/80">{step.blurb}</p>}
-        </div>
+        pad(step.step)
       )}
-    </li>
+    </span>
+  );
+
+  if (!step.href) {
+    return (
+      <div className="flex w-full flex-col rounded-card border border-dashed border-border p-5 text-muted">
+        <div className="flex items-center gap-3">
+          {number}
+          <span className="font-mono text-xs">Step {pad(step.step)}</span>
+          <span className="ml-auto rounded-full border border-dashed border-border px-2 py-0.5 font-mono text-[0.7rem]">
+            coming soon
+          </span>
+        </div>
+        <h3 className="mt-3 text-lg text-muted">{step.title}</h3>
+        {step.blurb && <p className="mt-1 text-sm text-muted/80">{step.blurb}</p>}
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      to={step.href}
+      className={`group flex w-full flex-col rounded-card border bg-elevated p-5 transition-[border-color,box-shadow,translate] duration-200 hover:-translate-y-0.5 hover:border-accent/60 hover:shadow-glow ${
+        upNext ? 'border-accent-2/70 shadow-glow' : 'border-border'
+      }`}
+    >
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        {number}
+        <span className="font-mono text-xs text-muted">Step {pad(step.step)}</span>
+        {upNext && (
+          <span className="rounded-full bg-accent-2/15 px-2 py-0.5 font-mono text-xs text-accent-2">
+            up next
+          </span>
+        )}
+        {visited && !upNext && <span className="font-mono text-xs text-success">read</span>}
+      </div>
+      <h3 className="mt-3 text-lg group-hover:text-accent">{step.title}</h3>
+      {step.summary && <p className="mt-2 line-clamp-3 text-sm text-muted">{step.summary}</p>}
+      {/* mt-auto pins this row to the bottom, so boxes in a row line up. */}
+      <div className="mt-auto flex items-center gap-3 pt-4">
+        <span className="inline-flex items-center gap-1.5 text-sm font-medium text-accent">
+          {visited ? 'Read again' : 'Start'} <span aria-hidden="true">→</span>
+        </span>
+        <span className="ml-auto">{step.level && <LevelChip level={step.level} />}</span>
+      </div>
+    </Link>
   );
 }
