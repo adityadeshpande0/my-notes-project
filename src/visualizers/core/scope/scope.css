@@ -1,0 +1,162 @@
+/*
+ * Scope rooms and backpacks (visualizers/core/scope). Rooms are tinted by
+ * depth: Global periwinkle, then mint, violet, pink. A room being searched
+ * gets an amber ring; a found variable glows green; shadowed ones fade.
+ */
+.sr-room {
+  display: grid;
+  gap: 0.6rem;
+  min-width: 0;
+  padding: 0.7rem 0.8rem;
+  border: 2px solid;
+  border-radius: 18px;
+  transition:
+    box-shadow 0.25s,
+    border-color 0.25s,
+    opacity 0.25s;
+}
+.sr-room.is-global {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+.sr-room.is-mint {
+  border-color: color-mix(in srgb, var(--accent-2) 60%, transparent);
+  background: color-mix(in srgb, var(--accent-2) 6%, transparent);
+}
+.sr-room.is-violet {
+  border-color: color-mix(in srgb, var(--violet) 60%, transparent);
+  background: color-mix(in srgb, var(--violet) 7%, transparent);
+}
+.sr-room.is-pink {
+  border-color: color-mix(in srgb, var(--pink) 60%, transparent);
+  background: color-mix(in srgb, var(--pink) 7%, transparent);
+}
+.sr-room.is-amber {
+  border-color: color-mix(in srgb, var(--warn) 60%, transparent);
+  background: color-mix(in srgb, var(--warn) 6%, transparent);
+}
+.sr-room.is-searching {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--warn) 45%, transparent);
+}
+.sr-room.is-dim {
+  opacity: 0.5;
+}
+.sr-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+}
+.sr-label {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.sr-inner {
+  display: grid;
+  gap: 0.6rem;
+}
+@container (min-width: 36rem) {
+  .sr-inner.is-row {
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    align-items: start;
+  }
+}
+.sr-vars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.sr-var {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.sr-var.is-found .mem-box {
+  border-color: var(--success);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--success) 40%, transparent);
+}
+.sr-var.is-shadowed {
+  opacity: 0.45;
+}
+.sr-note,
+.sr-small {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+/* The 🔍 search chip */
+.sr-lens {
+  padding: 0 0.5rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--warn) 20%, transparent);
+  color: var(--warn);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  animation: viz-fade 0.3s ease both;
+}
+.sr-lens.is-found {
+  background: color-mix(in srgb, var(--success) 20%, transparent);
+  color: var(--success);
+}
+.sr-lens.is-miss {
+  background: color-mix(in srgb, var(--danger) 16%, transparent);
+  color: var(--danger);
+}
+
+/* The backpack */
+.sr-backpack {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.55rem 0.65rem;
+  border: 2px dashed;
+  border-radius: 14px 14px 18px 18px;
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--border) 80%, transparent);
+  transform: perspective(600px) rotateX(6deg);
+  transition:
+    box-shadow 0.25s,
+    border-color 0.25s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sr-backpack {
+    transform: none;
+  }
+}
+.sr-backpack.is-amber {
+  border-color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 7%, transparent);
+}
+.sr-backpack.is-mint {
+  border-color: var(--accent-2);
+  background: color-mix(in srgb, var(--accent-2) 7%, transparent);
+}
+.sr-backpack.is-violet {
+  border-color: var(--violet);
+  background: color-mix(in srgb, var(--violet) 8%, transparent);
+}
+.sr-backpack.is-pink {
+  border-color: var(--pink);
+  background: color-mix(in srgb, var(--pink) 8%, transparent);
+}
+.sr-backpack.is-global {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+}
+.sr-backpack.is-searching {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--success) 40%, transparent);
+}
+.sr-backpack-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+.sr-thread {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}

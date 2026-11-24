@@ -5,6 +5,7 @@ import '../core/viz.css';
 import '../core/memory/memory.css';
 import '../core/code/code.css';
 import '../core/stack/stack.css';
+import '../core/scope/scope.css';
 import './js-functions.css';
 
 export { default as FunctionMachine } from './FunctionMachine';

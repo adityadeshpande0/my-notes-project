@@ -386,4 +386,19 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
     definition:
       'JavaScript Object Notation: a strict text format for data, with double-quoted keys and strings. Almost every app uses it to send and save data.',
   },
+  'scope-chain': {
+    term: 'Scope chain',
+    definition:
+      'The path JavaScript follows to find a variable: the current scope first, then each scope around it, out to global. It never looks inward.',
+  },
+  'lexical-scope': {
+    term: 'Lexical scope',
+    definition:
+      'A function’s scope chain is decided by where the function is written in the code, not by where it is called from.',
+  },
+  closure: {
+    term: 'Closure',
+    definition:
+      'A function together with the variables from the place it was created. It keeps a live link to them, so they stay alive as long as the function does.',
+  },
 };

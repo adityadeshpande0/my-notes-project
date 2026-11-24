@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Tabs } from '../core/code';
 import { MemoryBox } from '../core/memory';
+import { ScopeRoom, tintForDepth } from '../core/scope';
 import { StepControls } from '../core/StepControls';
 import { useStepper } from '../core/useStepper';
 import {
@@ -96,42 +97,27 @@ function Search({ preset, log }: { preset: ScopePreset; log: LogLine }) {
   const render = (scope: ScopeDef, depth: number) => {
     const children = preset.scopes.filter((x) => x.parent === scope.id);
     const here = current?.scope === scope.id;
-    // Searching from an outer scope: the inner bubbles are walled off.
+    // Searching from an outer scope: the inner rooms are walled off.
     const walled = log.scope === 'global' && scope.id !== 'global';
     return (
-      <div key={scope.id} className={`jf-bubble depth-${depth} ${here ? 'is-searching' : ''}`}>
-        <div className="jf-bubble-head">
-          <span className="viz-mono">{scope.name}</span>
-          {here && (
-            <span className="jf-lens" aria-label={`searching ${scope.name} for ${current?.name}`}>
-              🔍 {current?.name}?
-            </span>
-          )}
-          {walled && <span className="jf-wall">🚫 can’t look inside</span>}
-        </div>
-        <div className="jf-row">
-          {scope.vars.map(([name, value]) => {
-            const key = `${scope.id}:${name}`;
-            return (
-              <div
-                key={name}
-                className={`jf-var ${found.has(key) ? 'is-found' : ''} ${shadowedKeys.has(key) ? 'is-shadowed' : ''}`}
-              >
-                <MemoryBox
-                  name={name}
-                  kind="const"
-                  value={value}
-                  state={found.has(key) ? 'new' : 'same'}
-                />
-                {shadowedKeys.has(key) && (
-                  <span className="jf-small jf-muted">hidden (shadowed) inside {log.scope}</span>
-                )}
-              </div>
-            );
-          })}
-        </div>
-        {children.map((c) => render(c, depth + 1))}
-      </div>
+      <ScopeRoom
+        key={scope.id}
+        name={scope.name}
+        tint={tintForDepth(depth)}
+        searching={here && current ? { name: current.name, found: current.found } : undefined}
+        label={walled ? <span className="jf-wall">🚫 can’t look inside</span> : undefined}
+        vars={scope.vars.map(([name, value]) => {
+          const key = `${scope.id}:${name}`;
+          return {
+            name,
+            value,
+            mark: found.has(key) ? 'found' : shadowedKeys.has(key) ? 'shadowed' : undefined,
+            note: shadowedKeys.has(key) ? `hidden (shadowed) inside ${log.scope}` : undefined,
+          };
+        })}
+      >
+        {children.length > 0 ? children.map((c) => render(c, depth + 1)) : undefined}
+      </ScopeRoom>
     );
   };
 
