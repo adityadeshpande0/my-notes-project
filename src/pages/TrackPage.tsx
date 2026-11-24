@@ -31,7 +31,9 @@ export function TrackPage({ track }: { track: Track }) {
   const xl = useMediaQuery('(min-width: 1280px)');
   const cols = xl ? 4 : lg ? 3 : sm ? 2 : 1;
 
-  const firstWritten = path.find((s) => s.href);
+  const ready = path.filter((s) => s.href);
+  const readCount = ready.filter((s) => wasVisited(history, track, s.slug)).length;
+  const firstWritten = ready[0];
   // "Up next": the written step after the last one you opened here, or step 1.
   // If you've already reached the newest written step, there is no "up next";
   // the button offers to read it again instead.
@@ -50,17 +52,49 @@ export function TrackPage({ track }: { track: Track }) {
   return (
     <div>
       {/* ── Header ───────────────────────────────────────── */}
-      <header className="mb-14 grid gap-10 border-b border-border pb-12 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-end">
-        <div className="max-w-3xl">
+      <header className="mb-14 grid gap-10 border-b border-border pb-12 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-16 xl:grid-cols-[minmax(0,1fr)_28rem]">
+        <div className="max-w-2xl">
           <p className="mb-3 font-mono text-xs tracking-wide text-accent-2 uppercase">
             Collection · learning path
           </p>
           <h1 className="text-4xl sm:text-5xl">{info.name}</h1>
           <p className="mt-4 text-lg text-muted">{info.tagline}</p>
-          <p className="mt-3 max-w-[40rem] text-muted">
-            Start at step 1 and move forward one step at a time. Each step builds on the ones before
-            it. Steps marked “coming soon” are being written.
-          </p>
+
+          {/* The collection at a glance. */}
+          <dl className="mt-8 flex flex-wrap gap-x-8 gap-y-4">
+            <Stat label="Modules" value={outline.groups.length} />
+            <Stat label="Steps" value={path.length} />
+            <Stat label="Ready to read" value={ready.length} />
+          </dl>
+
+          {/* Your progress, or how to use the path if you haven't started. */}
+          {readCount > 0 ? (
+            <div className="mt-8 max-w-md">
+              <div className="flex items-baseline justify-between text-sm">
+                <span className="text-muted">Your progress</span>
+                <span className="font-mono text-xs text-muted">
+                  {readCount} of {ready.length} read
+                </span>
+              </div>
+              <div
+                role="progressbar"
+                aria-label="Steps read"
+                aria-valuemin={0}
+                aria-valuemax={ready.length}
+                aria-valuenow={readCount}
+                className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface"
+              >
+                <div
+                  className="h-full rounded-full bg-success transition-[width] duration-500"
+                  style={{ width: `${(readCount / Math.max(ready.length, 1)) * 100}%` }}
+                />
+              </div>
+            </div>
+          ) : (
+            <p className="mt-8 max-w-[34rem] text-muted">
+              Start at step 1 and go one step at a time; each builds on the last.
+            </p>
+          )}
 
           {target?.href && (
             <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
@@ -85,25 +119,48 @@ export function TrackPage({ track }: { track: Track }) {
           )}
         </div>
 
-        {/* A small map of the modules, to jump around. */}
+        {/* A map of the modules: jump to one, and see how far along each is. */}
         <nav
           aria-label="Modules"
-          className="hidden rounded-card border border-border bg-elevated p-5 lg:block"
+          className="hidden self-start rounded-card border border-border bg-elevated p-4 lg:block"
         >
-          <p className="mb-3 font-mono text-xs tracking-wide text-muted uppercase">Modules</p>
-          <ol className="space-y-1">
-            {outline.groups.map((g, i) => (
-              <li key={g.name}>
-                <a
-                  href={`#module-${i + 1}`}
-                  className="flex gap-3 rounded-btn px-2 py-1.5 text-[0.95rem] hover:bg-surface"
-                >
-                  <span className="font-mono text-xs leading-6 text-muted">{pad(i + 1)}</span>
-                  {g.name}
-                </a>
-              </li>
-            ))}
+          <p className="px-2 pb-2 font-mono text-xs tracking-wide text-muted uppercase">Modules</p>
+          <ol>
+            {outline.groups.map((g, i) => {
+              const steps = path.filter((s) => s.group === g.name);
+              const written = steps.filter((s) => s.href).length;
+              return (
+                <li key={g.name}>
+                  <a
+                    href={`#module-${i + 1}`}
+                    className="flex items-center gap-3 rounded-btn px-2 py-2 text-[0.95rem] hover:bg-surface"
+                  >
+                    <span className="font-mono text-xs text-muted">{pad(i + 1)}</span>
+                    <span className="min-w-0 flex-1 truncate">{g.name}</span>
+                    <StepPips steps={steps} isRead={(slug) => wasVisited(history, track, slug)} />
+                    <span className="sr-only">
+                      , {written} of {steps.length} steps ready
+                    </span>
+                  </a>
+                </li>
+              );
+            })}
           </ol>
+          {/* Key for the pips. */}
+          <div
+            aria-hidden="true"
+            className="mt-3 flex gap-4 border-t border-border px-2 pt-3 font-mono text-[0.7rem] text-muted"
+          >
+            <span className="flex items-center gap-1.5">
+              <span className="h-1.5 w-3 rounded-full bg-success" /> read
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-1.5 w-3 rounded-full bg-accent" /> ready
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-1.5 w-3 rounded-full bg-border" /> coming soon
+            </span>
+          </div>
         </nav>
       </header>
 
@@ -138,6 +195,32 @@ export function TrackPage({ track }: { track: Track }) {
         })}
       </div>
     </div>
+  );
+}
+
+/** A big number with a small label, for the header's "at a glance" row. */
+function Stat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="flex flex-col-reverse">
+      <dt className="mt-1 font-mono text-xs tracking-wide text-muted uppercase">{label}</dt>
+      <dd className="font-heading text-3xl">{value}</dd>
+    </div>
+  );
+}
+
+/** One small pill per step in a module: green = read, periwinkle = ready, grey = coming soon. */
+function StepPips({ steps, isRead }: { steps: PathStep[]; isRead: (slug: string) => boolean }) {
+  return (
+    <span aria-hidden="true" className="flex shrink-0 gap-1">
+      {steps.map((s) => (
+        <span
+          key={s.slug}
+          className={`h-1.5 w-3 rounded-full ${
+            !s.href ? 'bg-border' : isRead(s.slug) ? 'bg-success' : 'bg-accent'
+          }`}
+        />
+      ))}
+    </span>
   );
 }
 
