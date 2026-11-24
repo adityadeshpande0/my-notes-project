@@ -116,10 +116,10 @@ export function DesktopNav() {
               {isOpen && (
                 <div
                   id={panelId}
-                  className="mega-panel absolute inset-x-0 top-full border-b border-border bg-elevated shadow-glow"
+                  className="mega-panel thin-scroll absolute inset-x-0 top-full max-h-[calc(100dvh-4.5rem)] overflow-y-auto overscroll-contain border-b border-border bg-elevated shadow-glow"
                 >
-                  <div className="mx-auto grid max-w-[112rem] gap-10 px-5 py-8 whitespace-normal sm:px-8 lg:grid-cols-[16rem_minmax(0,1fr)] lg:px-12">
-                    <div>
+                  <div className="mx-auto grid max-w-[112rem] gap-10 px-5 py-8 whitespace-normal sm:px-8 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-12 lg:px-12">
+                    <div className="lg:sticky lg:top-0 lg:self-start">
                       <p className="font-mono text-xs tracking-wide text-accent-2 uppercase">
                         Collection · learning path
                       </p>
@@ -129,12 +129,37 @@ export function DesktopNav() {
                       <p className="mt-2 text-sm leading-relaxed text-muted">
                         {TRACKS[track].tagline}
                       </p>
+
+                      {/* How much of this collection is written so far. */}
+                      <div className="mt-6">
+                        <div className="flex justify-between font-mono text-xs text-muted">
+                          <span>
+                            {outline.groups.length} modules · {outline.total} steps
+                          </span>
+                          <span>{outline.written} ready</span>
+                        </div>
+                        <div className="mt-2 h-1 overflow-hidden rounded-full bg-surface">
+                          <div
+                            className="h-full rounded-full bg-accent"
+                            style={{
+                              width: `${(outline.written / Math.max(outline.total, 1)) * 100}%`,
+                            }}
+                          />
+                        </div>
+                      </div>
+
                       <Link
                         to={`/${track}`}
                         onClick={closeAfterNavigate}
-                        className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-accent hover:underline"
+                        className="group mt-6 inline-flex items-center gap-2 rounded-btn bg-text px-4 py-2.5 text-sm font-medium text-bg transition-opacity hover:opacity-90"
                       >
-                        Open the learning path <span aria-hidden="true">→</span>
+                        Open the learning path
+                        <span
+                          aria-hidden="true"
+                          className="transition-transform group-hover:translate-x-0.5"
+                        >
+                          →
+                        </span>
                       </Link>
                     </div>
                     <OutlineGroups
