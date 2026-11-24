@@ -5,6 +5,7 @@ import {
   cssPath,
   flattenTree,
   followChildrenPath,
+  inertHtml,
   inspectHtml,
   nodeAt,
   pathOf,
@@ -79,6 +80,17 @@ describe('the XSS inspector', () => {
     expect(inspectHtml('Hello <b>Riya</b>').dangers).toHaveLength(0);
     expect(inspectHtml('Hello Riya').dangers).toHaveLength(0);
     expect(w.hacked).toBe(false);
+  });
+
+  it('makes an inert copy for the preview that still looks the same', () => {
+    const html = inertHtml(
+      inspectHtml(
+        'Hi <b>Riya</b> <img src="x" onerror="window.hacked = true"><script>1</script><a href="javascript:x()">a</a>',
+      ).body,
+    );
+    expect(html).toContain('<b>Riya</b>');
+    expect(html).toContain('<img src="data:,">');
+    expect(html).not.toMatch(/onerror|<script|javascript:/);
   });
 });
 

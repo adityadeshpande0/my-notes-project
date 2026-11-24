@@ -1,0 +1,749 @@
+/*
+ * Styles for the visuals in "The DOM". Imported by index.ts, so it only
+ * loads with that note. The mini page's own styles live inside its shadow
+ * root (LiveDomSandbox.tsx); this file styles everything around it.
+ */
+
+/* ─── Small shared bits ─────────────────────────────────────────────── */
+.dm-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.dm-small {
+  font-size: 0.8rem;
+}
+.dm-muted {
+  color: var(--text-muted);
+}
+.dm-good {
+  color: var(--success);
+}
+.dm-bad {
+  color: var(--danger);
+}
+.dm-warn {
+  color: var(--warn);
+}
+.dm-gap {
+  margin-top: 0.75rem;
+}
+.dm-note {
+  margin: 0 0 0.75rem;
+  padding: 0.5rem 0.7rem;
+  border-left: 3px solid var(--accent-2);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent-2) 8%, transparent);
+  line-height: 1.6;
+}
+.dm-note code {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.dm-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.dm-check input {
+  accent-color: var(--accent);
+}
+.dm-input {
+  min-width: 0;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+}
+.dm-input.viz-mono {
+  font-family: var(--font-mono);
+}
+.dm-input:focus-visible,
+.dm-check:has(input:focus-visible),
+.dm-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.dm-grow {
+  flex: 1 1 10rem;
+}
+.dm-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.1rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.dm-badge.is-good {
+  border-color: color-mix(in srgb, var(--success) 50%, transparent);
+  color: var(--success);
+}
+.dm-badge.is-bad {
+  border-color: color-mix(in srgb, var(--danger) 55%, transparent);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  color: var(--danger);
+}
+.dm-badge.is-warn {
+  border-color: color-mix(in srgb, var(--warn) 55%, transparent);
+  color: var(--warn);
+}
+.dm-link {
+  padding: 0 0.2rem;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--accent);
+  font-size: inherit;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.dm-link:disabled {
+  color: var(--text-muted);
+  text-decoration: none;
+  cursor: default;
+}
+.dm-js {
+  margin-top: 0.5rem;
+  padding: 0.45rem 0.6rem;
+  overflow-x: auto;
+  border-radius: 8px;
+  background: var(--surface);
+  font-size: 12.5px;
+  line-height: 1.6;
+  white-space: pre;
+}
+.dm-sandbox-note {
+  margin: 0.35rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+/* The sandbox host: React renders this one empty div and nothing inside it. */
+.dom-sandbox {
+  min-width: 0;
+}
+
+/* ─── DOM tree view (DomTreeView.tsx) ───────────────────────────────── */
+.dt-tree,
+.dt-group {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dt-tree {
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+.dt-tree.is-compact {
+  font-size: 12px;
+  line-height: 1.45;
+}
+/* Parent/child lines: a faint rail down the left of each group. */
+.dt-group {
+  position: relative;
+}
+.dt-group::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0.4rem;
+  left: var(--rail, 0.45rem);
+  border-left: 1px solid var(--border);
+}
+.dt-node {
+  display: flex;
+  align-items: baseline;
+  gap: 0.15rem;
+  padding: 0.05rem 0.35rem 0.05rem 0;
+  border-radius: 6px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.dt-node:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+.dt-node.is-hot {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+.dt-node.is-selected {
+  background: color-mix(in srgb, var(--accent-2) 18%, transparent);
+  box-shadow: inset 3px 0 0 var(--accent-2);
+}
+/* Mini-map flashes (DomRemote / BuildAndCompare): amber changed, green added. */
+.dt-node.is-changed {
+  animation: dm-flash-changed 1.4s ease-out;
+}
+.dt-node.is-added {
+  animation: dm-flash-added 1.4s ease-out;
+}
+@keyframes dm-flash-changed {
+  0%,
+  40% {
+    background: color-mix(in srgb, var(--warn) 30%, transparent);
+  }
+}
+@keyframes dm-flash-added {
+  0%,
+  40% {
+    background: color-mix(in srgb, var(--success) 30%, transparent);
+  }
+}
+.dt-twisty {
+  display: inline-block;
+  flex: none;
+  width: 0.9rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+.dt-punct {
+  color: var(--text-muted);
+}
+.dt-tag {
+  color: var(--accent);
+  font-weight: 600;
+}
+.dt-attr {
+  color: var(--text-muted);
+}
+.dt-text {
+  color: var(--accent-2);
+}
+.dt-ws {
+  color: var(--text-muted);
+  font-style: italic;
+  opacity: 0.6;
+}
+.dt-empty {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ─── #1 HtmlToTree ─────────────────────────────────────────────────── */
+.dm-toggles {
+  margin-bottom: 0.75rem;
+}
+.dm-panels {
+  position: relative;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-areas: 'page' 'tree' 'html';
+}
+.dm-panels > * {
+  min-width: 0;
+}
+.dm-panel.is-page {
+  grid-area: page;
+}
+.dm-panel.is-tree {
+  grid-area: tree;
+}
+.dm-panel.is-html {
+  grid-area: html;
+}
+.dm-panel.is-tree .dt-tree,
+.dm-source {
+  overflow-x: auto;
+}
+@container (min-width: 40rem) {
+  .dm-panels:not(.is-peeled) {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    grid-template-areas: 'page tree' 'html tree';
+    align-items: start;
+  }
+  .dm-panels:not(.is-peeled) .dm-panel.is-tree {
+    align-self: stretch;
+  }
+}
+.dm-source .vc-line {
+  cursor: pointer;
+}
+.dm-h-tag {
+  color: var(--accent);
+}
+.dm-h-attr {
+  color: var(--warn);
+}
+
+/* Peel apart: the three panels become see-through sheets tilted in 3D and
+   stacked like floors: HTML at the back (top), the tree in the middle, the
+   page at the front (bottom). Off under reduced motion (no toggle). */
+.dm-panels.is-peeled {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: 'html' 'tree' 'page';
+  gap: 0;
+  padding-bottom: 0.5rem;
+  perspective: 1100px;
+  perspective-origin: 50% 0;
+}
+.dm-panels.is-peeled > .dm-panel {
+  justify-self: center;
+  width: 86%;
+  max-height: 14rem;
+  margin-top: -3.25rem;
+  overflow: hidden;
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  box-shadow: var(--glow);
+  transform: rotateX(38deg);
+  transform-origin: 50% 100%;
+  animation: dm-peel 0.6s ease both;
+}
+.dm-panels.is-peeled > .is-html {
+  z-index: 0;
+  margin-top: 0;
+  translate: -5% 0;
+  opacity: 0.85;
+}
+.dm-panels.is-peeled > .is-tree {
+  z-index: 1;
+  opacity: 0.92;
+}
+.dm-panels.is-peeled > .is-page {
+  z-index: 2;
+  translate: 5% 0;
+}
+@keyframes dm-peel {
+  from {
+    transform: none;
+    margin-top: 0;
+  }
+}
+.dm-links {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.dm-links circle {
+  fill: var(--accent-2);
+}
+.dm-links polyline {
+  fill: none;
+  stroke: var(--accent-2);
+  stroke-width: 2;
+  stroke-dasharray: 5 4;
+}
+.dm-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.9rem;
+  margin-top: 0.4rem;
+}
+
+/* The inspector strip under the panels. */
+.dm-inspector {
+  margin-top: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.dm-props {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.15rem 0.75rem;
+  margin: 0.5rem 0 0;
+  font-size: 12.5px;
+}
+.dm-props dt {
+  color: var(--text-muted);
+}
+.dm-props dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--accent-2);
+}
+
+/* ─── #2 DomRemote ──────────────────────────────────────────────────── */
+.dm-remote {
+  display: grid;
+  gap: 0.75rem;
+}
+.dm-remote > * {
+  min-width: 0;
+}
+@container (min-width: 44rem) {
+  .dm-remote {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    align-items: start;
+  }
+  .dm-remote-page {
+    position: sticky;
+    top: 5rem;
+  }
+}
+.dm-step {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.dm-step + .dm-step {
+  margin-top: 0.75rem;
+}
+.dm-step > summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 10px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+.dm-step > summary::-webkit-details-marker {
+  display: none;
+}
+.dm-step > summary::before {
+  content: '▸';
+  color: var(--text-muted);
+  transition: transform 0.2s;
+}
+.dm-step[open] > summary::before {
+  transform: rotate(90deg);
+}
+.dm-step > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.dm-step-body {
+  padding: 0 0.75rem 0.75rem;
+}
+.dm-step.is-disabled > summary {
+  color: var(--text-muted);
+}
+.dm-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0.5rem 0;
+}
+.dm-chips .viz-btn {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.dm-result {
+  margin-top: 0.6rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-elevated);
+  font-size: 0.85rem;
+}
+.dm-result.is-null,
+.dm-result.is-error {
+  border-color: color-mix(in srgb, var(--danger) 55%, transparent);
+  background: color-mix(in srgb, var(--danger) 8%, transparent);
+}
+.dm-result .array-strip {
+  margin-top: 0.4rem;
+}
+.dm-group {
+  padding: 0.55rem 0;
+  border-top: 1px dashed var(--border);
+}
+.dm-group:first-of-type {
+  border-top: 0;
+}
+.dm-group-title {
+  margin: 0 0 0.35rem;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.dm-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.dm-btns .viz-btn {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.dm-color {
+  width: 2.4rem;
+  height: 2rem;
+  padding: 0.1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  cursor: pointer;
+}
+.dm-color:focus-visible,
+.dm-range:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.dm-range {
+  flex: 1 1 7rem;
+  accent-color: var(--accent);
+}
+.dm-log {
+  margin-top: 0.75rem;
+}
+.dm-log-lines {
+  max-height: 12rem;
+  margin: 0;
+  overflow: auto;
+  font-size: 12px;
+  line-height: 1.65;
+  white-space: pre;
+}
+.dm-log-lines > div {
+  animation: dm-in 0.35s ease-out;
+}
+@keyframes dm-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+.dm-minimap {
+  margin-top: 0.75rem;
+}
+.dm-minimap .dt-tree {
+  max-height: 16rem;
+  overflow: auto;
+}
+.dm-gone {
+  margin-top: 0.35rem;
+  color: var(--danger);
+  font-size: 0.8rem;
+}
+
+/* ─── #3 BuildAndCompare ────────────────────────────────────────────── */
+.dm-build {
+  display: grid;
+  gap: 0.75rem;
+}
+.dm-build > * {
+  min-width: 0;
+}
+@container (min-width: 40rem) {
+  .dm-build {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+.dm-tray {
+  min-height: 5.5rem;
+  border-style: dashed;
+}
+.dm-chip-el {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.6rem;
+  border: 1.5px dashed var(--accent-2);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent-2) 8%, transparent);
+  font-size: 12.5px;
+  animation: dm-in 0.35s ease-out;
+}
+.dm-chip-el.is-flying {
+  animation: dm-fly 0.6s ease-in forwards;
+}
+@keyframes dm-fly {
+  to {
+    opacity: 0;
+    transform: translateX(-40%) scale(0.8);
+  }
+}
+.dm-chip-el .dm-badge {
+  font-size: 0.7rem;
+}
+.dm-items {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.dm-items li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  font-size: 0.85rem;
+}
+.dm-items li > span {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.dm-compare {
+  display: grid;
+  gap: 0.75rem;
+}
+.dm-compare > * {
+  min-width: 0;
+}
+@container (min-width: 40rem) {
+  .dm-compare {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+.dm-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+.dm-card-head code {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.dm-preview {
+  display: block;
+  width: 100%;
+  height: 4.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  /* The preview is a separate, script-free page: give it the same paper look as the sandbox. */
+  background: oklch(0.99 0 0);
+}
+.dm-danger-list {
+  margin: 0.5rem 0 0;
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+  color: var(--danger);
+  font-size: 0.8rem;
+  list-style: none;
+}
+.dm-danger-list code {
+  overflow-wrap: anywhere;
+}
+.dm-parsed .dt-attr.is-danger {
+  color: var(--danger);
+  font-weight: 700;
+}
+.dm-rule {
+  margin: 0.75rem 0 0;
+  font-weight: 600;
+}
+.dm-todo-in {
+  margin-bottom: 0.75rem;
+}
+.dm-steplog {
+  margin-top: 0.5rem;
+  max-height: 9rem;
+  overflow: auto;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.dm-count {
+  font-weight: 700;
+}
+.dm-count.is-off {
+  color: var(--danger);
+}
+.dm-react-list {
+  margin: 0.5rem 0 0;
+  padding: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-elevated);
+}
+.dm-react-list li.is-done > span {
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+.dm-footer {
+  margin-top: 0.75rem;
+  padding-top: 0.6rem;
+  border-top: 1px dashed var(--border);
+}
+
+/* ─── #4 Mood board embed ───────────────────────────────────────────── */
+.dm-mood {
+  display: block;
+  width: 100%;
+  height: 520px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.dm-soon {
+  padding: 1.25rem;
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+  background: var(--bg-elevated);
+  text-align: center;
+}
+.dm-soon h3 {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+}
+.dm-soon p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+/* Reduced motion: no flying, flashing or 3D peeling. */
+@media (prefers-reduced-motion: reduce) {
+  .dt-node.is-changed,
+  .dt-node.is-added,
+  .dm-log-lines > div,
+  .dm-chip-el,
+  .dm-chip-el.is-flying {
+    animation: none;
+  }
+  .dt-node.is-changed {
+    background: color-mix(in srgb, var(--warn) 22%, transparent);
+  }
+  .dt-node.is-added {
+    background: color-mix(in srgb, var(--success) 22%, transparent);
+  }
+  .dm-panels.is-peeled > .dm-panel {
+    animation: none;
+  }
+}
+
+/* The Change step's controls sit in one fieldset, so one `disabled` turns them all off. */
+.dm-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.dm-fieldset:disabled {
+  opacity: 0.5;
+}
+/* Buttons whose label is code use the code font. */
+.viz-btn.viz-mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+/* #3's tab names are long: let them wrap on phones instead of overflowing. */
+.dm-bac .viz-seg-btn {
+  white-space: normal;
+}

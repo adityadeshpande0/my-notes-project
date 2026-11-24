@@ -55,6 +55,62 @@ export function toTree(root: Node, withWhitespace = false, path: DomPath = []): 
   return out;
 }
 
+/** A short label for a node: <li#id.class> or "text…". */
+export function nodeLabel(n: DomNode, short = false) {
+  if (n.kind === 'text') {
+    if (n.whitespace) return '⏎ whitespace';
+    const t = (n.text ?? '').trim();
+    return `"${t.length > (short ? 14 : 24) ? t.slice(0, short ? 13 : 23) + '…' : t}"`;
+  }
+  return `<${n.tag}${n.id ? `#${n.id}` : ''}${n.classes?.length ? `.${n.classes.join('.')}` : ''}>`;
+}
+
+/** The same short label, for a live DOM node. */
+export function describeNode(n: Node, short = true): string {
+  if (n.nodeType !== 1)
+    return nodeLabel(
+      {
+        path: [],
+        kind: 'text',
+        text: n.textContent ?? '',
+        whitespace: isWhitespace(n),
+        children: [],
+      },
+      short,
+    );
+  const el = n as Element;
+  return nodeLabel(
+    {
+      path: [],
+      kind: 'element',
+      tag: el.tagName.toLowerCase(),
+      id: el.id || undefined,
+      classes: [...el.classList],
+      children: [],
+    },
+    short,
+  );
+}
+
+/**
+ * The previous/next sibling as the tree shows it: elements skip to elements;
+ * text nodes skip whitespace-only text unless the tree is showing it.
+ */
+export function siblingOf(n: Node, dir: 'prev' | 'next', withWhitespace: boolean): Node | null {
+  if (n.nodeType === 1) {
+    const el = n as Element;
+    return dir === 'prev' ? el.previousElementSibling : el.nextElementSibling;
+  }
+  let cur = dir === 'prev' ? n.previousSibling : n.nextSibling;
+  while (
+    cur &&
+    ((cur.nodeType === 3 && isWhitespace(cur) && !withWhitespace) ||
+      (cur.nodeType !== 1 && cur.nodeType !== 3))
+  )
+    cur = dir === 'prev' ? cur.previousSibling : cur.nextSibling;
+  return cur;
+}
+
 export const flattenTree = (nodes: DomNode[]): DomNode[] =>
   nodes.flatMap((n) => [n, ...flattenTree(n.children)]);
 
@@ -173,6 +229,27 @@ export function inspectHtml(html: string): { body: HTMLElement; dangers: Danger[
     }
   }
   return { body: doc.body, dangers };
+}
+
+/**
+ * An inert copy of parsed HTML for the "what you'd see" preview: <script>s,
+ * on* handlers and javascript: URLs removed, and outside image addresses
+ * swapped for an empty inline one (so the broken-image icon still shows,
+ * with no request). It looks the same; it just can't do anything. The
+ * preview also sits in a script-free sandboxed iframe, as a second lock.
+ */
+export function inertHtml(body: HTMLElement): string {
+  const copy = body.cloneNode(true) as HTMLElement;
+  copy.querySelectorAll('script').forEach((s) => s.remove());
+  for (const el of copy.querySelectorAll('*')) {
+    for (const a of [...el.attributes]) {
+      if (a.name.toLowerCase().startsWith('on')) el.removeAttribute(a.name);
+      else if (/^\s*javascript:/i.test(a.value)) el.setAttribute(a.name, '#');
+    }
+    if (el.hasAttribute('src') && !el.getAttribute('src')!.startsWith('data:'))
+      el.setAttribute('src', 'data:,');
+  }
+  return copy.innerHTML;
 }
 
 // ─── Imperative vs declarative to-do ──────────────────────────────────
