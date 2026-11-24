@@ -1,0 +1,293 @@
+---
+title: 'Scope, Hoisting & Closures: Where Variables Live'
+track: javascript
+level: intermediate
+order: 8
+summary: Understand the rules for where variables can be seen, why some exist before their line, and closures, the backpack every JavaScript function carries. It's one of the language's most powerful ideas.
+tags: [javascript, scope, hoisting, closures, lexical-scope, interview]
+readingTime: 16
+---
+
+import {
+  ScopeChain,
+  HoistingPhases,
+  ClosureBackpack,
+  PiggyBankFactory,
+  ClosuresQuiz,
+} from '../../visualizers/javascript-closures';
+
+You've already met pieces of this story:
+
+- In [article #2](/javascript/variables-and-data-types), `let` and `const` stayed inside their
+  `{ }` "room", while `var` walked through walls.
+- In [article #5](/javascript/functions), functions had **local** variables, and you learned to
+  "look outward, never inward".
+
+This article puts those pieces together and adds the final, most powerful one: **closures**.
+Closures power React hooks, event handlers, timers, private data and much more. They're also one of
+the most popular JavaScript interview topics.
+
+By the end of this article you'll know:
+
+- The three kinds of **scope**, and the **scope chain**
+- Why scope depends on **where code is written**, not where it's called
+- What **hoisting** really is (spoiler: nothing actually moves)
+- What a **closure** is, and how to use one
+- The classic closure bugs, and how to spot them in React
+
+## Scope: who can see what
+
+<Term id="scope">**Scope**</Term> is the set of rules for **where a variable can be seen and used**.
+JavaScript has three main kinds:
+
+| Scope        | Created by                                                         | Example                                 |
+| ------------ | ------------------------------------------------------------------ | --------------------------------------- |
+| **Global**   | Code outside any function or block                                 | `const appName = "Stackscape";`         |
+| **Function** | Every function                                                     | Variables declared inside `function f() { … }` |
+| **Block**    | Any `{ }` (if, for, while, plain blocks), but only for `let`/`const` | `if (x) { const y = 1; }`               |
+
+Scopes are **nested**, like rooms inside rooms. When JavaScript needs a variable, it does a
+**lookup**:
+
+1. Look in the **current** scope.
+2. Not found? Look in the scope **around** it.
+3. Keep going outward, all the way to global.
+4. Still not found? **`ReferenceError: x is not defined`.**
+
+This outward path is called the <Term id="scope-chain">**scope chain**</Term>. It only ever goes
+**outward**, never into a nested room.
+
+### Lexical scope: where you *write* it, not where you *call* it
+
+Here's the rule that surprises people. Look carefully:
+
+```js
+const chai = "Masala";
+
+function printChai() {
+  console.log(chai);
+}
+
+function party() {
+  const chai = "Ginger";
+  printChai();          // what does this print?
+}
+
+party();   // "Masala"  (not "Ginger"!)
+```
+
+`printChai` is **written** in the global room, so its scope chain goes from `printChai` to
+**global**. It doesn't matter that it's **called** from inside `party`. JavaScript decides the scope
+chain by **where the function is written in the code**. This is called
+<Term id="lexical-scope">**lexical scope**</Term> ("lexical" means "to do with the text you
+wrote").
+
+Think of it like your **home address**: when you need sugar, you check your own kitchen, then your
+building's shared pantry. Not the pantry of whichever building you happen to be visiting.
+
+<ScopeChain />
+
+## Hoisting: what happens before your code runs
+
+Try to predict this:
+
+```js
+console.log(a);   // ?
+var a = 5;
+
+console.log(b);   // ?
+let b = 5;
+
+sayHi();          // ?
+function sayHi() { console.log("Hi!"); }
+```
+
+Results: `undefined`, then **`ReferenceError`** for `b`, and then… wait, the error stops the
+program, so `sayHi()` never runs. If you removed the `b` lines, `sayHi()` would print **`"Hi!"`**,
+even though it's called *before* it's written.
+
+How? JavaScript runs your code in **two phases**:
+
+**Phase 1, setting up memory (creation):** before running anything, JavaScript scans the scope and
+creates a slot for every declaration:
+
+- `var` variables are created and set to **`undefined`**
+- `let` and `const` variables are created but left **uninitialised**: touching them is an error
+  until their line runs (the <Term id="tdz">**Temporal Dead Zone**</Term> from article #2)
+- **Function declarations** are created **complete**, with the whole function ready to call
+
+**Phase 2, running (execution):** the code runs top to bottom, line by line, filling in values as
+it goes.
+
+This "already exists before its line" effect is called <Term id="hoisting">**hoisting**</Term>.
+People often say declarations are "moved to the top", but **nothing actually moves**. JavaScript
+just sets up memory first.
+
+| Declaration                 | After Phase 1                    | Use before its line?             |
+| --------------------------- | -------------------------------- | -------------------------------- |
+| `var x = 5`                 | `x` exists, `undefined`          | Yes, but you get `undefined` 😬  |
+| `let x = 5` / `const x = 5` | `x` exists, uninitialised (TDZ)  | ❌ `ReferenceError`              |
+| `function f() {}`           | `f` is the complete function     | ✅ Works                         |
+| `const f = () => {}`        | `f` uninitialised (TDZ)          | ❌ `ReferenceError`              |
+
+Watch both phases happen:
+
+<HoistingPhases />
+
+<Callout kind="tip" title="Takeaway">
+  Declare things before you use them, use `const`/`let` (never `var`), and you'll never be bitten
+  by hoisting. Function declarations being callable early is the one useful part.
+</Callout>
+
+## Closures: functions with a backpack 🎒
+
+Now for the big one. Read this carefully:
+
+```js
+function makeCounter() {
+  let count = 0;
+
+  return function () {
+    count++;
+    return count;
+  };
+}
+
+const counter = makeCounter();
+counter();   // 1
+counter();   // 2
+counter();   // 3
+```
+
+Something strange is happening. `makeCounter()` **finished running** on the line
+`const counter = makeCounter();`. Its plate came off the call stack (article #5). Its local variable
+`count` should be gone.
+
+Yet `counter()` still reads and updates `count`, and it **remembers** it between calls!
+
+Here's why: **when a function is created, it keeps a link to the scope it was created in.** It
+carries those variables with it, like a **backpack** 🎒. Even after the outer function has
+finished, the inner function still has its backpack, so the variables inside stay alive. (It's a
+**link** to the real variables, not a copy: if they change, the function sees the change.)
+
+That combination, **a function plus the variables it carries from where it was created**, is called
+a <Term id="closure">**closure**</Term>.
+
+One more key point: **every call to `makeCounter` packs a new backpack.**
+
+```js
+const counterA = makeCounter();
+const counterB = makeCounter();
+
+counterA();  // 1
+counterA();  // 2
+counterB();  // 1  ← its own, separate count!
+```
+
+Watch the backpack get packed, survive the stack, and stay separate for each counter:
+
+<ClosureBackpack />
+
+### Why closures are useful
+
+**1. Private data.** Nobody outside can touch `count` directly. They can only use the functions you
+give them. That makes your data safe from accidental changes.
+
+```js
+function createWallet() {
+  let balance = 0;   // private!
+  return {
+    add(amount) { balance += amount; },
+    getBalance() { return balance; },
+  };
+}
+const wallet = createWallet();
+wallet.add(100);
+wallet.getBalance();   // 100
+wallet.balance;        // undefined: you can't reach inside 🔒
+```
+
+**2. Function factories:** functions that build customised functions.
+
+```js
+function makeMultiplier(factor) {
+  return (n) => n * factor;   // remembers factor
+}
+const double = makeMultiplier(2);
+const triple = makeMultiplier(3);
+double(5);  // 10
+triple(5);  // 15
+```
+
+**3. Remembering things for later:** callbacks, timers and event handlers all use closures.
+
+```js
+function remind(name) {
+  setTimeout(() => {
+    console.log("Time for chai, " + name + "! ☕");  // remembers name 3s later
+  }, 3000);
+}
+```
+
+### The classic closure puzzle (solved!)
+
+Remember this from article #2?
+
+```js
+for (var i = 0; i < 3; i++) {
+  setTimeout(() => console.log(i), 0);
+}
+// 3, 3, 3
+
+for (let j = 0; j < 3; j++) {
+  setTimeout(() => console.log(j), 0);
+}
+// 0, 1, 2
+```
+
+Now you can explain it. Each arrow function is a closure. With `var`, there's **one `i` for the
+whole loop**, so all three backpacks link to the **same** `i`, which is 3 by the time the timers
+run. With `let`, every lap gets a **fresh `j`**, so each backpack links to its own: 0, 1, 2.
+(There's a tab for this in the visual above.)
+
+<Callout kind="note" title="React connection: stale closures">
+  In React, every event handler and effect is a closure over the values from the render it was
+  created in. If a `setTimeout` inside a handler reads `count`, it sees the `count` from **when the
+  handler was created**, even if it has changed since. This is called a **stale closure**, and it's
+  why React gives you the "updater" form: `setCount(c => c + 1)`. You'll see this again in the
+  React track, and now you'll know exactly why it happens.
+</Callout>
+
+## Your turn: a piggy bank factory
+
+Use a closure to build piggy banks whose balance is **private**. The only way to change it is
+through the functions the bank gives you:
+
+<PiggyBankFactory />
+
+## Quick recap
+
+- **Scope** = where a variable can be seen. There are **global**, **function** and **block** scopes
+  (block scope only for `let`/`const`).
+- The **scope chain** looks outward, never inward. If nothing is found: `ReferenceError`.
+- **Lexical scope:** a function's scope chain comes from **where it's written**, not where it's
+  called.
+- **Hoisting:** JavaScript sets up memory before running. `var` starts as `undefined`,
+  `let`/`const` are in the TDZ (an error if used early), and function declarations are ready to
+  call.
+- A **closure** is a function plus the backpack of variables from the scope where it was created.
+  Those variables **stay alive** as long as the function exists.
+- **Each call** to an outer function makes a **new, separate** backpack.
+- **Uses:** private data, function factories, callbacks and timers, and every React handler and
+  hook.
+- `var` in loops means one shared variable for every closure. `let` gives a fresh one per lap.
+
+## Test yourself
+
+<ClosuresQuiz />
+
+## What's next?
+
+**Step 9, The DOM** (coming soon): time to use JavaScript to change real web pages: finding
+elements, changing text and styles, and creating new elements, the foundation of everything
+interactive (and what React does for you behind the scenes).
