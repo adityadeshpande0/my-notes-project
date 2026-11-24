@@ -502,6 +502,32 @@ html:has(.drawer[open]) {
   overflow: hidden;
 }
 
+/* A quiet scrollbar for sticky side panels: thin, theme-coloured, no arrow
+   buttons, and only darker while you hover the panel. */
+.thin-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.thin-scroll:hover {
+  scrollbar-color: var(--border) transparent;
+}
+.thin-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.thin-scroll::-webkit-scrollbar-button {
+  display: none;
+}
+.thin-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.thin-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: transparent;
+}
+.thin-scroll:hover::-webkit-scrollbar-thumb {
+  background: var(--border);
+}
+
 /* Learning path (TrackPage.tsx): the "up next" dot breathes gently. */
 .path-pulse {
   animation: path-pulse 2s ease-in-out infinite;

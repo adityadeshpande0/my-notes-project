@@ -47,12 +47,9 @@ function TopicLayout({ topic, Note }: { topic: TopicMeta; Note: ComponentType<MD
       <ReadingProgress target={articleRef} />
 
       <div className="grid gap-x-12 lg:grid-cols-[13rem_minmax(0,1fr)] xl:grid-cols-[14rem_minmax(0,1fr)] xl:gap-x-16 2xl:grid-cols-[15rem_minmax(0,64rem)_17rem] 2xl:justify-between">
-        {/* ── Left: the learning path, with this page's sections nested (desktop) ── */}
-        <aside className="hidden lg:block" aria-label="Learning path">
-          <div
-            data-path-scroll
-            className="sticky top-24 max-h-[calc(100dvh-7.5rem)] overflow-y-auto overscroll-contain pr-2 pb-6"
-          >
+        {/* ── Left: this step and its sections (desktop) ── */}
+        <aside className="hidden lg:block" aria-label="This note">
+          <div className="thin-scroll sticky top-24 max-h-[calc(100dvh-7.5rem)] overflow-y-auto overscroll-contain pr-2 pb-6">
             <PathNav track={topic.track} slug={topic.slug} headings={outline.headings} />
           </div>
         </aside>
