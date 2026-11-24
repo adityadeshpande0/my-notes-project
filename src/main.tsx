@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router';
 import { ThemeProvider } from './app/ThemeProvider';
 import { router } from './app/router';
+import { hideSplashWhenReady } from './app/splash';
 import './styles/index.css';
 
 createRoot(document.getElementById('root')!).render(
@@ -12,3 +13,6 @@ createRoot(document.getElementById('root')!).render(
     </ThemeProvider>
   </StrictMode>,
 );
+
+// The loading screen in index.html stays up until the app has drawn and the fonts are in.
+hideSplashWhenReady();

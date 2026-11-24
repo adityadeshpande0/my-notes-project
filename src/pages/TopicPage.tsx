@@ -5,6 +5,7 @@ import { Chip } from '../components/Chip';
 import { LevelChip } from '../components/LevelChip';
 import { mdxComponents } from '../components/mdx-components';
 import { getNote, getTopic, topics } from '../lib/content';
+import { signalNoteReady } from '../app/splash';
 import { useReveal } from '../lib/hooks';
 import { pathPosition, type PathStep } from '../lib/curriculum';
 import { markVisited } from '../lib/readingHistory';
@@ -183,6 +184,7 @@ function NoteBody({
     }));
     const words = (el.textContent ?? '').trim().split(/\s+/).length;
     onOutline({ headings, minutes: Math.max(1, Math.round(words / 200)) });
+    signalNoteReady(); // lets the first-visit loading screen go away
   }, [Note, onOutline]);
 
   return (
