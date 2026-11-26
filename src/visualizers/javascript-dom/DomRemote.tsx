@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useReducedMotion } from '../../lib/hooks';
 import { ArrayStrip } from '../core/array';
 import DomTreeView from './DomTreeView';
-import LiveDomSandbox, { type Highlight, type Sandbox } from './LiveDomSandbox';
+import LiveDomSandbox, { type Highlight, type Sandbox } from '../core/sandbox/LiveDomSandbox';
 import { cssPath, describeNode, nodeAt } from './lib/domTree';
 import { actionCode, findExpr, str, type FindMethod } from './lib/remoteCode';
 import { CAFE_PAGE, HERO_IMAGES } from './lib/templates';
