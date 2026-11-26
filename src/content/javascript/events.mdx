@@ -1,0 +1,299 @@
+---
+title: 'Events: Making Pages Respond'
+track: javascript
+level: beginner
+order: 10
+summary: Make pages react to clicks, typing and key presses with addEventListener, read the event object, stop default behaviour, understand bubbling and delegation, and calm down noisy events with debounce and throttle.
+tags: [javascript, events, addEventListener, bubbling, delegation, debounce, beginner]
+readingTime: 15
+---
+
+import {
+  EventLab,
+  BubblingTower,
+  DebounceTimeline,
+  TypingSpeedTest,
+  EventsQuiz,
+} from '../../visualizers/javascript-events';
+
+In [the last article](/javascript/the-dom), you changed the page with the DOM. But _when_ should
+those changes happen? When the user **clicks** a button. When they **type** in a search box. When
+they **press Enter**, **scroll** down or **submit** a form.
+
+Each of those moments is an <Term id="event">**event**</Term>. Making your code run in response to
+events is what turns a page from something you _look at_ into something you _use_.
+
+By the end of this article you'll know:
+
+- How to **listen** for events with `addEventListener`
+- What's inside the **event object**
+- The most useful event types
+- How to stop the browser's **default behaviour** (like a form reloading the page)
+- **Bubbling**, and the smart trick called **event delegation**
+- How to tame fast-firing events with **debounce** and **throttle**
+
+## Listening for events
+
+You tell an element: _"when this happens, run this function."_
+
+```js
+const button = document.querySelector('#order');
+
+button.addEventListener('click', () => {
+  console.log('Order placed! ☕');
+});
+```
+
+`addEventListener` takes:
+
+1. **The event type** as a string: `"click"`, `"input"`, `"keydown"`…
+2. **A function to call** when it happens, called the
+   <Term id="event-handler">**event handler**</Term> (or listener). It's a **callback**
+   ([article #5](/javascript/functions))!
+
+You don't call the handler yourself: **the browser calls it for you**, every time the event happens.
+Remember the event loop from [article #1](/javascript/what-is-javascript)? Your click goes into the
+queue, and the event loop runs your handler when the call stack is free.
+
+<Callout kind="warning">
+  Pass the function, don't call it: `addEventListener("click", placeOrder)` ✅, not
+  `addEventListener("click", placeOrder())` ❌. The second one runs `placeOrder` immediately and
+  passes its result (article #5 again!).
+</Callout>
+
+### The event object
+
+When the browser calls your handler, it hands it an **event object** packed with details about what
+happened:
+
+```js
+input.addEventListener('keydown', (event) => {
+  console.log(event.type); // "keydown"
+  console.log(event.key); // "Enter", "a", "ArrowUp"…
+  console.log(event.target); // the element where it happened
+});
+
+box.addEventListener('click', (e) => {
+  console.log(e.clientX, e.clientY); // where the mouse was
+});
+
+search.addEventListener('input', (e) => {
+  console.log(e.target.value); // what's currently typed
+});
+```
+
+(Many developers name it `e` or `evt`. It's the same object.)
+
+### Events you'll use most
+
+| Event                       | Fires when…                                                      | Typical use                          |
+| --------------------------- | ---------------------------------------------------------------- | ------------------------------------ |
+| `click`                     | an element is clicked (or activated with Enter/Space on buttons) | Buttons, cards, menus                |
+| `input`                     | an input's value changes, **on every keystroke**                 | Live search, character counters      |
+| `change`                    | the value is **committed** (leaving the field, picking an option) | Dropdowns, checkboxes                |
+| `submit`                    | a form is submitted (button or Enter)                            | Login and sign-up forms              |
+| `keydown`                   | a key is pressed                                                 | Shortcuts, games, Enter to send      |
+| `focus` / `blur`            | an element gains or loses focus                                  | Showing hints, validation            |
+| `mouseenter` / `mouseleave` | the pointer moves onto / off an element                          | Hover effects, tooltips              |
+| `scroll`                    | the page or an element scrolls                                   | "Back to top" buttons, progress bars |
+
+Play with a real mini page. Every event that fires is logged with its details:
+
+<EventLab />
+
+### Stopping the default behaviour: `preventDefault()`
+
+Some events come with a built-in browser behaviour:
+
+- Clicking a link → the browser **navigates** to it
+- Submitting a form → the browser **reloads the page** (sending the data to the server)
+- Pressing Space → the page **scrolls**
+
+When you want to handle it yourself, call **`event.preventDefault()`**:
+
+```js
+form.addEventListener('submit', (e) => {
+  e.preventDefault(); // stop the page reload
+  const name = form.elements.name.value;
+  showMessage('Thanks, ' + name + '!');
+});
+```
+
+You'll write `e.preventDefault()` in almost every form handler you ever create.
+
+### Removing a listener
+
+```js
+function handleClick() {
+  console.log('clicked');
+}
+
+button.addEventListener('click', handleClick);
+button.removeEventListener('click', handleClick); // ✅ same function, so it's removed
+```
+
+To remove a listener, you must pass **the exact same function**. An arrow function written inline
+can't be removed, because writing it again creates a _new_ function (remember from
+[article #2](/javascript/variables-and-data-types): two functions are two different objects, even if
+they look the same). For a one-time listener, use the option `{ once: true }`:
+
+```js
+button.addEventListener('click', handleClick, { once: true });
+```
+
+## Bubbling: events travel up the tree
+
+Here's something surprising. Look at this HTML:
+
+```html
+<div class="card">
+  <button class="like">♥ Like</button>
+</div>
+```
+
+If both the card and the button have click listeners, and you click the **button**, **both**
+handlers run. First the button's, then the card's.
+
+That's because events <Term id="bubbling">**bubble**</Term>: after an event fires on the element you
+clicked (the **target**), it travels **up** through every ancestor (the parent, the grandparent… all
+the way to `document`), triggering their listeners for the same event along the way. Like a bubble
+rising through water.
+
+The full journey actually has **three phases**:
+
+1. **Capture phase:** the event travels **down** from `window` to the target
+2. **Target phase:** it arrives at the clicked element
+3. **Bubble phase:** it travels back **up** to `window`
+
+By default, listeners run in the **bubble** phase (on the way up). You can listen during capture with
+`{ capture: true }`, but you'll rarely need to.
+
+Two properties tell you where you are:
+
+- **`event.target`**: the element where the event **started** (what was actually clicked). It never
+  changes during the journey.
+- **`event.currentTarget`**: the element whose listener is **running right now**. It changes at each
+  stop.
+
+To stop the journey, call **`event.stopPropagation()`**. Use it sparingly, though: other code (like
+analytics or "close the menu when clicking outside") may rely on bubbling.
+
+Click anywhere in the nested boxes and watch the event travel down and back up:
+
+<BubblingTower />
+
+### Event delegation: one listener for many elements
+
+Bubbling enables a powerful trick. Instead of adding a listener to **every** item in a list…
+
+```js
+// 😓 one listener per item (and new items won't have one!)
+document.querySelectorAll('.item').forEach((item) => {
+  item.addEventListener('click', handleItem);
+});
+```
+
+…add **one** listener to the **parent**, and use `event.target` to see which child was clicked:
+
+```js
+// 😎 one listener on the parent handles every item, even future ones
+menu.addEventListener('click', (e) => {
+  const item = e.target.closest('.item'); // the clicked item (or null)
+  if (!item) return; // the click wasn't on an item
+  console.log('You picked ' + item.dataset.name);
+});
+```
+
+This is called <Term id="event-delegation">**event delegation**</Term>. Its benefits:
+
+- **One listener** instead of hundreds
+- **New items work automatically**, with no need to attach listeners when you add them
+- Less memory, and simpler code
+
+(`closest(".item")` walks up from the clicked element to find the nearest ancestor matching the
+selector, including itself. It's handy when the item contains other elements like an icon or a
+price.)
+
+<Callout kind="note" title="React connection">
+  React uses delegation itself. When you write `<button onClick={…}>`, React doesn't attach a
+  listener to each button. It listens at the root of your app and works out which component's
+  handler to call. React's `onClick`, `onChange` and `onSubmit` props are this article's events with
+  a friendlier syntax, and `e.preventDefault()` and `e.target.value` work the same way.
+</Callout>
+
+## Taming noisy events: debounce and throttle
+
+Some events fire **very** often. `input` fires on every keystroke, and `scroll` and `mousemove` can
+fire **dozens of times per second**. If each event triggers something expensive (like searching a
+server), you'd do far too much work.
+
+Two classic fixes, both built from **closures and timers**
+([articles #8](/javascript/scope-hoisting-closures) and #1):
+
+<Term id="debounce">**Debounce**</Term>: _"wait until things go quiet."_ Run the function only after
+the events **stop** for a set time. Perfect for a **search box**: search when the user pauses typing,
+not on every letter.
+
+```js
+function debounce(fn, delay) {
+  let timer; // remembered by the closure 🎒
+  return (...args) => {
+    clearTimeout(timer); // cancel the previous plan
+    timer = setTimeout(() => fn(...args), delay); // plan again
+  };
+}
+
+const search = debounce((text) => fetchResults(text), 300);
+input.addEventListener('input', (e) => search(e.target.value));
+```
+
+<Term id="throttle">**Throttle**</Term>: _"at most once every X milliseconds."_ Run the function
+immediately, then ignore events until the time is up. Perfect for **scroll** or **resize** handlers
+that update something continuously.
+
+Think of a lift (elevator):
+
+- **Debounce** = the doors close only after people **stop** getting in for a few seconds.
+- **Throttle** = a lift that leaves **every 5 minutes** no matter what. Some people catch it, some
+  wait for the next.
+
+Type, then scroll, and compare how many times each version actually runs:
+
+<DebounceTimeline />
+
+## Your turn: a typing speed test
+
+Build a typing speed test in React. It listens to typing, compares the input to a target sentence,
+times you and calculates words per minute:
+
+<TypingSpeedTest />
+
+## Quick recap
+
+- An **event** is something that happens (a click, typing, a key press, a submit). React to it with
+  `addEventListener(type, handler)` on the element. Pass the function, don't call it.
+- The handler receives an **event object**: `type`, `target`, `key`, `target.value`, mouse
+  position…
+- Common events: `click`, `input` (every keystroke), `change` (committed), `submit`, `keydown`,
+  `focus`/`blur`, `scroll`.
+- **`e.preventDefault()`** stops the browser's default action (a form reloading, a link
+  navigating).
+- Remove a listener with **the same function** reference, or use `{ once: true }`.
+- Events travel in three phases: **capture** (down) → **target** → **bubble** (up). `target` = where
+  the event started, and `currentTarget` = whose listener is running. `stopPropagation()` stops the
+  journey.
+- **Event delegation:** one listener on a parent plus `e.target.closest(...)` handles all its
+  children, even future ones.
+- **Debounce** waits for quiet. **Throttle** limits to once per interval. Both are closures plus
+  timers.
+- **React's `onClick`/`onChange`** are the same ideas, and React uses delegation under the hood.
+
+## Test yourself
+
+<EventsQuiz />
+
+## What's next?
+
+**Step 11, Asynchronous JavaScript** (coming soon): callbacks, **Promises** and **async/await**: how
+JavaScript handles things that take time, like loading data, without freezing the page. The event
+loop from article #1 returns in full!
