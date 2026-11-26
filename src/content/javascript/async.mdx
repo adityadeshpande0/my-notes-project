@@ -1,0 +1,314 @@
+---
+title: 'Asynchronous JavaScript: Callbacks, Promises & async/await'
+track: javascript
+level: intermediate
+order: 11
+summary: Learn how JavaScript handles things that take time, like timers, loading data and waiting for users, without freezing the page, from callbacks to Promises to async/await, plus the event loop's secret second queue.
+tags: [javascript, async, promises, async-await, event-loop, callbacks]
+readingTime: 17
+---
+
+import {
+  WaitingStyles,
+  PromiseLab,
+  EventLoop,
+  OrderTracker,
+  AsyncQuiz,
+} from '../../visualizers/javascript-async';
+
+Some things take time:
+
+- Loading a user's messages from a server 🌐
+- Waiting 3 seconds before showing a reminder ⏰
+- Reading a big file 📄
+- Waiting for the user to allow camera access 📷
+
+If JavaScript simply **stopped and waited** for each one, the whole page would **freeze**: no
+scrolling, no clicking, nothing. Remember from [article #1](/javascript/what-is-javascript):
+JavaScript has **one** call stack and does one thing at a time.
+
+The solution is <Term id="asynchronous">**asynchronous**</Term> ("async") code: _start the slow
+task, carry on with other work, and deal with the result when it's ready._ This is how every modern
+app stays smooth.
+
+By the end of this article you'll know:
+
+- The difference between **synchronous** and **asynchronous** code
+- **Callbacks**, and why they get messy
+- **Promises**: what they are and how to use `.then()` and `.catch()`
+- **`async` / `await`**: the clean, modern way to write async code
+- How to run several tasks **at the same time** (`Promise.all` and friends)
+- The event loop's **microtask queue**, and why Promises run before timers
+
+## Synchronous vs asynchronous
+
+**Synchronous** code runs line by line, and each line **waits** for the previous one to finish:
+
+```js
+console.log('1. Take order');
+console.log('2. Make chai'); // waits for line 1
+console.log('3. Serve'); // waits for line 2
+```
+
+That's fine for quick steps. But if "make chai" takes 3 minutes and blocks everything, no one else
+can even place an order.
+
+**Asynchronous** code **starts** a slow task and **moves on**, coming back when the task is done:
+
+```js
+console.log('1. Take order');
+setTimeout(() => console.log('3. Chai is ready ☕'), 3000);
+console.log('2. Take the next order');
+// 1. Take order
+// 2. Take the next order
+// (3 seconds later) 3. Chai is ready ☕
+```
+
+Remember the restaurant from article #1: one waiter (the call stack) hands slow jobs to the kitchen
+(the browser), keeps serving, and picks up dishes from the counter (the queue) when they're ready.
+That's async.
+
+## Callbacks: the original way
+
+The first way to handle "do this when you're done" was to pass a **callback**
+([article #5](/javascript/functions)): a function to call when the slow task finishes.
+
+```js
+boilWater(() => {
+  console.log('Water boiled');
+});
+```
+
+Fine for one step. But real tasks have **steps that depend on each other**: boil the water, _then_
+add tea, _then_ add milk, _then_ serve. Each step needs the previous one's result:
+
+```js
+boilWater((water) => {
+  addTea(water, (tea) => {
+    addMilk(tea, (chai) => {
+      serve(chai, () => {
+        console.log('Enjoy! ☕');
+      });
+    });
+  });
+});
+```
+
+See the shape? The code drifts further and further right. This is called
+<Term id="callback-hell">**callback hell**</Term> (or "the pyramid of doom"). Add error handling at
+every level and it gets much worse. We needed something better.
+
+## Promises: an IOU for a future value
+
+A <Term id="promise">**Promise**</Term> is an object that represents **a value that isn't ready yet,
+but will be (or will fail)**.
+
+Think of the **token** you get at a busy food counter. You order, they hand you token #42, and you
+go sit down. The token isn't your food, but it's a **promise** that you'll either get your food, or
+be told it's sold out.
+
+A Promise is always in one of **three states**:
+
+| State            | Meaning                             | Token analogy                         |
+| ---------------- | ----------------------------------- | ------------------------------------- |
+| ⏳ **pending**   | Still working on it                 | Your number hasn't been called        |
+| ✅ **fulfilled** | Finished successfully, with a value | "Number 42, your chai is ready!"      |
+| ❌ **rejected**  | Failed, with a reason (an error)    | "Sorry, number 42, we're out of milk" |
+
+Once a promise is fulfilled or rejected, it's **settled**, and it never changes again.
+
+### Using a promise: `.then()`, `.catch()`, `.finally()`
+
+```js
+makeChai()
+  .then((chai) => {
+    console.log('Got it:', chai); // runs if fulfilled
+  })
+  .catch((error) => {
+    console.log('Problem:', error.message); // runs if rejected
+  })
+  .finally(() => {
+    console.log('Order closed'); // runs either way
+  });
+```
+
+### Chaining: no more pyramid
+
+The magic of `.then()` is that **it returns a new promise**, so you can chain steps one after
+another, **flat**:
+
+```js
+boilWater()
+  .then((water) => addTea(water))
+  .then((tea) => addMilk(tea))
+  .then((chai) => serve(chai))
+  .then(() => console.log('Enjoy! ☕'))
+  .catch((error) => console.log('Something went wrong:', error.message));
+```
+
+Each `.then()` receives what the previous step returned. And **one `.catch()` at the end handles an
+error from any step**. If any step fails, the chain skips straight to `.catch()`.
+
+### Creating a promise
+
+You'll mostly _use_ promises that browser APIs and libraries give you (like `fetch` in the next
+article). But you can make one yourself:
+
+```js
+function makeChai() {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const milkAvailable = true;
+      if (milkAvailable) {
+        resolve('Masala chai ☕'); // fulfil with a value
+      } else {
+        reject(new Error('Out of milk')); // reject with an error
+      }
+    }, 2000);
+  });
+}
+```
+
+## `async` / `await`: async code that reads like normal code
+
+Promises fixed the pyramid, but chains of `.then()` can still be hard to follow. In 2017, JavaScript
+added <Term id="async-await">**`async` and `await`**</Term>, which let you write promise-based code
+that **looks synchronous**:
+
+```js
+async function makeAndServe() {
+  try {
+    const water = await boilWater();
+    const tea = await addTea(water);
+    const chai = await addMilk(tea);
+    await serve(chai);
+    console.log('Enjoy! ☕');
+  } catch (error) {
+    console.log('Something went wrong:', error.message);
+  }
+}
+```
+
+The rules:
+
+- **`await`** pauses **this function** until the promise settles, then gives you its value (or
+  throws its error).
+- You can only use `await` inside an **`async` function** (or at the top level of a JavaScript
+  module).
+- An `async` function **always returns a promise**.
+- Handle errors with an ordinary **`try...catch`**.
+
+**Important:** `await` doesn't freeze the page! It only pauses _this one function_. While it waits,
+JavaScript goes off and does other work (handling clicks, running animations) and comes back when
+the promise is ready.
+
+Here's the same chai recipe in all three styles. Run them, and watch the page stay alive (or
+freeze!):
+
+<WaitingStyles />
+
+| Style              | Readability             | Error handling         | Use today?                       |
+| ------------------ | ----------------------- | ---------------------- | -------------------------------- |
+| Callbacks          | 😵 Pyramid when nested  | Manual, at every level | Only for simple events/timers    |
+| Promises `.then()` | 🙂 Flat chain           | One `.catch()`         | Yes, especially for short chains |
+| `async`/`await`    | 😍 Reads top to bottom  | `try...catch`          | ✅ The modern default            |
+
+## Doing several things at once
+
+What if you order **chai, samosa and jalebi** and each takes a different time? Doing them **one
+after another** wastes time:
+
+```js
+// ❌ Sequential: 2s + 3s + 1s = 6 seconds
+const chai = await makeChai();
+const samosa = await makeSamosa();
+const jalebi = await makeJalebi();
+```
+
+They don't depend on each other, so **start them all at once** and wait for all of them:
+
+```js
+// ✅ Parallel: about 3 seconds (the slowest one)
+const [chai, samosa, jalebi] = await Promise.all([makeChai(), makeSamosa(), makeJalebi()]);
+```
+
+The four combinators:
+
+| Method               | Waits for…                             | Result                                   | If something fails…                                     |
+| -------------------- | -------------------------------------- | ---------------------------------------- | ------------------------------------------------------- |
+| `Promise.all`        | **all** to succeed                     | An array of all the values               | Rejects **immediately** with the first error            |
+| `Promise.allSettled` | **all** to finish (success or failure) | An array of `{ status, value / reason }` | Never rejects. You check each result                    |
+| `Promise.race`       | the **first to settle**                | That first value **or** error            | Settles with whichever finishes first                   |
+| `Promise.any`        | the **first to succeed**               | That first value                         | Rejects only if **all** fail (with an `AggregateError`) |
+
+Place orders, make some fail, and watch the tokens flip:
+
+<PromiseLab />
+
+<Callout kind="warning" title="A common mistake">
+  Using `await` inside a loop when the tasks don't depend on each other.
+  `for (const item of items) await make(item)` makes them one at a time. Use
+  `await Promise.all(items.map(make))` to run them together. (Use the sequential version only when
+  each step genuinely needs the previous one.)
+</Callout>
+
+## The event loop's secret: the microtask queue
+
+In article #1, you saw callbacks waiting in a **queue** until the call stack is empty. There's a
+detail we skipped: there are actually **two** queues.
+
+- **The task queue** (also called the macrotask queue): `setTimeout`, `setInterval`, events like
+  clicks.
+- **The microtask queue:** promise callbacks (`.then`, `.catch`, `.finally`) and the code that
+  continues after an `await`.
+
+**The rule:** after the current code finishes, the event loop **empties the entire
+<Term id="microtask">microtask</Term> queue first**, and only then takes **one** task from the task
+queue. Microtasks are the VIP line.
+
+Predict the output:
+
+```js
+console.log('1');
+setTimeout(() => console.log('2'), 0);
+Promise.resolve().then(() => console.log('3'));
+console.log('4');
+```
+
+The answer is **1, 4, 3, 2**. The promise callback (3) jumps ahead of the timer (2), even though the
+timer was scheduled first with a 0 ms delay. Step through it:
+
+<EventLoop preset="microtasks" />
+
+## Your turn: an order tracker
+
+Build an order tracker in React that places orders with a fake kitchen, shows loading, success and
+error states, and compares ordering one-by-one with ordering everything at once:
+
+<OrderTracker />
+
+## Quick recap
+
+- **Synchronous** code waits on each line. **Asynchronous** code starts slow tasks and handles the
+  results later, so the page never freezes.
+- **Callbacks** were the first approach. Nested callbacks become **callback hell**.
+- A **Promise** represents a future value: **pending → fulfilled** (with a value) or **rejected**
+  (with an error). Once settled, it never changes.
+- Use promises with **`.then()`**, **`.catch()`** and **`.finally()`**. `.then()` returns a new
+  promise, so chains stay flat, and one `.catch()` handles errors from any step.
+- **`async`/`await`** makes async code read top to bottom. `await` pauses only that function, not
+  the page. Handle errors with `try...catch`. An `async` function always returns a promise.
+- **Run independent tasks together** with `Promise.all` (all must succeed), `allSettled` (get every
+  result), `race` (first to finish) or `any` (first to succeed).
+- **Microtasks** (promise callbacks, code after `await`) run **before** the next task
+  (`setTimeout`, events).
+
+## Test yourself
+
+<AsyncQuiz />
+
+## What's next?
+
+**Step 12, Fetching Data from APIs** (coming soon): use `fetch` with `async`/`await` to load real
+data from the internet, handle loading and errors, and show it on the page. Everything from this
+article, put to real use.
