@@ -1,107 +1,8 @@
 /**
- * Event loop step generators. Plain TypeScript, no React.
- *
- * Each preset is a small program plus a hand-written "script" of what the
- * engine does with it. A tiny simulator (`Sim`) keeps the current state of the
- * call stack, Web APIs, queue and console, and `snap()` saves a copy of it as
- * one Step. The renderer (EventLoop.tsx) only draws those snapshots.
- *
- * eventLoop.test.ts runs each preset's *real* code and checks that the
- * simulated console ends up identical, so the visual can never lie.
+ * Article #1's four programs (no promises, so the microtask queue stays empty).
+ * Unchanged from before the engine moved to core/eventloop.
  */
-
-export type LoopState = 'idle' | 'checking' | 'moving';
-
-export interface WebApiTask {
-  id: string;
-  label: string;
-  /** Time left before the callback is ready (0 = ready). Infinity for "waits for a click". */
-  msLeft: number;
-  msTotal: number;
-}
-
-export interface ELStep {
-  /** Highlighted code line (1-based), or null when no line is running. */
-  line: number | null;
-  /** Bottom → top, e.g. ["main()", "greet()"] */
-  stack: string[];
-  webApis: WebApiTask[];
-  /** Callbacks waiting, oldest first. */
-  queue: string[];
-  loop: LoopState;
-  console: string[];
-  /** Plain-English explanation of this step. */
-  caption: string;
-  /** Simulated clock, in ms since the script started. */
-  clock: number;
-  /** The visual pauses here until the reader clicks the real button. */
-  waitForClick?: boolean;
-}
-
-export interface Preset {
-  id: string;
-  name: string;
-  code: string;
-  steps: ELStep[];
-}
-
-/** A small mutable model of the runtime. Every `snap()` stores a deep copy. */
-class Sim {
-  stack: string[] = [];
-  webApis: WebApiTask[] = [];
-  queue: string[] = [];
-  console: string[] = [];
-  clock = 0;
-  steps: ELStep[] = [];
-
-  snap(
-    line: number | null,
-    caption: string,
-    extra: { loop?: LoopState; waitForClick?: boolean } = {},
-  ) {
-    this.steps.push({
-      line,
-      stack: [...this.stack],
-      webApis: this.webApis.map((t) => ({ ...t })),
-      queue: [...this.queue],
-      loop: extra.loop ?? 'idle',
-      console: [...this.console],
-      caption,
-      clock: this.clock,
-      ...(extra.waitForClick ? { waitForClick: true } : {}),
-    });
-  }
-
-  push(frame: string) {
-    this.stack.push(frame);
-  }
-  pop() {
-    this.stack.pop();
-  }
-  log(text: string) {
-    this.console.push(text);
-  }
-  startTimer(id: string, label: string, ms: number) {
-    this.webApis.push({ id, label, msLeft: ms, msTotal: ms });
-  }
-  /** Let time pass: every timer counts down. */
-  tick(ms: number) {
-    this.clock += ms;
-    for (const t of this.webApis) {
-      if (Number.isFinite(t.msLeft)) t.msLeft = Math.max(0, t.msLeft - ms);
-    }
-  }
-  /** A finished Web API task hands its callback to the queue. */
-  toQueue(id: string, callback: string) {
-    this.webApis = this.webApis.filter((t) => t.id !== id);
-    this.queue.push(callback);
-  }
-  /** The event loop moves the oldest callback onto the (empty) stack. */
-  dequeue() {
-    const cb = this.queue.shift();
-    if (cb) this.stack.push(cb);
-  }
-}
+import { Sim, type ELStep, type Preset } from './engine';
 
 // ─── Preset 1: synchronous code ─────────────────────────────────────────────
 
@@ -334,7 +235,7 @@ function clickSteps(): ELStep[] {
   return s.steps;
 }
 
-export const PRESETS: Preset[] = [
+export const BASICS_PRESETS: Preset[] = [
   { id: 'sync', name: 'Synchronous', code: SYNC_CODE, steps: syncSteps() },
   { id: 'timeout0', name: 'setTimeout(0)', code: TIMEOUT_ZERO_CODE, steps: timeoutZeroSteps() },
   { id: 'timers', name: 'Two timers', code: TWO_TIMERS_CODE, steps: twoTimersSteps() },

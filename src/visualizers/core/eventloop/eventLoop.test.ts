@@ -1,11 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { PRESETS, type ELStep } from './eventLoop';
+import { ASYNC_PRESETS } from './asyncPresets';
+import { BASICS_PRESETS } from './basicsPresets';
+import type { ELStep } from './engine';
+
+const PRESETS = [...BASICS_PRESETS, ...ASYNC_PRESETS];
 
 /**
  * Run a preset's real source code with a fake console (and, for the click
  * preset, a fake button) and return everything it printed, in order.
  */
-function runForReal(code: string, { click = false } = {}): string[] {
+async function runForReal(code: string, { click = false } = {}): Promise<string[]> {
   const printed: string[] = [];
   const fakeConsole = { log: (...args: unknown[]) => printed.push(args.map(String).join(' ')) };
 
@@ -20,7 +24,9 @@ function runForReal(code: string, { click = false } = {}): string[] {
 
   // new Function runs the code with `console` and `document` swapped for our fakes.
   new Function('console', 'document', code)(fakeConsole, fakeDocument);
-  vi.runAllTimers(); // let every setTimeout fire, in real timer order
+  // Let every timer fire in real order; the async version also runs the
+  // promise callbacks (microtasks) in between, exactly as a browser would.
+  await vi.runAllTimersAsync();
   if (click) listener?.();
   return printed;
 }
@@ -33,8 +39,8 @@ afterEach(() => vi.useRealTimers());
 describe('event loop presets', () => {
   for (const preset of PRESETS) {
     describe(preset.name, () => {
-      it('ends with exactly the console output real JavaScript prints', () => {
-        const real = runForReal(preset.code, { click: preset.id === 'click' });
+      it('ends with exactly the console output real JavaScript prints', async () => {
+        const real = await runForReal(preset.code, { click: preset.id === 'click' });
         expect(last(preset.steps).console).toEqual(real);
       });
 
@@ -42,6 +48,7 @@ describe('event loop presets', () => {
         const end = last(preset.steps);
         expect(end.stack).toEqual([]);
         expect(end.queue).toEqual([]);
+        expect(end.microtasks).toEqual([]);
         // The click listener stays registered, like in a real page.
         expect(end.webApis.filter((t) => Number.isFinite(t.msLeft))).toEqual([]);
       });
@@ -60,6 +67,7 @@ describe('event loop presets', () => {
           if (i === 0) return;
           const before = preset.steps[i - 1];
           if (step.queue.length < before.queue.length) expect(before.stack).toEqual([]);
+          if (step.microtasks.length < before.microtasks.length) expect(before.stack).toEqual([]);
         });
       });
     });
@@ -70,6 +78,25 @@ describe('event loop presets', () => {
     expect(output.sync).toEqual(['Start', 'Hi Riya', 'End']);
     expect(output.timeout0.map((l) => l[0])).toEqual(['1', '2', '3']);
     expect(output.timers).toEqual(['C (now)', 'A (500ms)', 'B (1000ms)']);
+  });
+
+  it('never takes a task while a microtask is waiting', () => {
+    for (const p of PRESETS)
+      p.steps.forEach((step, i) => {
+        if (i && step.queue.length < p.steps[i - 1].queue.length)
+          expect(p.steps[i - 1].microtasks).toEqual([]);
+      });
+  });
+
+  it('matches the outputs in the async article', () => {
+    const output = Object.fromEntries(ASYNC_PRESETS.map((p) => [p.id, last(p.steps).console]));
+    expect(output.puzzle).toEqual(['1', '4', '3', '2']);
+    expect(output.await).toEqual(['start', 'A: start brewing', 'B: meanwhile', 'C: after await']);
+    expect(output.chain).toEqual(['then 1', 'then 2', 'timeout']);
+  });
+
+  it('article #1 presets never use the microtask queue', () => {
+    for (const p of BASICS_PRESETS) for (const st of p.steps) expect(st.microtasks).toEqual([]);
   });
 
   it('the click preset pauses for a click exactly once', () => {
