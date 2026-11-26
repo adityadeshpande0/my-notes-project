@@ -7,7 +7,7 @@ import { Skeleton, SkeletonText } from '../../components/Skeleton';
  */
 export function NoteSkeleton() {
   return (
-    <div role="status" className="skeleton-group max-w-[50rem] space-y-6">
+    <div role="status" data-note-skeleton className="skeleton-group max-w-[50rem] space-y-6">
       <span className="sr-only">Loading note…</span>
       <Skeleton className="h-3 w-8" />
       <Skeleton className="h-8 w-2/5" />
