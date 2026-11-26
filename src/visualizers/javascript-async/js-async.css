@@ -1,0 +1,692 @@
+/*
+ * Styles for the visuals in "Asynchronous JavaScript". Imported by index.ts,
+ * so it only loads with that note. Fixed meanings, as everywhere: amber =
+ * pending/working, mint = fulfilled, coral = rejected, green = done.
+ */
+
+/* ─── Small shared bits ─────────────────────────────────────────────── */
+.as-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.as-gap {
+  margin-top: 0.75rem;
+}
+.as-small {
+  font-size: 0.8rem;
+}
+.as-muted {
+  color: var(--text-muted);
+}
+.as-note {
+  margin: 0.75rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+.as-note code {
+  white-space: normal;
+}
+.as-status {
+  min-height: 1.4em;
+  margin: 0.5rem 0 0;
+  color: var(--success);
+  font-weight: 600;
+}
+.as-split {
+  display: grid;
+  gap: 0.75rem;
+}
+.as-split > * {
+  min-width: 0;
+}
+.as-split > div > * + * {
+  margin-top: 0.75rem;
+}
+@container (min-width: 42rem) {
+  .as-split {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+.as-speed {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+.as-speed .viz-btn {
+  padding: 0.25rem 0.6rem;
+  font-size: 0.8rem;
+}
+.as-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.as-check input {
+  accent-color: var(--accent);
+}
+.as-check:has(input:focus-visible),
+.as-range:focus-visible,
+.as-select:focus-visible,
+.as-cols:focus-visible,
+.as-timeline-wrap:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.as-range {
+  flex: 1 1 6rem;
+  min-width: 5rem;
+  accent-color: var(--accent);
+}
+.as-select {
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+.as-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.05rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.as-badge.is-warn {
+  border-color: color-mix(in srgb, var(--warn) 55%, transparent);
+  color: var(--warn);
+}
+.viz-btn.viz-mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.as-lab .viz-seg-btn,
+.as-waiting .viz-seg-btn {
+  white-space: normal;
+}
+
+/* ─── The order token: a little card that flips when it settles ────── */
+.as-tokens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.as-token {
+  width: 8.5rem;
+  height: 6.2rem;
+  perspective: 600px;
+}
+.as-token.is-sm {
+  width: 6.6rem;
+  height: 5.4rem;
+}
+.as-token.is-lg {
+  width: 100%;
+  max-width: 16rem;
+  height: 7.5rem;
+}
+.as-token-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform: rotateX(8deg);
+  transform-style: preserve-3d;
+  transition: transform 0.6s ease;
+}
+.as-token.is-fulfilled .as-token-inner,
+.as-token.is-rejected .as-token-inner {
+  transform: rotateX(8deg) rotateY(180deg);
+}
+.as-token-face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.15rem;
+  padding: 0.4rem;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-elevated);
+  text-align: center;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.as-token.is-pending .as-token-front {
+  border-color: var(--warn);
+  animation: as-pulse 1.4s ease-in-out infinite;
+}
+.as-token.is-skipped .as-token-front,
+.as-token.is-idle .as-token-front {
+  border-style: dashed;
+  opacity: 0.6;
+}
+.as-token-back {
+  transform: rotateY(180deg);
+}
+.as-token.is-fulfilled .as-token-back {
+  border-color: var(--accent-2);
+  background: color-mix(in srgb, var(--accent-2) 14%, var(--bg-elevated));
+}
+.as-token.is-rejected .as-token-back {
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 14%, var(--bg-elevated));
+}
+.as-token-n {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+.as-token-emoji {
+  font-size: 1.5rem;
+  line-height: 1.1;
+}
+.as-token.is-lg .as-token-emoji {
+  font-size: 2rem;
+}
+.as-token-status {
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.as-token-text {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.as-token-lock {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.35rem;
+  font-size: 11px;
+}
+/* The countdown ring, filling over the cooking time (information, so it also runs under reduced motion). */
+.as-token-ring {
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 50%;
+  background: conic-gradient(var(--warn) calc(var(--p, 0) * 1%), var(--surface) 0);
+  animation: as-fill var(--ms) linear forwards;
+}
+@property --p {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+@keyframes as-fill {
+  to {
+    --p: 100;
+  }
+}
+@keyframes as-pulse {
+  50% {
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--warn) 25%, transparent);
+  }
+}
+
+/* ─── #1 WaitingStyles ──────────────────────────────────────────────── */
+.as-live {
+  position: relative;
+  padding: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+}
+.as-live-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+.as-cup {
+  display: inline-block;
+  font-size: 1.8rem;
+  animation: as-spin 2s linear infinite;
+}
+@keyframes as-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.as-live.is-frozen .as-cup,
+.as-live.is-frozen .as-progress span {
+  animation-play-state: paused;
+}
+.as-clock {
+  font-size: 1.05rem;
+}
+.as-progress {
+  height: 8px;
+  margin-top: 0.75rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--surface);
+}
+.as-progress span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--accent-2);
+  transform-origin: left;
+  animation: as-grow var(--ms) linear forwards;
+}
+@keyframes as-grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+.as-frozen {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0.5rem;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  backdrop-filter: grayscale(1);
+  font-weight: 700;
+  text-align: center;
+  pointer-events: none;
+}
+/* The three styles side by side; a swipeable row on narrow screens. */
+.as-cols {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(16rem, 85%);
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  border-radius: 10px;
+}
+@container (min-width: 50rem) {
+  .as-cols {
+    grid-auto-columns: minmax(0, 1fr);
+  }
+}
+.as-col {
+  min-width: 0;
+  scroll-snap-align: start;
+}
+.as-col.is-done {
+  border-color: color-mix(in srgb, var(--success) 55%, var(--border));
+}
+.as-col.is-error {
+  border-color: color-mix(in srgb, var(--danger) 55%, var(--border));
+}
+.as-col-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.4rem;
+}
+.as-col-head .viz-label {
+  margin: 0 auto 0 0;
+}
+.as-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin: 0 0 0.5rem;
+  padding: 0;
+  list-style: none;
+  font-size: 11.5px;
+}
+.as-steps li {
+  padding: 0.05rem 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-muted);
+}
+.as-steps li.is-on {
+  border-color: var(--warn);
+  color: var(--warn);
+}
+.as-steps li.is-done {
+  border-color: var(--success);
+  color: var(--success);
+}
+.as-steps li.is-bad {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.as-code {
+  margin: 0;
+  overflow-x: auto;
+  font-size: 11.5px;
+  line-height: 1.65;
+}
+.as-line {
+  display: flex;
+  padding-right: 0.3rem;
+  border-left: 3px solid transparent;
+  border-radius: 4px;
+  white-space: pre;
+}
+.as-line.is-on {
+  border-left-color: var(--accent-2);
+  background: color-mix(in srgb, var(--accent-2) 16%, transparent);
+}
+.as-line.is-bad {
+  border-left-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 16%, transparent);
+}
+/* One faint band per nesting level: the pyramid of doom, made visible. */
+.as-band {
+  flex: none;
+  width: 2ch;
+}
+.as-band.is-0 {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.as-band.is-1 {
+  background: color-mix(in srgb, var(--violet) 14%, transparent);
+}
+.as-band.is-2 {
+  background: color-mix(in srgb, var(--pink) 14%, transparent);
+}
+.as-band.is-3 {
+  background: color-mix(in srgb, var(--warn) 14%, transparent);
+}
+
+/* ─── #2 PromiseLab ─────────────────────────────────────────────────── */
+.as-form {
+  display: grid;
+  gap: 0.25rem;
+}
+.as-diagram {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  align-items: center;
+  justify-content: start;
+  gap: 0.5rem;
+  padding: 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.as-arrows {
+  display: grid;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  line-height: 1.4;
+}
+.as-arrows .is-taken {
+  color: var(--text);
+  font-weight: 700;
+}
+.as-ends {
+  display: grid;
+  gap: 0.4rem;
+}
+.as-node {
+  padding: 0.25rem 0.6rem;
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  transition:
+    box-shadow 0.3s,
+    color 0.3s;
+}
+.as-node.is-active {
+  color: var(--text);
+}
+.as-node.is-pending.is-active {
+  border-color: var(--warn);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--warn) 45%, transparent);
+}
+.as-node.is-fulfilled.is-active {
+  border-color: var(--accent-2);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent-2) 45%, transparent);
+}
+.as-node.is-rejected.is-active {
+  border-color: var(--danger);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--danger) 45%, transparent);
+}
+.as-handmade p {
+  margin: 0.5rem 0 0;
+}
+.as-pipeline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
+.as-pipe-step {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.as-pipe-arrow {
+  display: grid;
+  justify-items: center;
+  min-width: 3.2rem;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+.as-pipe-arrow.is-carrying {
+  color: var(--accent-2);
+}
+.as-catch {
+  padding: 0.5rem 0.75rem;
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.as-catch.is-hit {
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  color: var(--danger);
+}
+.as-catch.is-done {
+  border-color: var(--success);
+  color: var(--success);
+}
+.as-bypass {
+  margin: 0.4rem 0 0.75rem;
+  color: var(--danger);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.as-rows {
+  display: grid;
+  gap: 0.4rem;
+}
+.as-order-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.as-order-name {
+  min-width: 5.5rem;
+  font-weight: 600;
+}
+.as-result {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: start;
+}
+.as-parts {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 11.5px;
+}
+.as-parts li {
+  padding: 0.15rem 0.5rem;
+  border-left: 3px solid var(--accent-2);
+  border-radius: 4px;
+  background: var(--bg);
+  overflow-wrap: anywhere;
+}
+.as-parts li.is-rejected {
+  border-left-color: var(--danger);
+}
+/* The Gantt-style timeline: one lane per order, a moving "now" line. */
+.as-timeline-wrap {
+  margin-top: 0.75rem;
+  overflow-x: auto;
+  border-radius: 10px;
+}
+.as-timeline {
+  position: relative;
+  display: grid;
+  gap: 0.35rem;
+  min-width: 28rem;
+  padding: 0.6rem 0 1.6rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.as-lane {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  align-items: center;
+}
+.as-lane-name {
+  padding-left: 0.6rem;
+  font-size: 0.8rem;
+}
+.as-lane-track {
+  position: relative;
+  height: 1.6rem;
+  margin-right: 0.6rem;
+  border-radius: 6px;
+  background: var(--surface);
+}
+.as-bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: grid;
+  place-items: center end;
+  padding-right: 0.2rem;
+  border-radius: 6px;
+  font-size: 11px;
+}
+.as-bar.is-pending {
+  background: color-mix(in srgb, var(--warn) 55%, transparent);
+}
+.as-bar.is-fulfilled {
+  background: color-mix(in srgb, var(--accent-2) 60%, transparent);
+}
+.as-bar.is-rejected {
+  background: color-mix(in srgb, var(--danger) 60%, transparent);
+}
+.as-bar.is-ignored {
+  opacity: 0.35;
+}
+.as-lane-note {
+  position: absolute;
+  top: 50%;
+  left: 0.4rem;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-style: italic;
+  transform: translateY(-50%);
+}
+.as-lane-note.is-right {
+  right: 0.4rem;
+  left: auto;
+  padding: 0 0.35rem;
+  border-radius: 4px;
+  background: var(--bg);
+}
+.as-now {
+  position: absolute;
+  top: 0.3rem;
+  bottom: 1.4rem;
+  width: 2px;
+  background: var(--text);
+  opacity: 0.6;
+}
+.as-settle {
+  position: absolute;
+  bottom: 0.25rem;
+  font-size: 11px;
+  font-weight: 700;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.as-settle.is-fulfilled {
+  color: var(--accent-2);
+}
+.as-settle.is-rejected {
+  color: var(--danger);
+}
+.as-history {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.6rem 0 0;
+  font-size: 0.8rem;
+}
+
+/* ─── #4 the owner's order tracker, until it's built ────────────────── */
+.as-soon {
+  padding: 1.25rem;
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+  background: var(--bg-elevated);
+  text-align: center;
+}
+.as-soon h3 {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+}
+.as-soon p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+/* Reduced motion: no flipping, spinning or pulsing; a quick fade instead.
+   Progress (rings, bars) keeps filling: that's information. */
+@media (prefers-reduced-motion: reduce) {
+  .as-token-inner,
+  .as-token.is-fulfilled .as-token-inner,
+  .as-token.is-rejected .as-token-inner {
+    transform: none;
+    transition: none;
+  }
+  .as-token-back {
+    transform: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .as-token.is-fulfilled .as-token-back,
+  .as-token.is-rejected .as-token-back {
+    opacity: 1;
+  }
+  .as-token.is-fulfilled .as-token-front,
+  .as-token.is-rejected .as-token-front {
+    opacity: 0;
+  }
+  .as-token.is-pending .as-token-front,
+  .as-cup {
+    animation: none;
+  }
+}

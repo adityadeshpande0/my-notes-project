@@ -466,4 +466,29 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
     definition:
       'Run a function at most once every so many milliseconds, however often it is called. Good for scroll and resize handlers.',
   },
+  asynchronous: {
+    term: 'Asynchronous',
+    definition:
+      'Code that starts a slow task, carries on with other work, and deals with the result later, so the page never freezes.',
+  },
+  promise: {
+    term: 'Promise',
+    definition:
+      'An object standing for a value that isn’t ready yet. It is pending, then settles once: fulfilled with a value, or rejected with an error.',
+  },
+  'callback-hell': {
+    term: 'Callback hell',
+    definition:
+      'Callbacks nested inside callbacks inside callbacks: the code drifts to the right in a pyramid and gets hard to read and to handle errors in.',
+  },
+  'async-await': {
+    term: 'async / await',
+    definition:
+      'A way to write promise code that reads top to bottom. await pauses only that async function until the promise settles.',
+  },
+  microtask: {
+    term: 'Microtask',
+    definition:
+      'A small job the event loop runs before the next task: promise callbacks and the code after an await. All of them run first, every time.',
+  },
 };

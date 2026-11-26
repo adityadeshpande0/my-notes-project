@@ -6,6 +6,7 @@
 // further: it's a separate chunk loaded only when that visual nears the screen.
 import '../core/viz.css';
 import '../core/stack/stack.css';
+import '../core/eventloop/eventloop.css';
 import './js-basics.css';
 
 export { default as WebsiteLayers } from './WebsiteLayers';

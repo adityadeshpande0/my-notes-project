@@ -118,7 +118,7 @@ export const CURRICULUM: Record<Track, CurriculumGroup[]> = {
       name: 'Asynchronous JavaScript',
       topics: [
         {
-          slug: 'async-javascript',
+          slug: 'async',
           title: 'Asynchronous JavaScript',
           blurb: 'From callbacks to Promises to async/await.',
         },
