@@ -1,0 +1,54 @@
+/* JsonTree (core/json). Value colours by type, as in article #7. */
+.jt-tree {
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-x: auto;
+}
+.jt-row {
+  white-space: pre;
+}
+.jt-node > summary {
+  display: block;
+  border-radius: 4px;
+  cursor: pointer;
+  list-style: none;
+}
+.jt-node > summary::-webkit-details-marker {
+  display: none;
+}
+.jt-node > summary::before {
+  content: '▸ ';
+  color: var(--text-muted);
+}
+.jt-node[open] > summary::before {
+  content: '▾ ';
+}
+.jt-node[open] > summary .jt-preview {
+  display: none;
+}
+.jt-node > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.jt-children {
+  margin-left: 0.55rem;
+  padding-left: 0.65rem;
+  border-left: 1px solid var(--border);
+}
+.jt-k {
+  color: var(--accent);
+}
+.jt-p,
+.jt-preview {
+  color: var(--text-muted);
+}
+.jt-v.is-string {
+  color: var(--accent-2);
+}
+.jt-v.is-number {
+  color: var(--warn);
+}
+.jt-v.is-boolean,
+.jt-v.is-null {
+  color: var(--violet);
+}
