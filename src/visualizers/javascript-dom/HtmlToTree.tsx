@@ -1,7 +1,7 @@
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useReducedMotion } from '../../lib/hooks';
 import DomTreeView from './DomTreeView';
-import LiveDomSandbox, { type Highlight, type Sandbox } from './LiveDomSandbox';
+import LiveDomSandbox, { type Highlight, type Sandbox } from '../core/sandbox/LiveDomSandbox';
 import {
   childrenPath,
   cssPath,

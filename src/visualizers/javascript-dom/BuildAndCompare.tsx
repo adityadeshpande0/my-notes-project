@@ -5,7 +5,7 @@ import { CodeView, Tabs } from '../core/code';
 import { StepControls } from '../core/StepControls';
 import { useStepper } from '../core/useStepper';
 import DomTreeView from './DomTreeView';
-import LiveDomSandbox, { type Sandbox } from './LiveDomSandbox';
+import LiveDomSandbox, { type Sandbox } from '../core/sandbox/LiveDomSandbox';
 import {
   inertHtml,
   inspectHtml,

@@ -35,6 +35,7 @@ export default function LiveDomSandbox({
   highlights = [],
   address = 'chai-corner.html',
   height,
+  css = '',
 }: {
   /** Trusted HTML written by us (never user text). */
   template: string;
@@ -46,6 +47,8 @@ export default function LiveDomSandbox({
   highlights?: Highlight[];
   address?: string;
   height?: number;
+  /** Extra styles for this visual's mini page (added after the base styles). */
+  css?: string;
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const parts = useRef<{ doc: HTMLElement; overlay: HTMLElement; viewport: HTMLElement } | null>(
@@ -61,7 +64,7 @@ export default function LiveDomSandbox({
     const host = hostRef.current!;
     // In development React may run this twice; reuse the shadow root if it exists.
     const shadow = host.shadowRoot ?? host.attachShadow({ mode: 'open' });
-    shadow.innerHTML = `<style>${SANDBOX_CSS}</style>
+    shadow.innerHTML = `<style>${SANDBOX_CSS}${css}</style>
 <div class="window">
   <div class="bar"><span class="dots"><i></i><i></i><i></i></span><span class="url"></span></div>
   <div class="viewport"><div class="doc"></div><div class="overlay" aria-hidden="true"></div></div>
@@ -85,15 +88,25 @@ export default function LiveDomSandbox({
       cb.current.onHover?.(t === doc ? null : t);
     };
     const leave = () => cb.current.onHover?.(null);
+    // Safety net: a link or form in the mini page must never navigate or
+    // reload the article. This runs last (bubble phase, at the top), so the
+    // visual's own handlers still see the event first.
+    const guard = (e: Event) => {
+      if (e.type === 'submit' || (e.target as Element).closest?.('a[href]')) e.preventDefault();
+    };
     doc.addEventListener('pointerover', over);
     doc.addEventListener('pointerleave', leave);
+    doc.addEventListener('click', guard);
+    doc.addEventListener('submit', guard);
     cb.current.onReady?.({ root: doc });
     return () => {
       observer.disconnect(); // stop watching when the visual goes away
       doc.removeEventListener('pointerover', over);
       doc.removeEventListener('pointerleave', leave);
+      doc.removeEventListener('click', guard);
+      doc.removeEventListener('submit', guard);
     };
-  }, [template, resetKey, address]);
+  }, [template, resetKey, address, css]);
 
   // Draw the highlight boxes on a separate overlay layer, so drawing them
   // never changes the mini page's own DOM (or shows up in its tree).

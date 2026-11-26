@@ -436,4 +436,34 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
     definition:
       'Describing what the result should look like and letting a tool work out the steps. React components are declarative.',
   },
+  event: {
+    term: 'Event',
+    definition:
+      'Something that happens on the page, like a click, a key press or typing. Your code can listen for it and run when it happens.',
+  },
+  'event-handler': {
+    term: 'Event handler',
+    definition:
+      'The function you give addEventListener. The browser calls it for you, with an event object, every time the event happens.',
+  },
+  bubbling: {
+    term: 'Bubbling',
+    definition:
+      'After an event fires on an element, it travels up through every ancestor, running their listeners for the same event too.',
+  },
+  'event-delegation': {
+    term: 'Event delegation',
+    definition:
+      'One listener on a parent handles events from all its children (even ones added later), using event.target to see which was used.',
+  },
+  debounce: {
+    term: 'Debounce',
+    definition:
+      'Run a function only after the calls stop for a set time. Good for a search box: search when the typing pauses.',
+  },
+  throttle: {
+    term: 'Throttle',
+    definition:
+      'Run a function at most once every so many milliseconds, however often it is called. Good for scroll and resize handlers.',
+  },
 };
