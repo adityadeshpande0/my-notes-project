@@ -1,0 +1,626 @@
+/*
+ * Styles for the visuals in "Events". Imported by index.ts, so it only loads
+ * with that note. The mini pages' own styles live in lib/templates.ts
+ * (inside each sandbox's shadow root); the EventLog is styled in core/events.
+ */
+
+/* ─── Small shared bits ─────────────────────────────────────────────── */
+.ev-split {
+  display: grid;
+  gap: 0.75rem;
+}
+.ev-split > * {
+  min-width: 0;
+}
+@container (min-width: 42rem) {
+  .ev-split {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    align-items: start;
+  }
+}
+.ev-split > div > * + * {
+  margin-top: 0.75rem;
+}
+.ev-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.ev-gap {
+  margin-top: 0.75rem;
+}
+.ev-gapb {
+  margin-bottom: 0.75rem;
+}
+.ev-small {
+  font-size: 0.8rem;
+}
+.ev-muted {
+  color: var(--text-muted);
+}
+.ev-warn {
+  color: var(--warn);
+}
+.ev-note {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+.ev-note code,
+.ev-check code {
+  white-space: normal;
+}
+.ev-callout {
+  padding: 0.5rem 0.7rem;
+  border-left: 3px solid var(--accent-2);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent-2) 8%, transparent);
+  color: var(--text);
+}
+.ev-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.ev-check input {
+  accent-color: var(--accent);
+}
+.ev-check:has(input:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.ev-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.1rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.ev-badge.is-good {
+  border-color: color-mix(in srgb, var(--success) 50%, transparent);
+  color: var(--success);
+}
+.ev-badge.is-bad {
+  border-color: color-mix(in srgb, var(--danger) 55%, transparent);
+  color: var(--danger);
+}
+.ev-badge.is-warn {
+  border-color: color-mix(in srgb, var(--warn) 55%, transparent);
+  color: var(--warn);
+}
+.ev-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.viz-btn.viz-mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.ev-group {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ev-count {
+  margin: 0.5rem 0;
+}
+.ev-range {
+  flex: 1 1 8rem;
+  max-width: 20rem;
+  accent-color: var(--accent);
+}
+.ev-range:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.ev-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+.ev-input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* A toast or a "what would happen" overlay on top of a mini page. */
+.ev-stage {
+  position: relative;
+}
+.ev-toast {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 50%;
+  max-width: calc(100% - 1.5rem);
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+  transform: translateX(-50%);
+  animation: ev-pop 0.25s ease-out;
+}
+.ev-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--bg-elevated) 92%, transparent);
+  text-align: center;
+  font-weight: 600;
+  animation: ev-white 0.6s ease-out;
+}
+@keyframes ev-pop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+}
+@keyframes ev-white {
+  from {
+    background: oklch(1 0 0);
+  }
+}
+
+/* ─── #1 EventLab ───────────────────────────────────────────────────── */
+.ev-panel {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.ev-panel > summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.7rem;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  cursor: pointer;
+}
+.ev-panel > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.ev-switches {
+  display: grid;
+  gap: 0.3rem;
+  max-height: 17rem;
+  margin: 0;
+  padding: 0 0.7rem 0.6rem;
+  overflow: auto;
+  list-style: none;
+}
+.ev-switches li {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px dashed var(--border);
+}
+.ev-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+}
+.ev-switch input {
+  accent-color: var(--accent);
+}
+.ev-code {
+  overflow-x: auto;
+  color: var(--text);
+  font-size: 11.5px;
+  line-height: 1.6;
+  white-space: pre;
+}
+.ev-code.is-off {
+  color: var(--text-muted);
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+/* ─── #2 BubblingTower ──────────────────────────────────────────────── */
+.ev-settings {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+.ev-settings caption {
+  text-align: left;
+}
+.ev-settings th,
+.ev-settings td {
+  padding: 0.3rem 0.35rem;
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+}
+.ev-settings th[scope='row'] {
+  text-align: left;
+  font-weight: 600;
+}
+.ev-settings thead th {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.ev-settings input {
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: var(--accent);
+}
+.ev-settings input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+/* The path: capture going down on the left, bubble going up on the right. */
+.ev-path {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 0.2rem 0.4rem;
+  padding: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  font-size: 12px;
+}
+.ev-path-head {
+  color: var(--text-muted);
+  font-size: 11px;
+  text-align: center;
+}
+.ev-path-head:first-child {
+  color: var(--accent);
+}
+.ev-path-head:nth-child(3) {
+  color: var(--warn);
+}
+.ev-path-row {
+  display: contents;
+}
+.ev-path-node {
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  text-align: center;
+  white-space: nowrap;
+}
+.ev-path-row.is-faded .ev-path-node {
+  opacity: 0.45;
+}
+.ev-path-row.is-target-row .ev-path-node {
+  border-color: var(--accent-2);
+}
+.ev-path-cell {
+  display: grid;
+  place-items: center;
+  min-height: 1.6rem;
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+/* The rails: capture on the left, bubble on the right. */
+.ev-path-row .ev-path-cell:first-child {
+  border-right: 2px solid color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.ev-path-row .ev-path-cell:last-child {
+  border-left: 2px solid color-mix(in srgb, var(--warn) 40%, transparent);
+}
+.ev-path-cell.is-done {
+  color: var(--text-muted);
+}
+.ev-path-cell.is-capture {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  color: var(--accent);
+  font-size: 16px;
+}
+.ev-path-cell.is-target {
+  background: color-mix(in srgb, var(--accent-2) 24%, transparent);
+  color: var(--accent-2);
+  font-size: 16px;
+}
+.ev-path-cell.is-bubble {
+  background: color-mix(in srgb, var(--warn) 22%, transparent);
+  color: var(--warn);
+  font-size: 16px;
+}
+.ev-path-cell.is-wall {
+  background: color-mix(in srgb, var(--danger) 22%, transparent);
+  font-size: 16px;
+}
+.ev-path-cell.is-unreached {
+  color: var(--text-muted);
+  font-style: italic;
+  opacity: 0.7;
+}
+.ev-targets {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.5rem;
+}
+.ev-target-badge {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  font-size: 12.5px;
+}
+.ev-target-badge.is-pinned {
+  border-color: color-mix(in srgb, var(--accent-2) 55%, var(--border));
+}
+.ev-target-badge .viz-label {
+  margin: 0;
+}
+.ev-replay > * + * {
+  margin-top: 0.75rem;
+}
+.ev-walk {
+  padding: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.ev-walk-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.35rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+}
+.ev-walk-steps li {
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  animation: ev-step 0.3s ease-out backwards;
+}
+.ev-walk-steps li.is-match {
+  border-color: var(--accent-2);
+  color: var(--accent-2);
+}
+.ev-walk-steps li.is-null {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+@keyframes ev-step {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+}
+
+/* ─── #3 DebounceTimeline ───────────────────────────────────────────── */
+.ev-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+.ev-spinner {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.ev-timeline {
+  padding: 0.4rem 0.5rem 0.2rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.ev-timeline svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.ev-counters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+.ev-counter {
+  display: grid;
+  min-width: 5.5rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  border-radius: 10px;
+  background: var(--bg);
+}
+.ev-counter .viz-label {
+  margin: 0;
+}
+.ev-counter strong {
+  font-size: 1.4rem;
+  line-height: 1.2;
+}
+.ev-counter.is-raw {
+  border-left-color: var(--warn);
+}
+.ev-counter.is-deb {
+  border-left-color: var(--accent-2);
+}
+.ev-counter.is-thr {
+  border-left-color: var(--accent);
+}
+.ev-results {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0 0 0.5rem;
+  padding: 0;
+  list-style: none;
+}
+.ev-results li {
+  padding: 0.1rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.8rem;
+}
+.ev-scrollwrap {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.ev-progress {
+  height: 6px;
+  background: var(--surface);
+}
+.ev-progress span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.15s linear;
+}
+.ev-scrollbox {
+  height: 11rem;
+  padding: 0.5rem 0.9rem;
+  overflow-y: auto;
+  /* Scrolling to the end here never starts scrolling the article. */
+  overscroll-behavior: contain;
+  font-size: 0.9rem;
+}
+.ev-scrollbox:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.ev-scrollbox p {
+  margin: 0;
+  padding: 0.3rem 0;
+  border-bottom: 1px dashed var(--border);
+}
+.ev-backpack {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.5rem 0.7rem;
+  border: 1.5px dashed var(--violet);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--violet) 8%, transparent);
+}
+.ev-backpack .viz-label {
+  margin: 0;
+}
+.ev-cards {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ev-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  font-size: 12.5px;
+  animation: ev-step 0.3s ease-out;
+}
+.ev-card.is-shredded {
+  border-style: dashed;
+  color: var(--text-muted);
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+.ev-card.is-fired {
+  border-color: var(--accent-2);
+  background: color-mix(in srgb, var(--accent-2) 12%, transparent);
+}
+/* A countdown ring that fills over the delay. */
+.ev-ring {
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  background: conic-gradient(var(--warn) calc(var(--p, 0) * 1%), var(--surface) 0);
+}
+.ev-card.is-pending .ev-ring:not([data-static]) {
+  animation: ev-fill var(--ms) linear forwards;
+}
+.ev-card.is-pending .ev-ring[data-static] {
+  --p: 50;
+}
+.ev-card.is-fired .ev-ring {
+  --p: 100;
+  background: var(--accent-2);
+}
+@property --p {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+@keyframes ev-fill {
+  to {
+    --p: 100;
+  }
+}
+
+/* ─── #4 the owner's typing test, until it's built ──────────────────── */
+.ev-soon {
+  padding: 1.25rem;
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+  background: var(--bg-elevated);
+  text-align: center;
+}
+.ev-soon h3 {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+}
+.ev-soon p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ev-toast,
+  .ev-overlay,
+  .ev-walk-steps li,
+  .ev-card {
+    animation: none;
+  }
+  .ev-progress span {
+    transition: none;
+  }
+}
+
+/* Long tab and mode names wrap on phones instead of overflowing. */
+.ev-lab .viz-seg-btn,
+.ev-tower .viz-seg-btn,
+.ev-debounce .viz-seg-btn {
+  white-space: normal;
+}
