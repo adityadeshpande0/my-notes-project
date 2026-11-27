@@ -1,0 +1,823 @@
+/*
+ * Styles for the visuals in "Fetching Data from APIs". Imported by index.ts,
+ * so it only loads with that note. Method colours: GET mint, POST periwinkle,
+ * PATCH/PUT amber, DELETE coral. Status colours: 2xx mint, 4xx amber, 5xx coral.
+ */
+
+/* ─── Small shared bits ─────────────────────────────────────────────── */
+.fx-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+.fx-gap {
+  margin-top: 0.75rem;
+}
+.fx-small {
+  margin: 0.4rem 0 0;
+  font-size: 0.8rem;
+}
+.fx-muted {
+  color: var(--text-muted);
+}
+.fx-good {
+  color: var(--success);
+}
+.fx-bad {
+  color: var(--danger);
+}
+.fx-note {
+  margin: 0.9rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-style: italic;
+}
+.fx-callout {
+  margin: 0.75rem 0 0;
+  padding: 0.5rem 0.7rem;
+  border-left: 3px solid var(--accent-2);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent-2) 8%, transparent);
+  font-size: 0.88rem;
+}
+.fx-split {
+  display: grid;
+  gap: 0.75rem;
+}
+.fx-split > * {
+  min-width: 0;
+}
+@container (min-width: 42rem) {
+  .fx-split {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+.fx-stack {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+.fx-field {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+.fx-grow {
+  flex: 1 1 10rem;
+}
+.fx-label {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.fx-input,
+.fx-select,
+.fx-body {
+  min-width: 0;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+}
+.fx-num {
+  width: 5.5rem;
+}
+.fx-input.is-bad,
+.fx-body.is-bad {
+  border-color: var(--danger);
+}
+.fx-body {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  resize: vertical;
+}
+.fx-input:focus-visible,
+.fx-select:focus-visible,
+.fx-body:focus-visible,
+.fx-range:focus-visible,
+.fx-check:has(input:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.fx-range {
+  width: 11rem;
+  max-width: 100%;
+  accent-color: var(--accent);
+}
+.fx-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.fx-check input {
+  accent-color: var(--accent);
+}
+.viz-btn.viz-mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.fx-chip {
+  padding: 0.05rem 0.5rem;
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.fx-chip.is-get,
+.fx-method.is-get {
+  color: var(--accent-2);
+}
+.fx-chip.is-post,
+.fx-method.is-post {
+  color: var(--accent);
+}
+.fx-chip.is-patch,
+.fx-chip.is-put,
+.fx-method.is-patch {
+  color: var(--warn);
+}
+.fx-chip.is-delete,
+.fx-method.is-delete {
+  color: var(--danger);
+}
+.fx-method {
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+.is-2xx {
+  color: var(--accent-2);
+}
+.is-3xx {
+  color: var(--accent);
+}
+.is-4xx {
+  color: var(--warn);
+}
+.is-5xx,
+.is-error {
+  color: var(--danger);
+}
+.fx-badge {
+  display: inline-flex;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.fx-badge.is-good,
+.fx-badge.is-success {
+  border-color: color-mix(in srgb, var(--success) 55%, transparent);
+  color: var(--success);
+}
+.fx-badge.is-bad,
+.fx-badge.is-error {
+  border-color: color-mix(in srgb, var(--danger) 55%, transparent);
+  color: var(--danger);
+}
+.fx-badge.is-loading {
+  border-color: color-mix(in srgb, var(--warn) 55%, transparent);
+  color: var(--warn);
+}
+.fx-snippet {
+  margin: 0.5rem 0 0;
+  padding: 0.4rem 0.6rem;
+  overflow-x: auto;
+  border-radius: 8px;
+  background: var(--surface);
+  font-size: 12px;
+}
+.fx-code-viz .viz-seg-btn,
+.fx-journey-viz .viz-seg-btn {
+  white-space: normal;
+}
+
+/* ─── #1 RequestJourney ─────────────────────────────────────────────── */
+.fx-builder {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+}
+.fx-url {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 12.5px;
+}
+.fx-query {
+  color: var(--warn);
+}
+.fx-journey {
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr) 9rem;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+.fx-end {
+  display: grid;
+  justify-items: center;
+  gap: 0.15rem;
+  padding: 0.6rem 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-elevated);
+  font-size: 0.8rem;
+  text-align: center;
+}
+.fx-end > span:first-child {
+  font-size: 1.6rem;
+}
+.fx-gear {
+  display: inline-block;
+}
+.fx-end.is-working {
+  border-color: var(--warn);
+}
+.fx-end.is-working .fx-gear {
+  animation: fx-spin 1s linear infinite;
+}
+@keyframes fx-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* The path across the internet, tilted back a little (a light 3D feel). */
+.fx-path {
+  --pw: 10.5rem;
+  position: relative;
+  height: 4.6rem;
+  perspective: 500px;
+}
+.fx-path::before {
+  content: '';
+  position: absolute;
+  inset: 1.1rem 0;
+  border: 2px dashed var(--border);
+  border-radius: 999px;
+  transform: rotateX(48deg);
+}
+.fx-cloud {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+.fx-packet {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: var(--pw);
+  max-width: 100%;
+  padding: 0.25rem 0.5rem;
+  overflow: hidden;
+  border: 1.5px solid currentColor;
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  box-shadow: var(--glow);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transform: translateY(-50%);
+}
+.fx-packet.is-get {
+  color: var(--accent-2);
+}
+.fx-packet.is-post {
+  color: var(--accent);
+}
+.fx-packet.is-patch {
+  color: var(--warn);
+}
+.fx-packet.is-delete {
+  color: var(--danger);
+}
+.fx-journey.is-moving.is-out .fx-packet.is-req {
+  animation: fx-go 0.7s ease-in forwards;
+}
+.fx-journey.is-moving.is-server .fx-packet.is-req,
+.fx-journey.is-static.is-server .fx-packet.is-req {
+  left: calc(100% - var(--pw));
+  opacity: 0.45;
+}
+.fx-journey.is-back .fx-packet.is-req,
+.fx-journey.is-done .fx-packet.is-req {
+  display: none;
+}
+.fx-journey.is-moving.is-back .fx-packet.is-res {
+  animation: fx-go 0.75s ease-out reverse forwards;
+}
+.fx-journey.is-moving.is-broken .fx-packet.is-req {
+  animation: fx-break 0.6s ease-in forwards;
+}
+.fx-boom {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-size: 1.8rem;
+  transform: translate(-50%, -50%);
+}
+@keyframes fx-go {
+  from {
+    left: 0;
+  }
+  to {
+    left: calc(100% - var(--pw));
+  }
+}
+@keyframes fx-break {
+  to {
+    left: calc(50% - var(--pw) / 2);
+    opacity: 0.15;
+    filter: blur(2px);
+  }
+}
+/* Phones: the journey runs top to bottom (app on top, server at the bottom). */
+@container (max-width: 34rem) {
+  .fx-journey {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .fx-path {
+    height: 7.5rem;
+  }
+  .fx-path::before {
+    inset: 0 50%;
+    border-width: 0 0 0 2px;
+    transform: none;
+  }
+  .fx-cloud {
+    top: 50%;
+    left: calc(50% + 0.6rem);
+    transform: translateY(-50%);
+  }
+  .fx-packet {
+    top: 0;
+    left: 50% !important;
+    transform: translateX(-50%);
+  }
+  .fx-journey.is-moving.is-out .fx-packet.is-req {
+    animation-name: fx-go-v;
+  }
+  .fx-journey.is-moving.is-server .fx-packet.is-req,
+  .fx-journey.is-static.is-server .fx-packet.is-req {
+    top: calc(100% - 1.8rem);
+  }
+  .fx-journey.is-moving.is-back .fx-packet.is-res {
+    animation-name: fx-go-v;
+  }
+  .fx-journey.is-moving.is-broken .fx-packet.is-req {
+    animation-name: fx-break-v;
+  }
+  .fx-boom {
+    left: 30%;
+  }
+}
+@keyframes fx-go-v {
+  from {
+    top: 0;
+  }
+  to {
+    top: calc(100% - 1.8rem);
+  }
+}
+@keyframes fx-break-v {
+  to {
+    top: calc(50% - 0.9rem);
+    opacity: 0.15;
+    filter: blur(2px);
+  }
+}
+.fx-inspector {
+  margin-top: 0.75rem;
+}
+.fx-dl {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  gap: 0.35rem 0.7rem;
+  margin: 0.6rem 0 0;
+  font-size: 12px;
+}
+.fx-dl dt {
+  color: var(--text-muted);
+}
+.fx-dl dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.fx-scenarios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+.fx-verdict {
+  display: grid;
+  justify-items: start;
+  gap: 0.6rem;
+}
+.fx-badges {
+  display: grid;
+  gap: 0.4rem;
+}
+.fx-cheat {
+  margin-top: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.fx-cheat > summary {
+  padding: 0.5rem 0.7rem;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  cursor: pointer;
+}
+.fx-cheat > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.fx-cheat > *:not(summary) {
+  margin: 0 0.7rem 0.7rem;
+}
+.fx-cheat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.6rem;
+}
+.fx-cheat-col .fx-label {
+  display: block;
+  margin-bottom: 0.3rem;
+}
+.fx-cheat-col.is-2xx .fx-label {
+  color: var(--accent-2);
+}
+.fx-cheat-col.is-4xx .fx-label {
+  color: var(--warn);
+}
+.fx-cheat-col.is-5xx .fx-label {
+  color: var(--danger);
+}
+
+/* ─── #2 FetchInCode ────────────────────────────────────────────────── */
+.fx-preview {
+  min-height: 7.5rem;
+}
+.fx-skeleton {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+.fx-skeleton span {
+  height: 0.9rem;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--surface), var(--border), var(--surface));
+  background-size: 200% 100%;
+  animation: fx-shimmer 1.2s linear infinite;
+}
+.fx-skeleton span:nth-child(2) {
+  width: 80%;
+}
+.fx-skeleton span:nth-child(3) {
+  width: 60%;
+}
+@keyframes fx-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+.fx-list {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+}
+.fx-error {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--danger) 55%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--danger) 8%, transparent);
+}
+.fx-error p {
+  margin: 0 0 0.3rem;
+}
+.fx-response {
+  flex: 1 1 11rem;
+  min-width: 0;
+}
+.fx-response .fx-small {
+  margin: 0;
+}
+.fx-parcel {
+  margin: 0.3rem 0 0;
+  font-size: 0.85rem;
+}
+.fx-response.is-opening .fx-parcel {
+  color: var(--warn);
+}
+.fx-response.is-open .fx-parcel {
+  color: var(--accent-2);
+}
+.fx-response.is-broken .fx-parcel {
+  color: var(--danger);
+}
+.fx-progress {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 11.5px;
+}
+.fx-progress li {
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-muted);
+}
+.fx-progress li.is-done {
+  border-color: var(--success);
+  color: var(--success);
+}
+.fx-progress li.is-bad {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.fx-deadline {
+  position: relative;
+  height: 2.6rem;
+  margin-top: 0.75rem;
+  border-radius: 8px;
+  background: var(--surface);
+}
+.fx-deadline-bar {
+  position: absolute;
+  top: 0.5rem;
+  left: 0;
+  height: 1rem;
+  border-radius: 6px;
+  background: var(--warn);
+}
+.fx-deadline-bar.is-done {
+  background: var(--accent-2);
+}
+.fx-deadline-bar.is-timeout {
+  background: var(--danger);
+}
+.fx-deadline-line,
+.fx-deadline-server {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  padding-left: 0.25rem;
+  border-left: 2px solid var(--danger);
+  font-size: 10.5px;
+  line-height: 4.3;
+  white-space: nowrap;
+}
+.fx-deadline-server {
+  border-left: 2px dashed var(--text-muted);
+  color: var(--text-muted);
+  line-height: 1.2;
+}
+.fx-input {
+  flex: 1 1 10rem;
+}
+.fx-results {
+  margin-top: 0.6rem;
+}
+.fx-results.is-wrong {
+  border-color: var(--danger);
+}
+.fx-race {
+  display: grid;
+  gap: 0.3rem;
+  margin-top: 0.75rem;
+  padding: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.fx-race-row {
+  display: grid;
+  grid-template-columns: 4rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.4rem;
+}
+.fx-race-q {
+  font-size: 12px;
+}
+.fx-race-track {
+  position: relative;
+  height: 1.4rem;
+  border-radius: 6px;
+  background: var(--surface);
+}
+.fx-race-bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  overflow: hidden;
+  border-radius: 6px;
+  font-size: 10.5px;
+  line-height: 1.4rem;
+  text-align: right;
+  padding-right: 0.3rem;
+  white-space: nowrap;
+}
+.fx-race-bar.is-pending {
+  background: color-mix(in srgb, var(--warn) 55%, transparent);
+}
+.fx-race-bar.is-applied {
+  background: color-mix(in srgb, var(--accent-2) 55%, transparent);
+}
+.fx-race-bar.is-cancelled,
+.fx-race-bar.is-ignored {
+  background: color-mix(in srgb, var(--text-muted) 30%, transparent);
+  color: var(--text-muted);
+}
+
+/* ─── #3 CrudPlayground ─────────────────────────────────────────────── */
+.fx-crud-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+.fx-crud-grid > * {
+  min-width: 0;
+}
+@container (min-width: 50rem) {
+  .fx-crud-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+.fx-cards {
+  display: grid;
+  gap: 0.6rem;
+  min-width: 0;
+}
+.fx-card {
+  display: grid;
+  gap: 0.5rem;
+  border-left-width: 4px;
+}
+.fx-card.is-get {
+  border-left-color: var(--accent-2);
+}
+.fx-card.is-post {
+  border-left-color: var(--accent);
+}
+.fx-card.is-patch {
+  border-left-color: var(--warn);
+}
+.fx-card.is-delete {
+  border-left-color: var(--danger);
+}
+.fx-card .viz-label {
+  margin: 0;
+}
+.fx-emoji {
+  padding: 0.2rem 0.45rem;
+}
+.fx-table {
+  width: 100%;
+  margin-top: 0.5rem;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+.fx-table th,
+.fx-table td {
+  padding: 0.3rem 0.4rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.fx-table th {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.fx-table tr {
+  transition: background-color 0.4s;
+}
+.fx-table tr.is-new {
+  background: color-mix(in srgb, var(--success) 18%, transparent);
+  animation: fx-in 0.5s ease-out;
+}
+.fx-table tr.is-read {
+  background: color-mix(in srgb, var(--accent-2) 12%, transparent);
+}
+.fx-table tr.is-gone {
+  color: var(--danger);
+  text-decoration: line-through;
+  animation: fx-fade 1.6s ease-in forwards;
+}
+.fx-table td.is-changed {
+  background: color-mix(in srgb, var(--warn) 22%, transparent);
+}
+.fx-was {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+@keyframes fx-in {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+}
+@keyframes fx-fade {
+  to {
+    opacity: 0.35;
+  }
+}
+/* Phones: each row becomes a little card. */
+@container (max-width: 30rem) {
+  .fx-table thead {
+    display: none;
+  }
+  .fx-table,
+  .fx-table tbody,
+  .fx-table tr,
+  .fx-table td {
+    display: block;
+  }
+  .fx-table tr {
+    margin-bottom: 0.4rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .fx-table td {
+    display: flex;
+    gap: 0.5rem;
+    border: 0;
+  }
+  .fx-table td::before {
+    content: attr(data-label);
+    min-width: 4.5rem;
+    color: var(--text-muted);
+  }
+}
+.fx-response-panel .fx-row {
+  align-items: center;
+}
+.fx-status {
+  font-weight: 700;
+}
+
+/* ─── #4 the owner's explorer, until it's built ─────────────────────── */
+.fx-soon {
+  padding: 1.25rem;
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+  background: var(--bg-elevated);
+  text-align: center;
+}
+.fx-soon h3 {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+}
+.fx-soon p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-end.is-working .fx-gear,
+  .fx-skeleton span,
+  .fx-table tr.is-new,
+  .fx-table tr.is-gone {
+    animation: none;
+  }
+  .fx-table tr.is-gone {
+    opacity: 0.4;
+  }
+}
+
+/* Grid children may shrink below their longest code line (which then scrolls inside its own box). */
+.fx-stack > *,
+.fx-cards > *,
+.fx-card > * {
+  min-width: 0;
+}

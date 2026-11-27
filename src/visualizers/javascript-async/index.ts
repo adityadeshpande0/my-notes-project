@@ -8,6 +8,7 @@ import '../core/stack/stack.css';
 import '../core/memory/memory.css';
 import '../core/scope/scope.css';
 import '../core/eventloop/eventloop.css';
+import '../core/token/token.css';
 import './js-async.css';
 
 export { default as WaitingStyles } from './WaitingStyles';

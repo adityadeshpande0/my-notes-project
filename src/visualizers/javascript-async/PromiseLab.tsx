@@ -4,7 +4,7 @@ import { EventLog, useEventLog } from '../core/events';
 import { isAbort, makeOrder } from './lib/fakeKitchen';
 import { runOrders, type Combinator, type OrderSpec, type RunRecord } from './lib/kitchenRun';
 import Speed from './Speed';
-import Token, { type TokenState } from './Token';
+import { Token, type TokenState } from '../core/token';
 
 /**
  * #2 Order tokens: every promise here is REAL (makeOrder from the fake

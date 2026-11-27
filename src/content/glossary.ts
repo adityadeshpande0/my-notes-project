@@ -491,4 +491,34 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
     definition:
       'A small job the event loop runs before the next task: promise callbacks and the code after an await. All of them run first, every time.',
   },
+  api: {
+    term: 'API',
+    definition:
+      'Application Programming Interface: the rules for how one program can ask another for something. A web API answers requests over HTTP, usually with JSON.',
+  },
+  http: {
+    term: 'HTTP',
+    definition:
+      'The language browsers and servers use to talk: a request (method, URL, headers, body) and a response (status code, headers, body).',
+  },
+  endpoint: {
+    term: 'Endpoint',
+    definition:
+      'One address in an API, like /snacks or /snacks/3: the path that says which thing you want.',
+  },
+  'status-code': {
+    term: 'Status code',
+    definition:
+      'The 3-digit number in a response saying how it went: 2xx success, 3xx redirect, 4xx you asked wrongly, 5xx the server broke.',
+  },
+  cors: {
+    term: 'CORS',
+    definition:
+      'Cross-Origin Resource Sharing: a browser rule that only lets a page read another site’s API responses if that server allows it.',
+  },
+  crud: {
+    term: 'CRUD',
+    definition:
+      'Create, Read, Update, Delete: the four things most apps do with data. In HTTP: POST, GET, PATCH/PUT, DELETE.',
+  },
 };

@@ -123,7 +123,7 @@ export const CURRICULUM: Record<Track, CurriculumGroup[]> = {
           blurb: 'From callbacks to Promises to async/await.',
         },
         {
-          slug: 'fetching-data',
+          slug: 'fetching-apis',
           title: 'Fetching Data from APIs',
           blurb: 'Ask a server for data and show it on the page.',
         },

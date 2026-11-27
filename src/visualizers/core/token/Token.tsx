@@ -9,7 +9,7 @@ import type { CSSProperties } from 'react';
  */
 export type TokenState = 'pending' | 'fulfilled' | 'rejected' | 'skipped' | 'idle';
 
-export default function Token({
+export function Token({
   n,
   emoji,
   state,
