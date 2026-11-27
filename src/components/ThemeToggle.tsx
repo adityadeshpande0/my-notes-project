@@ -1,4 +1,5 @@
 import { useTheme } from '../app/useTheme';
+import { track } from '../lib/analytics';
 
 export function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
@@ -7,7 +8,10 @@ export function ThemeToggle() {
   return (
     <button
       type="button"
-      onClick={toggleTheme}
+      onClick={() => {
+        toggleTheme();
+        track('theme_changed', { theme: next });
+      }}
       aria-label={`Switch to ${next} theme`}
       title={`Switch to ${next} theme`}
       className="grid size-9 place-items-center rounded-btn border border-border bg-elevated text-muted transition-colors hover:text-text"

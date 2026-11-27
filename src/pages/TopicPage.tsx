@@ -1,4 +1,12 @@
-import { Suspense, useEffect, useRef, useState, type ComponentType, type ReactNode } from 'react';
+import {
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+  type ComponentType,
+  type ReactNode,
+  type RefObject,
+} from 'react';
 import { Link, useParams } from 'react-router';
 import type { MDXProps } from 'mdx/types';
 import { Chip } from '../components/Chip';
@@ -7,8 +15,9 @@ import { mdxComponents } from '../components/mdx-components';
 import { getNote, getTopic, topics } from '../lib/content';
 import { signalNoteReady } from '../app/splash';
 import { useReveal } from '../lib/hooks';
-import { pathPosition, type PathStep } from '../lib/curriculum';
-import { markVisited } from '../lib/readingHistory';
+import { pathFor, pathPosition, type PathStep } from '../lib/curriculum';
+import { markVisited, readHistory, wasVisited } from '../lib/readingHistory';
+import { track } from '../lib/analytics';
 import { TRACKS, type TopicMeta, type Track } from '../lib/types';
 import { NotFoundPage } from './NotFoundPage';
 import { NoteSkeleton } from './topic/NoteSkeleton';
@@ -41,7 +50,21 @@ function TopicLayout({ topic, Note }: { topic: TopicMeta; Note: ComponentType<MD
   const trackName = TRACKS[topic.track].name;
 
   // Remember this step was read, so the path can tick it and offer "continue".
-  useEffect(() => markVisited(topic.track, topic.slug), [topic.track, topic.slug]);
+  // Telling analytics "a note was opened" is also a side effect of showing the
+  // page (not of a click), so it belongs in an effect too.
+  useEffect(() => {
+    const isNew = markVisited(topic.track, topic.slug);
+    track('note_viewed', {
+      track: topic.track,
+      slug: topic.slug,
+      level: topic.level,
+      step: current?.step,
+      group: current?.group,
+    });
+    if (isNew) trackCourseCompletion(topic.track);
+    // `current` comes from the slug, so the slug alone decides when this runs.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topic.track, topic.slug]);
 
   return (
     <>
@@ -114,7 +137,14 @@ function TopicLayout({ topic, Note }: { topic: TopicMeta; Note: ComponentType<MD
             <NoteBody Note={Note} onOutline={setOutline} />
           </Suspense>
 
-          <PathPager track={topic.track} prev={prev} next={next} upcoming={upcoming} />
+          <PathPager
+            track={topic.track}
+            slug={topic.slug}
+            noteLoaded={outline.minutes > 0}
+            prev={prev}
+            next={next}
+            upcoming={upcoming}
+          />
         </article>
 
         {/* ── Right: at a glance (wide screens) ────────────── */}
@@ -209,20 +239,29 @@ function GlanceRow({ label, children }: { label: string; children: ReactNode }) 
  * next written one (or the way back to the path).
  */
 function PathPager({
-  track,
+  track: trackId,
+  slug,
+  noteLoaded,
   prev,
   next,
   upcoming,
 }: {
   track: Track;
+  slug: string;
+  /** False while the note's lazy chunk downloads (the pager is briefly on screen then). */
+  noteLoaded: boolean;
   prev?: PathStep;
   next?: PathStep;
   upcoming?: PathStep;
 }) {
   const pad = (n: number) => String(n).padStart(2, '0');
   const upcomingIsPlanned = upcoming && !upcoming.href;
+  const ref = useRef<HTMLElement>(null);
+  useFinishedReading(ref, trackId, slug, noteLoaded);
+  const go = (to: string, direction: 'prev' | 'next' | 'track') => () =>
+    track('path_nav_clicked', { track: trackId, from: slug, to, direction });
   return (
-    <nav aria-label="Learning path" className="mt-20 border-t border-border pt-10">
+    <nav ref={ref} aria-label="Learning path" className="mt-20 border-t border-border pt-10">
       <p className="mb-4 font-mono text-xs tracking-wide text-muted uppercase">Continue the path</p>
 
       {upcomingIsPlanned && (
@@ -241,6 +280,7 @@ function PathPager({
         {prev ? (
           <Link
             to={prev.href!}
+            onClick={go(prev.slug, 'prev')}
             className="group rounded-card border border-border p-5 transition-colors hover:border-accent/60 hover:bg-elevated"
           >
             <span className="block font-mono text-xs text-muted">
@@ -254,6 +294,7 @@ function PathPager({
         {next ? (
           <Link
             to={next.href!}
+            onClick={go(next.slug, 'next')}
             className="group rounded-card border border-accent-2/60 bg-elevated p-5 shadow-glow transition-[border-color,translate] duration-200 hover:-translate-y-0.5 hover:border-accent-2 sm:p-6"
           >
             <span className="block font-mono text-xs text-accent-2">
@@ -267,18 +308,59 @@ function PathPager({
           </Link>
         ) : (
           <Link
-            to={`/${track}`}
+            to={`/${trackId}`}
+            onClick={go(trackId, 'track')}
             className="group rounded-card border border-border bg-elevated p-5 transition-colors hover:border-accent/60 sm:p-6"
           >
             <span className="block font-mono text-xs text-muted">
               You&rsquo;re at the newest step
             </span>
             <span className="mt-1.5 block font-heading text-xl font-semibold group-hover:text-accent">
-              See the whole {TRACKS[track].name} path →
+              See the whole {TRACKS[trackId].name} path →
             </span>
           </Link>
         )}
       </div>
     </nav>
   );
+}
+
+/**
+ * Sends `note_finished` once, the first time the end of the note scrolls into
+ * view. `seconds` is how long the page had been open, a rough "time to read".
+ */
+function useFinishedReading(
+  ref: RefObject<HTMLElement | null>,
+  trackId: Track,
+  slug: string,
+  noteLoaded: boolean,
+) {
+  const opened = useRef(0);
+  useEffect(() => {
+    opened.current = performance.now();
+  }, [slug]);
+  useEffect(() => {
+    const el = ref.current;
+    // Wait for the note itself: until it loads, the end of the page is in view.
+    if (!noteLoaded || !el || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver((entries) => {
+      if (!entries.some((e) => e.isIntersecting)) return;
+      track('note_finished', {
+        track: trackId,
+        slug,
+        seconds: Math.round((performance.now() - opened.current) / 1000),
+      });
+      io.disconnect();
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [ref, trackId, slug, noteLoaded]);
+}
+
+/** After a new note is opened: if every written note in the collection is now read, say so. */
+function trackCourseCompletion(trackId: Track) {
+  const history = readHistory();
+  const ready = pathFor(topics, trackId).filter((s) => s.href);
+  if (ready.length > 0 && ready.every((s) => wasVisited(history, trackId, s.slug)))
+    track('course_completed', { track: trackId, notes: ready.length });
 }

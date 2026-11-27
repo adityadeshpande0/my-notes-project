@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import { track } from '../../lib/analytics';
 import { alpha, C } from './colors';
 
 export interface QuizQuestion {
@@ -27,8 +28,21 @@ export function Quiz({
   const score = picked.filter((p, i) => p === questions[i].answer).length;
   const answered = picked.filter((p) => p !== null).length;
 
-  const choose = (question: number, option: number) =>
-    setPicked((prev) => prev.map((p, i) => (i === question ? option : p)));
+  const choose = (question: number, option: number) => {
+    const next = picked.map((p, i) => (i === question ? option : p));
+    setPicked(next);
+    // Analytics lives in the event handler: it's about what the reader just
+    // did, so it runs once per click (an effect would also run on re-renders).
+    track('quiz_answered', {
+      question: question + 1,
+      correct: option === questions[question].answer,
+    });
+    if (next.every((p) => p !== null))
+      track('quiz_completed', {
+        score: next.filter((p, i) => p === questions[i].answer).length,
+        total: questions.length,
+      });
+  };
 
   return (
     <div className="viz not-prose">

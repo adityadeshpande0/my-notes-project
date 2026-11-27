@@ -38,6 +38,10 @@ export function CodeBlock({ children, className = '', style, ...rest }: Componen
     try {
       await navigator.clipboard.writeText(preRef.current?.innerText ?? '');
       setCopied(true);
+      // TODO (owner): record the copy with analytics. The event is already
+      // defined in lib/analytics.ts as `code_copied`, with one property,
+      // `language`. Import `track` from '../lib/analytics' and call it here.
+      // Hint: `lang` may be undefined, so pass a fallback like 'text'.
     } catch {
       // Clipboard can be unavailable (http, old browsers). Selecting by hand still works.
     }
