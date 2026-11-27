@@ -27,6 +27,13 @@ export function AboutPage() {
           <span className="text-success">Green</span>: sorted, found, or done
         </li>
       </ul>
+      <h2>What we measure</h2>
+      <p>
+        To learn which notes help and which confuse, the site counts anonymous visits and a few
+        actions: opening and finishing a note, answering a self-check, playing a visual. There are
+        no accounts, names, or emails, and if your browser sends &ldquo;Do Not Track&rdquo; only the
+        anonymous visit count remains. Your reading progress stays in your browser.
+      </p>
     </div>
   );
 }
