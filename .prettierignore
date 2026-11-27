@@ -3,3 +3,13 @@ node_modules
 package-lock.json
 # Prettier's MDX parser mangles inline JSX (e.g. <Term>) at line starts.
 *.mdx
+
+# The to-do reference apps and their stage snapshots must stay byte-identical
+# to the tested files in the article spec, so Prettier leaves them alone.
+src/visualizers/javascript-todo/reference/
+src/visualizers/javascript-todo/stages/
+src/visualizers/javascript-todo/preview/PreviewApp.jsx
+# exact copies of the reference app (byte-identical on purpose)
+projects/todo-vanilla/index.html
+projects/todo-vanilla/style.css
+projects/todo-react/style.css

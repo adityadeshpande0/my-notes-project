@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chai To-Do</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <main class="app">
+    <h1>☕ Chai To-Do</h1>
+    <form id="todo-form">
+      <input id="todo-input" placeholder="What needs doing?" autocomplete="off" aria-label="New task">
+      <button type="submit">Add</button>
+    </form>
+    <ul id="todo-list"></ul>
+    <p id="empty">Nothing to do… enjoy your chai ☕</p>
+    <footer>
+      <span id="count"></span>
+      <div class="filters">
+        <button data-filter="all">All</button>
+        <button data-filter="active">Active</button>
+        <button data-filter="done">Done</button>
+      </div>
+      <button id="clear-done">Clear done</button>
+    </footer>
+  </main>
+</body>
+</html>

@@ -47,6 +47,9 @@ export default defineConfig({
   test: {
     // exercises/: the owner's practice projects (their tests run with everything else).
     include: ['src/**/*.test.ts', 'exercises/**/*.test.js'],
+    // The to-do reference and stage stylesheets are read as text by tests
+    // (?raw), so let Vitest load them instead of replacing them with "".
+    css: { include: [/javascript-todo\/(reference|stages)\//] },
     // Most tests run in plain Node; DOM tests opt in with a
     // `// @vitest-environment jsdom` comment at the top of the file.
     environment: 'node',

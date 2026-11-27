@@ -1,0 +1,522 @@
+/*
+ * Styles for the visuals in "Mini Project: Build a To-Do App". Imported by
+ * index.ts, so it only loads with that note. The apps themselves bring their
+ * own stylesheet (the reference style.css), inside their iframe or shadow root.
+ */
+
+/* ─── Small shared bits ─────────────────────────────────────────────── */
+.td-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.td-gap {
+  margin-top: 0.75rem;
+}
+.td-small {
+  font-size: 0.8rem;
+}
+.td-muted {
+  color: var(--text-muted);
+}
+.td-note {
+  margin: 0.4rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+.td-badge {
+  display: inline-block;
+  margin: 0.75rem 0 0;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 0.85rem;
+}
+.td-badge.is-good {
+  border-color: color-mix(in srgb, var(--success) 55%, transparent);
+  color: var(--success);
+}
+.td-badge.is-warn {
+  border-color: color-mix(in srgb, var(--warn) 55%, transparent);
+  color: var(--warn);
+}
+.td-split {
+  display: grid;
+  gap: 1rem;
+}
+.td-split > * {
+  min-width: 0;
+}
+@container (min-width: 44rem) {
+  .td-split {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+/* The app's frame: a light page, like a real browser tab. */
+.td-frame {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: oklch(
+    0.975 0.006 275
+  ); /* the reference app’s own page colour (it’s a separate page) */
+}
+.td-react-host {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: oklch(0.975 0.006 275); /* the reference app’s own page colour */
+  padding: 0.75rem;
+  color: oklch(0.22 0.03 280); /* the app’s text colour (its stylesheet doesn’t set one) */
+}
+.td-featuremap .viz-seg-btn,
+.td-build .viz-seg-btn,
+.td-vs .viz-seg-btn {
+  white-space: normal;
+}
+
+/* ─── #1 FeatureMap ─────────────────────────────────────────────────── */
+.td-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0 0 0.9rem;
+  padding: 0;
+  list-style: none;
+}
+.td-feature {
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.td-feature.is-on {
+  border-color: var(--accent-2);
+  background: color-mix(in srgb, var(--accent-2) 14%, var(--surface));
+}
+.td-feature:focus-visible,
+.td-chip:focus-visible,
+.td-concept:focus-visible,
+.td-railstep:focus-visible,
+.td-seg:focus-visible,
+.td-nextcard:focus-visible,
+.td-fold:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+/* The course map: the 13 articles along a gentle wave (a list on phones). */
+.td-map {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@container (min-width: 44rem) {
+  .td-map {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.35rem 0.75rem;
+  }
+  .td-stop {
+    transform: translateX(calc(sin(var(--i) * 0.9rad) * 0.6rem));
+  }
+}
+.td-stop {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.2rem 0.4rem;
+  border-left: 3px solid var(--border);
+  border-radius: 6px;
+  transition:
+    background-color 0.25s,
+    border-color 0.25s;
+}
+.td-stop.is-lit {
+  border-left-color: var(--accent-2);
+  background: color-mix(in srgb, var(--accent-2) 12%, transparent);
+}
+.td-chip {
+  color: var(--text);
+  font-size: 0.82rem;
+  text-decoration: none;
+}
+.td-stop:not(.is-lit) .td-chip {
+  color: var(--text-muted);
+}
+.td-what {
+  color: var(--accent-2);
+  font-size: 11px;
+}
+
+/* ─── #2 BuildAlong ─────────────────────────────────────────────────── */
+.td-rail {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.3rem;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+.td-railstep {
+  display: grid;
+  justify-items: center;
+  gap: 0.15rem;
+  width: 100%;
+  padding: 0.35rem 0.2rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.72rem;
+  text-align: center;
+  cursor: pointer;
+}
+.td-railnum {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: var(--surface);
+  font-weight: 700;
+}
+.td-railstep.is-done {
+  border-color: color-mix(in srgb, var(--accent-2) 55%, var(--border));
+}
+.td-railstep.is-done .td-railnum {
+  background: var(--accent-2);
+  color: var(--bg);
+}
+.td-railstep.is-current {
+  border-color: var(--accent);
+  box-shadow: var(--glow);
+  color: var(--text);
+}
+.td-railstep.is-current .td-railnum {
+  background: var(--accent);
+  color: var(--bg);
+}
+@container (max-width: 34rem) {
+  .td-railtitle {
+    display: none;
+  }
+}
+.td-stagehead {
+  margin: 0 0 0.5rem;
+}
+.td-concepts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+.td-concept {
+  padding: 0.15rem 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
+  border-radius: 999px;
+  color: var(--text);
+  font-size: 0.78rem;
+  text-decoration: none;
+}
+/* Diff and preview side by side; tabs on narrow screens. */
+.td-viewtabs {
+  margin-bottom: 0.6rem;
+}
+.td-panels {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.td-panels > * {
+  min-width: 0;
+}
+@container (min-width: 50rem) {
+  .td-viewtabs {
+    display: none;
+  }
+  .td-panels {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+@container (max-width: 49.99rem) {
+  .td-panels.show-diff .td-trypanel,
+  .td-panels.show-try .td-diffpanel {
+    display: none;
+  }
+}
+.td-filebtn {
+  padding: 0.15rem 0.5rem;
+}
+.td-add {
+  color: var(--success);
+}
+.td-del {
+  color: var(--danger);
+}
+.td-diff {
+  max-height: 26rem;
+  margin: 0.5rem 0 0;
+  overflow: auto;
+  border-radius: 8px;
+  background: var(--bg);
+  font-size: 11.5px;
+  line-height: 1.55;
+}
+.td-line {
+  padding: 0 0.5rem;
+  white-space: pre;
+}
+.td-line.is-add {
+  background: color-mix(in srgb, var(--success) 14%, transparent);
+}
+.td-line.is-del {
+  background: color-mix(in srgb, var(--danger) 14%, transparent);
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, var(--danger) 60%, transparent);
+}
+.td-sign {
+  display: inline-block;
+  width: 1.2em;
+  color: var(--text-muted);
+}
+.td-line.is-add .td-sign {
+  color: var(--success);
+}
+.td-line.is-del .td-sign {
+  color: var(--danger);
+}
+.td-fold {
+  display: block;
+  width: 100%;
+  padding: 0.15rem 0.5rem;
+  border: 0;
+  border-block: 1px dashed var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* ─── #3 VanillaVsReact ─────────────────────────────────────────────── */
+.td-robotbar {
+  position: sticky;
+  top: 4.5rem;
+  z-index: 5;
+  display: grid;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--bg-elevated) 92%, transparent);
+  backdrop-filter: blur(8px);
+}
+.td-robotbar .viz-seg {
+  margin: 0;
+}
+.td-robotbar .viz-btn {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+}
+.td-vs-cols {
+  display: grid;
+  gap: 0.75rem;
+}
+.td-vs-cols > * {
+  min-width: 0;
+}
+@container (min-width: 46rem) {
+  .td-vs-cols {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+.td-vs-col {
+  display: grid;
+  gap: 0.6rem;
+}
+.td-flow {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: flow;
+  font-size: 0.78rem;
+}
+.td-flow li {
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  counter-increment: flow;
+  transition:
+    border-color 0.2s,
+    color 0.2s;
+}
+.td-flow li::before {
+  content: counter(flow) '. ';
+}
+.td-flow li.is-on {
+  border-color: var(--accent-2);
+  color: var(--text);
+}
+.td-meter p {
+  margin: 0;
+}
+.td-details {
+  margin-top: 0.75rem;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.td-details summary {
+  cursor: pointer;
+}
+.td-details summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.td-loc {
+  margin-top: 0.75rem;
+}
+.td-loc p {
+  margin: 0.3rem 0 0;
+}
+
+/* ─── CourseComplete ────────────────────────────────────────────────── */
+.td-complete-top {
+  display: grid;
+  gap: 1.25rem;
+  align-items: center;
+}
+@container (min-width: 40rem) {
+  .td-complete-top {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+}
+/* 14 segments around a ring: each one a link to its article. */
+.td-ring {
+  position: relative;
+  justify-self: center;
+  width: 13rem;
+  height: 13rem;
+}
+.td-seg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  margin: -1rem 0 0 -1rem;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-decoration: none;
+  transform: rotate(var(--a)) translateY(-5.3rem) rotate(calc(-1 * var(--a)));
+}
+.td-seg.is-read {
+  border-color: var(--success);
+  background: color-mix(in srgb, var(--success) 22%, var(--surface));
+  color: var(--text);
+}
+.td-ring-centre {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+}
+.td-ring-centre strong {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+}
+.td-progress-text {
+  margin: 0 0 0.4rem;
+}
+.td-unread {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  margin: 0.3rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+}
+.td-done-card {
+  position: relative;
+  display: grid;
+  justify-items: start;
+  gap: 0.4rem;
+  padding: 1rem;
+  overflow: hidden;
+  border: 2px solid var(--success);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--success) 8%, var(--bg-elevated));
+}
+.td-done-badge {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.td-done-card p {
+  margin: 0;
+}
+.td-confetti {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.td-static-party {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  font-size: 1.6rem;
+}
+.td-next {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+}
+.td-nextcard {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--text);
+  text-decoration: none;
+}
+a.td-nextcard:hover {
+  border-color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .td-stop,
+  .td-flow li {
+    transition: none;
+  }
+}

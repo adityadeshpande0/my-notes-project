@@ -143,7 +143,7 @@ export const CURRICULUM: Record<Track, CurriculumGroup[]> = {
       name: 'Build something',
       topics: [
         {
-          slug: 'mini-project-todo-app',
+          slug: 'todo-project',
           title: 'Mini Project: A To-Do App',
           blurb: 'Put it all together in a small app, which leads straight into React.',
         },

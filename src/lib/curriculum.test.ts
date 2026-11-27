@@ -75,7 +75,7 @@ describe('the JavaScript path', () => {
     expect(path).toHaveLength(14);
     expect(path[0].slug).toBe('what-is-javascript');
     expect(path[1].slug).toBe('variables-and-data-types');
-    expect(path.at(-1)?.slug).toBe('mini-project-todo-app');
+    expect(path.at(-1)?.slug).toBe('todo-project');
     expect(path.every((s) => s.blurb)).toBe(true); // every planned step says what it covers
   });
 });

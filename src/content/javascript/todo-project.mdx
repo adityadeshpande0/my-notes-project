@@ -1,0 +1,503 @@
+---
+title: 'Mini Project: Build a To-Do App (Twice!)'
+track: javascript
+level: beginner
+order: 14
+summary: Put the whole JavaScript course together by building a real to-do app, first with plain JavaScript and the DOM, then with React, and see exactly what React does for you.
+tags: [javascript, project, dom, events, localStorage, react, todo]
+readingTime: 20
+---
+
+import {
+  FeatureMap,
+  BuildAlong,
+  VanillaVsReact,
+  CourseComplete,
+  TodoQuiz,
+} from '../../visualizers/javascript-todo';
+
+You made it to the final article! 🎉 Over 13 articles you've learned variables, conditions, loops,
+functions, arrays, objects, closures, the DOM, events, async code, APIs and modern syntax.
+
+Now let's **use all of it at once** in a real app: **Chai To-Do**, a task list that adds, ticks off,
+deletes, filters and **remembers** your tasks.
+
+We'll build it **twice**:
+
+1. **With plain JavaScript and the DOM**, so you understand every single step.
+2. **With React**, so you see exactly which steps React takes off your hands.
+
+Here's the finished app. Try it, and hover any feature to see which articles it uses:
+
+<FeatureMap />
+
+## The big idea: data first, then draw
+
+Before writing any code, here's the most important idea in this project, and in modern front-end
+development:
+
+<Callout kind="tip" title="The big idea">
+  **Keep your data in one place. Change the data. Then redraw the page _from_ the data.**
+</Callout>
+
+```text
+  user does something  →  change the data  →  render()  →  the page shows the data
+     (click, type)          (todos array)       (DOM)
+```
+
+The data is an **array of objects** ([articles #6](/javascript/arrays)–[#7](/javascript/objects-and-json)):
+
+```js
+let todos = [
+  { id: "a1", text: "Buy milk", done: true },
+  { id: "b2", text: "Make chai", done: false },
+];
+```
+
+We **never** change the page directly when something happens. We change `todos`, then call one
+function, `render()`, that rebuilds the list from `todos`. This way, the page can **never** get out of
+sync with the data. (Remember the counter that went out of sync in [article #9](/javascript/the-dom)?
+This pattern fixes it.)
+
+Guess what? **This is exactly how React thinks.** You're about to build "React without React".
+
+## Part 1: Plain JavaScript, step by step
+
+Follow along in seven stages. Each stage adds one feature, shows the code that changed, and lets you
+try the result:
+
+<BuildAlong />
+
+### Stage 1: The skeleton (HTML & CSS)
+
+A form with an input and an Add button, an empty `<ul>` for the tasks, an "empty" message, and a
+footer for the counter, filters and a "Clear done" button. The script is loaded with **`defer`**
+(article #9), so the elements exist when it runs.
+
+### Stage 2: Data and `render()`
+
+Create the `todos` array and write `render()`. It turns each todo object into an `<li>` with
+`createElement` (article #9), using **`textContent`** for the task text (it's user input, so never
+`innerHTML`!), and puts them all in the list with `list.replaceChildren(...)`.
+
+### Stage 3: Adding tasks
+
+Listen for the form's **`submit`** event, call **`event.preventDefault()`** (no page reload!),
+**trim** the text, ignore empty input, and add a new object with **spread**:
+`todos = [...todos, newTodo]` ([articles #10](/javascript/events), [#13](/javascript/modern-javascript)).
+Then call `render()`.
+
+### Stage 4: Ticking off and deleting
+
+Instead of a listener on every task, use **one listener on the `<ul>`** (**event delegation**,
+article #10). Find which task was clicked with `event.target.closest(".todo")`, and read its id from
+**`dataset.id`**. Update with **`map`** (toggle) and **`filter`** (delete), always creating a **new
+array** (article #6).
+
+### Stage 5: Counter, empty state and filters
+
+The counter, the empty message and the filtered list are all **derived** from `todos`. They're
+calculated in `render()`, never stored separately: `todos.filter(t => !t.done).length`. The filter
+buttons set a `filter` variable, and `aria-pressed` shows which one is active.
+
+### Stage 6: Remembering tasks
+
+Save after every change with `localStorage.setItem` and `JSON.stringify(todos)`, and load
+at startup with `JSON.parse(...) ?? []` ([articles #7](/javascript/objects-and-json),
+[#3](/javascript/operators-and-conditions)). Wrap both in **`try...catch`**, because storage can be
+blocked or the saved data broken, and the app should keep working either way.
+
+### Stage 7: Polish
+
+"Clear done", keeping focus in the input after adding, `aria-label`s on the checkbox and delete
+buttons, and hiding "Clear done" when there's nothing to clear.
+
+Here's the complete `script.js` (it's tested: every feature above works):
+
+```js
+// ☕ Chai To-Do: plain JavaScript version
+// The pattern: keep the data in `todos`, change it with small functions,
+// then call render() to redraw the page FROM the data.
+
+const STORAGE_KEY = "stackscape-todos";
+
+// ---- State (the single source of truth) ----
+let todos = loadTodos();
+let filter = "all"; // "all" | "active" | "done"
+
+// ---- Elements we need (found once) ----
+const form = document.querySelector("#todo-form");
+const input = document.querySelector("#todo-input");
+const list = document.querySelector("#todo-list");
+const empty = document.querySelector("#empty");
+const count = document.querySelector("#count");
+const filters = document.querySelector(".filters");
+const clearButton = document.querySelector("#clear-done");
+
+// ---- Saving and loading (article #7: JSON + localStorage) ----
+function loadTodos() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) ?? [];
+  } catch {
+    return []; // storage blocked or broken data: start fresh
+  }
+}
+
+function saveTodos() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+  } catch {
+    // storage unavailable: the app still works, it just won't remember
+  }
+}
+
+function makeId() {
+  return crypto.randomUUID?.() ?? String(Date.now() + Math.random());
+}
+
+// ---- Changing the data (articles #5, #6, #13: functions, map/filter, spread) ----
+function addTodo(text) {
+  todos = [...todos, { id: makeId(), text, done: false }];
+  update();
+}
+
+function toggleTodo(id) {
+  todos = todos.map((todo) => (todo.id === id ? { ...todo, done: !todo.done } : todo));
+  update();
+}
+
+function deleteTodo(id) {
+  todos = todos.filter((todo) => todo.id !== id);
+  update();
+}
+
+function clearDone() {
+  todos = todos.filter((todo) => !todo.done);
+  update();
+}
+
+function update() {
+  saveTodos();
+  render();
+}
+
+// ---- Drawing the page from the data (article #9: the DOM) ----
+function visibleTodos() {
+  if (filter === "active") return todos.filter((todo) => !todo.done);
+  if (filter === "done") return todos.filter((todo) => todo.done);
+  return todos;
+}
+
+function createTodoElement(todo) {
+  const li = document.createElement("li");
+  li.className = "todo";
+  li.dataset.id = todo.id;
+  li.classList.toggle("done", todo.done);
+
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.className = "toggle";
+  checkbox.checked = todo.done;
+  checkbox.setAttribute("aria-label", `Mark "${todo.text}" as done`);
+
+  const text = document.createElement("span");
+  text.className = "text";
+  text.textContent = todo.text; // textContent, never innerHTML: it's user input!
+
+  const del = document.createElement("button");
+  del.className = "delete";
+  del.textContent = "✕";
+  del.setAttribute("aria-label", `Delete "${todo.text}"`);
+
+  li.append(checkbox, text, del);
+  return li;
+}
+
+function render() {
+  list.replaceChildren(...visibleTodos().map(createTodoElement));
+
+  const left = todos.filter((todo) => !todo.done).length;
+  count.textContent = `${left} ${left === 1 ? "task" : "tasks"} left`;
+
+  empty.hidden = todos.length > 0;
+  clearButton.hidden = !todos.some((todo) => todo.done);
+
+  for (const button of filters.querySelectorAll("[data-filter]")) {
+    button.setAttribute("aria-pressed", String(button.dataset.filter === filter));
+  }
+}
+
+// ---- Listening (article #10: events, preventDefault, delegation) ----
+form.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const text = input.value.trim();
+  if (!text) return;
+  addTodo(text);
+  input.value = "";
+  input.focus();
+});
+
+list.addEventListener("click", (event) => {
+  if (!event.target.matches(".delete")) return;
+  deleteTodo(event.target.closest(".todo").dataset.id);
+});
+
+list.addEventListener("change", (event) => {
+  if (!event.target.matches(".toggle")) return;
+  toggleTodo(event.target.closest(".todo").dataset.id);
+});
+
+filters.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-filter]");
+  if (!button) return;
+  filter = button.dataset.filter;
+  render();
+});
+
+clearButton.addEventListener("click", clearDone);
+
+render();
+```
+
+Notice the shape of the code. **State** at the top. **Small functions that change the state**
+(`addTodo`, `toggleTodo`…), each ending with `update()`. **One `render()`** that draws everything from
+the state. And **listeners** that just call the change functions. Every concept in this file comes
+from an earlier article.
+
+## Part 2: The same app in React
+
+Now let's rebuild it with React. You'll recognise almost everything, with new names:
+
+| Plain JavaScript (Part 1)                          | React (Part 2)                                                                                 |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `let todos = []` plus `update()`                   | `const [todos, setTodos] = useState([])`. Calling `setTodos` re-renders automatically          |
+| `render()` builds DOM elements                     | **Components** _return_ what the page should look like (JSX)                                   |
+| `createElement("li")` in a loop                    | `todos.map(todo => <TodoItem key={todo.id} … />)`                                              |
+| Event delegation on the `<ul>`                     | `onClick` / `onChange` props on each element (React delegates for you, article #10)            |
+| `saveTodos()` after every change                   | **`useEffect`** that runs whenever `todos` changes                                             |
+| `list.replaceChildren(...)` (rebuilds every row)   | React compares the old and new results and changes **only what's different**                  |
+| The `filter` variable                              | `const [filter, setFilter] = useState("all")`                                                  |
+
+The app is split into **components**, small functions that each own one part of the page
+([article #5](/javascript/functions): "React components are functions"):
+
+```text
+App                (state: todos, filter, plus all the change functions)
+ ├─ TodoForm       (its own state: the text being typed)
+ ├─ TodoItem × n   (props: one todo, onToggle, onDelete)
+ └─ FilterBar      (props: filter, onChange)
+```
+
+**`App.jsx`** holds the state and passes data **down** as props, and functions **down** so children
+can ask for changes:
+
+```jsx
+import { useEffect, useState } from "react";
+import TodoForm from "./TodoForm.jsx";
+import TodoItem from "./TodoItem.jsx";
+import FilterBar from "./FilterBar.jsx";
+
+const STORAGE_KEY = "stackscape-todos";
+
+function loadTodos() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) ?? [];
+  } catch {
+    return [];
+  }
+}
+
+function makeId() {
+  return crypto.randomUUID?.() ?? String(Date.now() + Math.random());
+}
+
+export default function App() {
+  const [todos, setTodos] = useState(loadTodos);   // load once, on first render
+  const [filter, setFilter] = useState("all");
+
+  // Save whenever todos change (replaces the vanilla saveTodos() calls)
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+    } catch {
+      // storage unavailable: keep working without saving
+    }
+  }, [todos]);
+
+  const addTodo = (text) =>
+    setTodos((prev) => [...prev, { id: makeId(), text, done: false }]);
+  const toggleTodo = (id) =>
+    setTodos((prev) => prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)));
+  const deleteTodo = (id) => setTodos((prev) => prev.filter((t) => t.id !== id));
+  const clearDone = () => setTodos((prev) => prev.filter((t) => !t.done));
+
+  // Derived values: calculated during render, never stored in state
+  const visible = todos.filter((t) =>
+    filter === "active" ? !t.done : filter === "done" ? t.done : true
+  );
+  const left = todos.filter((t) => !t.done).length;
+
+  return (
+    <main className="app">
+      <h1>☕ Chai To-Do</h1>
+      <TodoForm onAdd={addTodo} />
+      <ul id="todo-list">
+        {visible.map((todo) => (
+          <TodoItem key={todo.id} todo={todo} onToggle={toggleTodo} onDelete={deleteTodo} />
+        ))}
+      </ul>
+      {todos.length === 0 && <p id="empty">Nothing to do… enjoy your chai ☕</p>}
+      <footer>
+        <span id="count">{left} {left === 1 ? "task" : "tasks"} left</span>
+        <FilterBar filter={filter} onChange={setFilter} />
+        {todos.some((t) => t.done) && (
+          <button id="clear-done" onClick={clearDone}>Clear done</button>
+        )}
+      </footer>
+    </main>
+  );
+}
+```
+
+**`TodoForm.jsx`** is a **controlled input**: React state holds the text, and `onChange` updates it:
+
+```jsx
+import { useState } from "react";
+
+export default function TodoForm({ onAdd }) {
+  const [text, setText] = useState("");
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    onAdd(trimmed);
+    setText("");
+  }
+
+  return (
+    <form id="todo-form" onSubmit={handleSubmit}>
+      <input
+        id="todo-input"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="What needs doing?"
+        autoComplete="off"
+        aria-label="New task"
+      />
+      <button type="submit">Add</button>
+    </form>
+  );
+}
+```
+
+**`TodoItem.jsx`** gets one todo through **destructured props** (article #13) and calls the functions
+it was given:
+
+```jsx
+export default function TodoItem({ todo, onToggle, onDelete }) {
+  const { id, text, done } = todo;
+  return (
+    <li className={done ? "todo done" : "todo"}>
+      <input
+        type="checkbox"
+        className="toggle"
+        checked={done}
+        onChange={() => onToggle(id)}
+        aria-label={`Mark "${text}" as done`}
+      />
+      <span className="text">{text}</span>
+      <button className="delete" onClick={() => onDelete(id)} aria-label={`Delete "${text}"`}>
+        ✕
+      </button>
+    </li>
+  );
+}
+```
+
+**`FilterBar.jsx`** builds its buttons by mapping over an array:
+
+```jsx
+const FILTERS = [
+  { value: "all", label: "All" },
+  { value: "active", label: "Active" },
+  { value: "done", label: "Done" },
+];
+
+export default function FilterBar({ filter, onChange }) {
+  return (
+    <div className="filters">
+      {FILTERS.map(({ value, label }) => (
+        <button key={value} data-filter={value} aria-pressed={filter === value} onClick={() => onChange(value)}>
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+```
+
+Things to notice:
+
+- **No `render()` call anywhere.** Calling `setTodos(...)` tells React the data changed, and React
+  re-renders for you.
+- **No `createElement`, `append` or `textContent`.** You describe the result, and React updates the
+  DOM. (JSX text like `{text}` is always escaped, so it's safe like `textContent`.)
+- **`setTodos(prev => …)`**: the updater form from [article #8](/javascript/scope-hoisting-closures),
+  so every update works on the latest list.
+- **`key={todo.id}`** helps React tell the items apart, so it can update the right one.
+- **Derived values** (`visible`, `left`) are calculated during render, never stored in state, exactly
+  like in Part 1.
+
+Run the same actions on both versions side by side, and watch what each one does to the page:
+
+<VanillaVsReact />
+
+## Your turn: build both versions yourself
+
+Reading code is not the same as writing it. Build both versions **yourself** in the starter projects.
+A shared set of automated tests checks both apps, so you'll know for certain when each one works.
+
+<Callout kind="tip" title="Your turn: build Chai To-Do, twice">
+  Your projects live in your code editor, not on this page:
+
+1. **Plain JavaScript** in `projects/todo-vanilla/`: the HTML and CSS are ready; write `script.js`
+   stage by stage. Instructions:
+   [projects/todo-vanilla/README.md](https://github.com/adityadeshpande0/my-notes-project/blob/main/projects/todo-vanilla/README.md).
+2. **React** in `projects/todo-react/`: fill in the four components, step by step. Instructions:
+   [projects/todo-react/README.md](https://github.com/adityadeshpande0/my-notes-project/blob/main/projects/todo-react/README.md).
+3. **Run the shared tests** after each stage: `npm run test:todo -- --project=vanilla` (or
+   `--project=react`). The tests are tagged with the stage that introduces each feature, so they
+   tell you what's next.
+
+</Callout>
+
+**Stretch goals**, when you've finished:
+
+- ✏️ **Edit a task** by double-clicking it (Enter saves, Escape cancels)
+- 📅 **Due dates**, with overdue tasks highlighted
+- 🌐 **Load starter tasks** from the pretend API from [article #12](/javascript/fetching-apis), with
+  loading and error states
+- 🔀 **Drag to reorder**
+- 🌙 A **dark mode** toggle that's remembered in `localStorage`
+
+## You finished the JavaScript course! 🎉
+
+<CourseComplete />
+
+Look how far you've come: from "what is a variable?" to building the same app in plain JavaScript
+**and** React, understanding what happens at every layer, right down to the transistors (if you read
+_From Code to Electrons_!).
+
+**Where to go next:**
+
+- ⚛️ **The [React track](/react):** components, state, effects and building real apps. You already
+  understand _why_ React works the way it does.
+- 🧠 **The [DSA track](/dsa):** arrays, sorting, searching, recursion and Big-O. You've already met
+  `ArrayStrip`, recursion trees and O(n²) along the way.
+- 🛠️ **Build something of your own:** a habit tracker, an expense splitter for friends, a recipe saver.
+  The best way to learn is a project you care about.
+
+## Test yourself (the final quiz!)
+
+<TodoQuiz />
