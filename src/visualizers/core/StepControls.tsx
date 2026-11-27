@@ -1,4 +1,5 @@
 import type { CSSProperties, KeyboardEvent, ReactNode } from 'react';
+import { track } from '../../lib/analytics';
 import type { Stepper } from './useStepper';
 
 /**
@@ -7,13 +8,18 @@ import type { Stepper } from './useStepper';
  * The progress bar is a real range input, so you can drag (or arrow-key) to any step.
  */
 export function StepControls({ s }: { s: Stepper }) {
+  // Play / pause, plus one analytics event when playback starts.
+  const toggle = () => {
+    if (!s.playing) track('visualizer_played', { steps: s.total });
+    s.toggle();
+  };
   const onKeyDown = (e: KeyboardEvent) => {
     // The slider handles its own arrow keys.
     if (e.target instanceof HTMLInputElement) return;
     if (e.key === 'ArrowRight') s.next();
     else if (e.key === 'ArrowLeft') s.prev();
     // A focused button already reacts to space, so only handle it on the group itself.
-    else if (e.key === ' ' && e.target === e.currentTarget) s.toggle();
+    else if (e.key === ' ' && e.target === e.currentTarget) toggle();
     else return;
     e.preventDefault();
   };
@@ -36,7 +42,7 @@ export function StepControls({ s }: { s: Stepper }) {
       <button
         type="button"
         className="viz-btn viz-btn--primary"
-        onClick={s.toggle}
+        onClick={toggle}
         aria-label={s.playing ? 'Pause' : 'Play'}
       >
         {s.playing ? 'Pause' : s.atEnd ? 'Replay' : 'Play'}
