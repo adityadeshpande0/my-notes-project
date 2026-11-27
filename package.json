@@ -11,7 +11,9 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:todo": "playwright test -c tests/playwright.config.ts",
+    "test:todo:reference": "playwright test -c tests/playwright.config.ts --project=reference-vanilla --project=reference-react --project=stage-1 --project=stage-2 --project=stage-3 --project=stage-4 --project=stage-5 --project=stage-6 --project=stage-7 --project=article"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
@@ -25,6 +27,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@mdx-js/rollup": "^3.1.1",
+    "@playwright/test": "^1.63.0",
     "@shikijs/rehype": "^4.6.0",
     "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.3.5",
