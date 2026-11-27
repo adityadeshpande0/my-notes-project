@@ -1,0 +1,16 @@
+body { font-family: system-ui, sans-serif; background: #f6f7fb; margin: 0; padding: 2rem 1rem; }
+.app { max-width: 480px; margin: 0 auto; background: #fff; border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 20px rgb(0 0 0 / .06); }
+h1 { margin: 0 0 1rem; font-size: 1.5rem; }
+form { display: flex; gap: .5rem; }
+#todo-input { flex: 1; padding: .6rem .8rem; border: 1px solid #ccd; border-radius: 10px; font: inherit; }
+button { font: inherit; border: 1px solid #ccd; background: #fff; border-radius: 10px; padding: .45rem .8rem; cursor: pointer; }
+form button { background: #4f6bed; color: #fff; border-color: #4f6bed; }
+ul { list-style: none; padding: 0; margin: 1rem 0; }
+.todo { display: flex; align-items: center; gap: .6rem; padding: .55rem .25rem; border-bottom: 1px solid #eef; }
+.todo .text { flex: 1; }
+.todo.done .text { text-decoration: line-through; color: #99a; }
+.delete { border: none; color: #c55; }
+footer { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; justify-content: space-between; font-size: .9rem; }
+.filters button[aria-pressed="true"] { border-color: #4f6bed; color: #4f6bed; font-weight: 600; }
+#empty { color: #889; text-align: center; }
+[hidden] { display: none !important; }
