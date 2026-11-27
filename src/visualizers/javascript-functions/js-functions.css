@@ -417,59 +417,7 @@
   color: var(--success);
 }
 
-/* ─── #4 Arrow morph ────────────────────────────────────────────── */
-.jf-version-title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0 0 0.5rem;
-  font-weight: 600;
-}
-.jf-step-n {
-  display: grid;
-  place-items: center;
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 50%;
-  background: var(--accent);
-  color: var(--bg);
-  font-size: 0.8rem;
-}
-.jf-morph {
-  margin: 0;
-  padding: 0.9rem 1rem;
-  overflow-x: auto;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--bg);
-  font-size: 1.05rem;
-  font-variant-ligatures: none;
-  white-space: pre;
-}
-.jf-token {
-  display: inline-block;
-  white-space: pre;
-}
-.jf-token.is-leaving {
-  color: var(--danger);
-  text-decoration: line-through;
-  animation: jf-leave 1.2s ease forwards;
-}
-@keyframes jf-leave {
-  60% {
-    opacity: 0.8;
-  }
-  to {
-    opacity: 0.25;
-  }
-}
-.jf-token.is-arrow {
-  color: var(--accent-2);
-  font-weight: 700;
-}
-.jf-chars {
-  color: var(--accent-2);
-}
+/* ─── #4 Arrow morph (the morph itself is core/code's CodeMorph) ── */
 .jf-tester {
   margin-top: 1rem;
   padding-top: 0.9rem;

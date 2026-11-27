@@ -1,16 +1,12 @@
-import { useLayoutEffect, useRef, useState } from 'react';
-import { Tabs } from '../core/code';
+import { useState } from 'react';
+import { CodeMorph, Tabs, type MorphVersion } from '../core/code';
 import { MemoryBox } from '../core/memory';
-import { StepControls } from '../core/StepControls';
-import { useStepper } from '../core/useStepper';
-import { useReducedMotion } from '../../lib/hooks';
 import { hoistingGotcha, objectGotcha, SQUARES } from './lib/realFunctions';
 
 /**
  * #4 From function to arrow. The code is a row of tokens with stable ids,
- * so each step can show which ones leave, which arrive, and which simply
- * slide to a new place (a "FLIP" animation: measure where each token was,
- * let React re-render, measure again, and animate the difference).
+ * drawn by the shared CodeMorph (core/code): each step shows which tokens
+ * leave, which arrive, and which simply slide to a new place.
  */
 const TOKENS: Record<string, string> = {
   const: 'const ',
@@ -31,7 +27,7 @@ const TOKENS: Record<string, string> = {
   semi2: ';',
 };
 
-const VERSIONS: { ids: string[]; title: string; caption: string }[] = [
+const VERSIONS: MorphVersion[] = [
   {
     ids: [
       'function',
@@ -104,7 +100,6 @@ const VERSIONS: { ids: string[]; title: string; caption: string }[] = [
     caption: 'With exactly one parameter, the ( ) around it are optional.',
   },
 ];
-const text = (ids: string[]) => ids.map((id) => TOKENS[id]).join('');
 
 export default function ArrowMorph() {
   return (
@@ -125,107 +120,36 @@ export default function ArrowMorph() {
 }
 
 function Morph() {
-  const s = useStepper(VERSIONS.length, 1800);
-  const v = VERSIONS[s.index];
-  const prev = VERSIONS[Math.max(0, s.index - 1)];
   const [n, setN] = useState(4);
-  const first = text(VERSIONS[0].ids).length;
-  const now = text(v.ids).length;
-
   return (
-    <>
-      <p className="jf-version-title">
-        <span className="jf-step-n">{s.index + 1}</span> {v.title}
-      </p>
-      <TokenLine ids={v.ids} prev={s.index > 0 ? prev.ids : v.ids} />
-      <p className="jf-small jf-muted">
-        {first} → <strong className="jf-chars">{now}</strong> characters
-      </p>
-      <div className="viz-caption" aria-live="polite">
-        {v.caption}
-      </div>
-      <StepControls s={s} />
-
-      <div className="jf-tester">
-        <label className="jf-row">
-          <span className="viz-mono">n =</span>
-          <input
-            type="number"
-            className="jf-input jf-num"
-            value={n}
-            onChange={(e) => setN(Number(e.target.value))}
-            aria-label="n"
-          />
-        </label>
-        <ul className="jf-ticks">
-          {SQUARES.map((fn, k) => (
-            <li key={k} className="viz-mono">
-              <span className="jf-tick">✓</span> version {k + 1}: square({n}) → {fn(n)}
-            </li>
-          ))}
-        </ul>
-        <p className="jf-small jf-muted">
-          {new Set(SQUARES.map((fn) => fn(n))).size === 1
-            ? 'Every version gives the same answer.'
-            : ''}
-        </p>
-      </div>
-    </>
-  );
-}
-
-/** The code as tokens. Tokens that stay slide to their new place; removed ones fade with a strikethrough. */
-function TokenLine({ ids, prev }: { ids: string[]; prev: string[] }) {
-  const leaving = prev.filter((id) => !ids.includes(id));
-  const reduced = useReducedMotion();
-  const refs = useRef(new Map<string, HTMLSpanElement>());
-  const lastRects = useRef(new Map<string, DOMRect>());
-  // Show the leaving tokens where they used to be: right after the token
-  // that came before them in the previous version.
-  const shown = [...ids];
-  for (const id of leaving) {
-    const before = prev
-      .slice(0, prev.indexOf(id))
-      .reverse()
-      .find((p) => shown.includes(p));
-    shown.splice(before ? shown.indexOf(before) + 1 : 0, 0, id);
-  }
-
-  useLayoutEffect(() => {
-    const next = new Map<string, DOMRect>();
-    refs.current.forEach((el, id) => {
-      const rect = el.getBoundingClientRect();
-      next.set(id, rect);
-      const before = lastRects.current.get(id);
-      if (!before || reduced || leaving.includes(id)) return;
-      const dx = before.left - rect.left;
-      const dy = before.top - rect.top;
-      if (!dx && !dy) return;
-      // Invert: jump back to where it was… then Play: glide to the new place.
-      el.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }], {
-        duration: 450,
-        easing: 'cubic-bezier(0.3, 0.8, 0.3, 1)',
-      });
-    });
-    lastRects.current = next;
-  }, [ids, prev, reduced]); // eslint-disable-line react-hooks/exhaustive-deps -- `leaving` is derived from these
-
-  return (
-    <pre className="jf-morph viz-mono" aria-label={text(ids)}>
-      {shown.map((id) => (
-        <span
-          key={id}
-          ref={(el) => {
-            if (el) refs.current.set(id, el);
-            else refs.current.delete(id);
-          }}
-          className={`jf-token ${leaving.includes(id) ? 'is-leaving' : ''} ${id === 'arrow' ? 'is-arrow' : ''}`}
-          aria-hidden="true"
-        >
-          {TOKENS[id]}
-        </span>
-      ))}
-    </pre>
+    <CodeMorph tokens={TOKENS} versions={VERSIONS} accent={['arrow']} label="square">
+      {() => (
+        <div className="jf-tester">
+          <label className="jf-row">
+            <span className="viz-mono">n =</span>
+            <input
+              type="number"
+              className="jf-input jf-num"
+              value={n}
+              onChange={(e) => setN(Number(e.target.value))}
+              aria-label="n"
+            />
+          </label>
+          <ul className="jf-ticks">
+            {SQUARES.map((fn, k) => (
+              <li key={k} className="viz-mono">
+                <span className="jf-tick">✓</span> version {k + 1}: square({n}) → {fn(n)}
+              </li>
+            ))}
+          </ul>
+          <p className="jf-small jf-muted">
+            {new Set(SQUARES.map((fn) => fn(n))).size === 1
+              ? 'Every version gives the same answer.'
+              : ''}
+          </p>
+        </div>
+      )}
+    </CodeMorph>
   );
 }
 

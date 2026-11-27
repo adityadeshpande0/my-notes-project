@@ -1,5 +1,8 @@
 import { Fragment, useState, type KeyboardEvent, type ReactNode } from 'react';
 
+export { CodeMorph, TokenLine } from './CodeMorph';
+export type { MorphVersion } from './morph';
+
 /**
  * Code and console pieces shared by the JavaScript course's visuals:
  * code with a highlighted line and ✓/✗ marks, a console panel, `backtick`

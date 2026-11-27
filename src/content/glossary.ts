@@ -521,4 +521,39 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
     definition:
       'Create, Read, Update, Delete: the four things most apps do with data. In HTTP: POST, GET, PATCH/PUT, DELETE.',
   },
+  destructuring: {
+    term: 'Destructuring',
+    definition:
+      'Unpacking values from an object (by name, with { }) or an array (by position, with [ ]) into variables, in one line.',
+  },
+  spread: {
+    term: 'Spread',
+    definition:
+      'The ... that UNPACKS an array or object into a new array, object or function call: [...a, ...b], { ...base }.',
+  },
+  'rest-syntax': {
+    term: 'Rest',
+    definition:
+      'The ... that GATHERS items into an array or object: in a destructuring pattern or a function’s parameters.',
+  },
+  module: {
+    term: 'Module',
+    definition:
+      'A JavaScript file with its own scope that shares values with export and uses other files’ values with import.',
+  },
+  bundler: {
+    term: 'Bundler',
+    definition:
+      'A tool (like Vite) that follows your imports, combines the files and optimises them into a few small files for the browser.',
+  },
+  class: {
+    term: 'Class',
+    definition:
+      'A blueprint for making many objects of the same shape, with a constructor and shared methods.',
+  },
+  tc39: {
+    term: 'TC39',
+    definition:
+      'The committee that designs new JavaScript features. Proposals move through stages 0 to 4; stage 4 joins the next yearly edition.',
+  },
 };

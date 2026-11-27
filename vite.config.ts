@@ -45,7 +45,8 @@ export default defineConfig({
     contentManifest(path.resolve(import.meta.dirname, 'src/content')),
   ],
   test: {
-    include: ['src/**/*.test.ts'],
+    // exercises/: the owner's practice projects (their tests run with everything else).
+    include: ['src/**/*.test.ts', 'exercises/**/*.test.js'],
     // Most tests run in plain Node; DOM tests opt in with a
     // `// @vitest-environment jsdom` comment at the top of the file.
     environment: 'node',

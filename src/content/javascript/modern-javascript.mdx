@@ -1,0 +1,352 @@
+---
+title: "Modern JavaScript (ES6+): The Syntax You'll See Everywhere"
+track: javascript
+level: intermediate
+order: 13
+summary: Master destructuring, spread and rest, modules (import/export), classes and the handy newer features, the modern syntax used in every React codebase, plus how JavaScript gets new features every year.
+tags: [javascript, es6, destructuring, spread, modules, import-export, classes, modern-js]
+readingTime: 15
+---
+
+import {
+  UnpackAndPack,
+  ModuleMap,
+  OldVsNew,
+  ModernQuiz,
+} from '../../visualizers/javascript-modern';
+
+Open any modern codebase, especially a React project, and you'll see lines like these:
+
+```js
+import { useState } from 'react';
+const [count, setCount] = useState(0);
+const { name, city = 'Unknown' } = user;
+const updated = { ...user, age: 20 };
+export default function Profile({ name, avatar }) { … }
+```
+
+If that looks like a lot of curly brackets and dots, don't worry. By the end of this article, you'll
+be able to read every symbol.
+
+In [article #1](/javascript/what-is-javascript) you learned that **ES2015 (also called ES6)** was
+JavaScript's biggest upgrade ever, and that since then **a new edition comes out every year**. You've
+already been using many modern features in this course: `let`/`const`
+([#2](/javascript/variables-and-data-types)), arrow functions ([#5](/javascript/functions)), template
+literals (#2), `?.` and `??` ([#3](/javascript/operators-and-conditions)), `for...of`
+([#4](/javascript/loops)), promises and `async`/`await` ([#11](/javascript/async)).
+
+This article covers the remaining big ones:
+
+- **Destructuring:** unpacking values from arrays and objects
+- **Spread and rest (`...`):** one symbol, two jobs
+- **Modules:** splitting code across files with `import` and `export`
+- **Classes:** a cleaner way to make objects of the same kind
+- **Handy newer features**, and how JavaScript keeps evolving
+
+## Destructuring: unpacking values
+
+<Term id="destructuring">**Destructuring**</Term> lets you pull values out of an array or object into
+variables, in **one line**.
+
+### Object destructuring
+
+Before:
+
+```js
+const user = { name: 'Riya', age: 19, city: 'Pune' };
+const name = user.name;
+const age = user.age;
+```
+
+With destructuring:
+
+```js
+const { name, age } = user;
+// name = "Riya", age = 19
+```
+
+The `{ }` on the **left** of the `=` means _"unpack these properties by name."_ The variable names must
+match the property names, and the order doesn't matter.
+
+Extra tricks:
+
+```js
+const { name: fullName } = user; // rename: a variable called fullName
+const { country = 'India' } = user; // default if it's missing (or undefined)
+const { address: { pincode } = {} } = user; // nested (with a safe default)
+const { name, ...others } = user; // rest: everything else in a new object
+// others = { age: 19, city: "Pune" }
+```
+
+### Array destructuring
+
+For arrays, you unpack **by position**, using `[ ]`:
+
+```js
+const snacks = ['samosa', 'vada pav', 'jalebi'];
+const [first, second] = snacks; // first = "samosa", second = "vada pav"
+const [, , third] = snacks; // skip with commas: third = "jalebi"
+const [top, ...rest] = snacks; // rest = ["vada pav", "jalebi"]
+
+let a = 1,
+  b = 2;
+[a, b] = [b, a]; // swap in one line! (remember article #2's temp box?)
+```
+
+### Destructuring in function parameters
+
+You can destructure **right in the parameter list**. This is everywhere in React:
+
+```js
+function greet({ name, city = 'somewhere' }) {
+  return `Hi ${name} from ${city}!`;
+}
+greet({ name: 'Aarav', city: 'Delhi' }); // "Hi Aarav from Delhi!"
+```
+
+<Callout kind="note" title="React uses both kinds of destructuring constantly">
+  `function Profile({ name, avatar })` is object destructuring of the props, and
+  `const [count, setCount] = useState(0)` is array destructuring of what `useState` returns.
+  `useState` returns an **array** of two things, so array destructuring lets _you_ choose the
+  names: `[count, setCount]`, `[theme, setTheme]`…
+</Callout>
+
+## Spread and rest: one symbol, two jobs
+
+The three dots **`...`** do two opposite things depending on **where** they appear:
+
+|         | <Term id="spread">**Spread**</Term> 📤                          | <Term id="rest-syntax">**Rest**</Term> 📥                        |
+| ------- | ---------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Job     | **Unpacks** items out of an array/object                         | **Gathers** items into an array/object                           |
+| Where   | In a value: array literals, object literals, function **calls** | In a destructuring pattern, or function **parameters**           |
+| Example | `[...arr, 4]`, `{ ...obj }`, `Math.max(...nums)`                 | `const [a, ...rest] = arr`, `function f(...args)`                |
+
+**Spread examples:**
+
+```js
+const drinks = ['chai', 'lassi'];
+const food = ['samosa'];
+const menu = [...drinks, ...food, 'jalebi']; // combine arrays
+const copy = [...drinks]; // shallow copy (article #2)
+
+const base = { size: 'medium', sugar: 1 };
+const order = { ...base, sugar: 2 }; // copy, then override
+// { size: "medium", sugar: 2 }   ← later properties win
+
+const prices = [30, 20, 45];
+Math.max(...prices); // 45: spreads into separate arguments
+```
+
+**Rest examples:**
+
+```js
+function total(...prices) {
+  // gathers all arguments into an array
+  return prices.reduce((sum, p) => sum + p, 0);
+}
+total(30, 20, 45); // 95
+```
+
+**Memory trick:** _spread_ spreads things **out**. _Rest_ collects "the **rest** of them" **in**.
+
+Unpack, pack and merge, and watch every value move:
+
+<UnpackAndPack />
+
+## Modules: splitting code into files
+
+Real apps have thousands of lines. Putting them all in one file would be chaos.
+<Term id="module">**Modules**</Term> let you split code into separate files, where each file
+**shares** (exports) what others need and **uses** (imports) what it needs.
+
+**`math.js`:**
+
+```js
+export const GST = 0.18; // named export
+export function addGST(price) {
+  // named export
+  return price * (1 + GST);
+}
+export default function formatRupees(n) {
+  // default export (max ONE per file)
+  return '₹' + n.toFixed(2);
+}
+```
+
+**`app.js`:**
+
+```js
+import formatRupees, { addGST, GST } from './math.js';
+
+console.log(formatRupees(addGST(100))); // "₹118.00"
+```
+
+The two kinds of export:
+
+|                   | **Named export**                                                                    | **Default export**                     |
+| ----------------- | ----------------------------------------------------------------------------------- | -------------------------------------- |
+| How many per file | As many as you like                                                                 | **At most one**                        |
+| Exporting         | `export function addGST…`                                                           | `export default function…`             |
+| Importing         | `import { addGST } from "./math.js"`: the **name must match** (rename with `as`) | `import anyName from "./math.js"`: **you choose** the name |
+
+Other things worth knowing:
+
+- Each module has **its own scope** ([article #8](/javascript/scope-hoisting-closures)). Variables
+  in one file don't leak into another unless they're exported.
+- In the browser, load a module with `type="module"`. Modules are deferred automatically (like
+  `defer` in [article #9](/javascript/the-dom)):
+
+  ```html
+  <script type="module" src="app.js"></script>
+  ```
+
+- In a real project (like this site, built with Vite), a <Term id="bundler">**bundler**</Term>
+  follows all your `import`s, combines the files, and optimises them into a few small files for
+  the browser.
+- You import **packages** from npm by name: `import { useState } from "react";`.
+
+<Callout kind="note" title="React">
+  Every component usually lives in its own file and is exported, often as the default:
+  `export default function Navbar() { … }`, then `import Navbar from "./Navbar";`.
+</Callout>
+
+See how files connect, and what happens when an import is wrong:
+
+<ModuleMap />
+
+## Classes: blueprints for objects
+
+When you need **many objects of the same shape with the same methods** (players in a game, items in
+a cart, bank accounts), a <Term id="class">**class**</Term> is a blueprint:
+
+```js
+class Cup {
+  constructor(drink, size = 'medium') {
+    // runs when you create a new cup
+    this.drink = drink;
+    this.size = size;
+    this.sips = 0;
+  }
+
+  sip() {
+    // a method shared by every cup
+    this.sips++;
+    return `${this.drink}: sip ${this.sips}`;
+  }
+}
+
+const myCup = new Cup('chai'); // create an object from the blueprint
+myCup.sip(); // "chai: sip 1"
+
+class KulhadCup extends Cup {
+  // a class can extend another
+  sip() {
+    return super.sip() + ' (earthy flavour! 🏺)';
+  }
+}
+```
+
+- `new Cup(...)` creates an object (an **instance**) and runs `constructor`.
+- Inside the class, `this` is the instance being created or used
+  ([article #7](/javascript/objects-and-json)).
+- `extends` makes a class that inherits everything from another, and `super` calls the parent's
+  version.
+- Fields marked with `#` are **private** (they can't be accessed from outside), much like the
+  closure-private data from article #8: `#balance = 0;`.
+
+<Callout kind="tip" title="Classes vs closures vs plain objects">
+  Under the hood, JavaScript classes are built on objects and functions (prototypes). Modern **React
+  uses functions, not classes**, for components (since hooks arrived in React 16.8), so you'll
+  mostly _read_ classes in libraries and older code. It's still important to recognise them.
+</Callout>
+
+## Handy newer features (quick tour)
+
+A few smaller features from recent years that make code shorter and clearer:
+
+```js
+// Numeric separators (2021): easier to read big numbers
+const population = 1_400_000_000;
+
+// Logical assignment (2021)
+settings.theme ??= 'dark'; // set only if null/undefined
+user.visits ||= 0; // set only if falsy
+
+// replaceAll (2021)
+'chai-chai-chai'.replaceAll('chai', '☕'); // "☕-☕-☕"
+
+// at() (2022) and findLast (2023)
+[10, 20, 30].at(-1); // 30
+[3, 8, 5, 12].findLast((n) => n > 4); // 12
+
+// Copying array methods (2023), great for React state (article #6)
+const sorted = prices.toSorted((a, b) => a - b);
+
+// Object.groupBy (2024)
+Object.groupBy(menu, (item) => item.category);
+// { drink: [...], snack: [...] }
+
+// structuredClone: deep copies (article #2)
+const deepCopy = structuredClone(order);
+```
+
+Every one of these replaces something people used to write by hand. Compare the old and new ways, and
+explore which year each feature arrived:
+
+<OldVsNew />
+
+### How JavaScript gets new features
+
+New features are designed by a committee called <Term id="tc39">**TC39**</Term> (people from browser
+makers, big tech companies and the community). Each proposal goes through **stages, from 0 to 4**. At
+Stage 4, it's ready and joins the next yearly edition of the ECMAScript standard. The latest is
+**ECMAScript 2026**, approved in June 2026 (article #1). Browsers often ship features as soon as they
+reach the final stages, so you can usually use them before the official edition is published. Check
+a site like MDN for browser support.
+
+## Your turn: modernise the legacy shop
+
+<Callout kind="tip" title="Your turn: modernise the legacy shop">
+  You'll get an old-style JavaScript file (`var`, string concatenation, no modules) that runs a
+  small shop. Your job: **rewrite it with modern syntax and split it into modules**, while the tests
+  prove it still works exactly the same. This is a very real developer task, called
+  **refactoring**. It lives in your code editor, not on this page:
+
+1. **Split it into modules** under `src/`: `cart.js` (a `Cart` class with a private `#items`),
+   `pricing.js` (named exports), `format.js` (a default export) and `menu.js`, with `index.js`
+   re-exporting them.
+2. **Modernise** it: `const`/`let`, template literals, arrow functions, destructuring, spread, `?.`
+   and `??`, `toSorted` and `Object.groupBy`.
+3. **Keep the tests green:** point `src/index.js` at your new modules and run the tests. All of them
+   must still pass, unchanged.
+
+Everything you need, including a checklist and hints, is in
+[exercises/legacy-shop/README.md](https://github.com/adityadeshpande0/my-notes-project/blob/main/exercises/legacy-shop/README.md).
+
+</Callout>
+
+## Quick recap
+
+- **Destructuring** unpacks values: `const { name, age } = user` (by **name**) and
+  `const [first, second] = arr` (by **position**). It supports renaming (`name: fullName`),
+  defaults (`= "India"`), skipping, nesting and rest. It works in function parameters too, which is
+  how React props work.
+- **`...` spread** unpacks (into array/object literals and function calls). **`...` rest** gathers
+  (in patterns and parameters). With object spread, **later properties win**.
+- **Modules:** `export` to share, `import` to use. Named exports are imported by matching name in
+  `{ }`. There's at most one default export per file, and you choose its name on import. Each
+  module has its own scope.
+- **Classes:** blueprints for objects (`constructor`, methods, `new`, `extends`, `super`, private
+  `#fields`). React components are functions, not classes.
+- **Handy features:** `??=`, `||=`, `replaceAll`, `at`, `findLast`, `toSorted`, `Object.groupBy`,
+  `structuredClone`, numeric separators.
+- JavaScript evolves **every year**, through TC39's stage process.
+
+## Test yourself
+
+<ModernQuiz />
+
+## What's next?
+
+**Step 14, Mini Project: To-Do App** (coming soon): put the whole course together into a real app,
+built first with plain JavaScript and the DOM, then with React. It's the bridge to the React track!
