@@ -1,0 +1,793 @@
+/*
+ * Styles for the visuals in "Modern JavaScript (ES6+)". Imported by index.ts,
+ * so it only loads with that note. Boxes and cards come from core/memory.
+ */
+
+/* ─── Small shared bits ─────────────────────────────────────────────── */
+.mj-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.mj-gap {
+  margin-top: 0.75rem;
+}
+.mj-small {
+  font-size: 0.8rem;
+}
+.mj-muted {
+  color: var(--text-muted);
+}
+.mj-good {
+  color: var(--success);
+}
+.mj-bad {
+  color: var(--danger);
+}
+.mj-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.mj-check input {
+  accent-color: var(--accent);
+}
+.mj-check code {
+  white-space: normal;
+}
+.mj-check:has(input:focus-visible),
+.mj-select:focus-visible,
+.mj-cards:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.mj-select {
+  padding: 0.25rem 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8rem;
+}
+.mj-seg {
+  margin-bottom: 0.75rem;
+}
+.mj-unpack .viz-seg-btn,
+.mj-modules .viz-seg-btn,
+.mj-oldnew .viz-seg-btn {
+  white-space: normal;
+}
+.mj-pattern {
+  margin: 0.6rem 0;
+  padding: 0.5rem 0.75rem;
+  overflow-x: auto;
+  border-radius: 8px;
+  background: var(--surface);
+  font-size: 13px;
+  white-space: pre;
+}
+.mj-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.1rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.mj-badge.is-year {
+  color: var(--accent);
+}
+.mj-badge.is-saved {
+  color: var(--success);
+}
+.mj-badge.is-article {
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+}
+.mj-badge.is-article:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.mj-result {
+  margin: 0.4rem 0 0;
+  color: var(--accent-2);
+  font-weight: 700;
+}
+
+/* ─── #1 UnpackAndPack ──────────────────────────────────────────────── */
+.mj-builder {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+.mj-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.mj-chip.is-on {
+  border-color: var(--accent-2);
+  background: color-mix(in srgb, var(--accent-2) 10%, var(--bg));
+}
+.mj-chip.is-missing .viz-mono {
+  color: var(--warn);
+}
+.mj-chip input {
+  accent-color: var(--accent-2);
+}
+.mj-chip:has(input:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.mj-slot {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 6rem;
+  padding: 0.35rem 0.6rem;
+  border: 1.5px dashed var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text-muted);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.mj-slot.is-on {
+  border-style: solid;
+  border-color: var(--accent-2);
+  color: var(--text);
+}
+.mj-slot:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+/* Where values move: the source box on the left, the variables on the right. */
+.mj-stage {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1rem 1.5rem;
+  margin: 0.75rem 0;
+}
+.mj-stage > * {
+  min-width: 0;
+}
+.mj-src,
+.mj-srcs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+.mj-vars {
+  display: flex;
+  flex: 1 1 14rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.75rem;
+  min-height: 4rem;
+}
+.mj-var,
+.mj-rest {
+  display: grid;
+  justify-items: start;
+  gap: 0.25rem;
+  animation: mj-in 0.35s ease-out;
+}
+.mj-rest {
+  grid-template-columns: auto auto;
+  align-items: start;
+  gap: 0.5rem 1.5rem;
+}
+.mj-rest .mj-tag {
+  grid-column: 1 / -1;
+}
+.mj-var.is-skip {
+  align-self: center;
+}
+@keyframes mj-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.mj-tag {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+.mj-tag.is-default {
+  color: var(--warn);
+}
+.mj-tag.is-missing {
+  color: var(--danger);
+}
+.mj-tag.is-new {
+  color: var(--success);
+}
+/* The box, with a lid that flips open in 3D. */
+.mj-box {
+  position: relative;
+  padding-top: 1.7rem;
+  perspective: 500px;
+}
+.mj-lid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  padding: 0.25rem 0.6rem;
+  border: 1.5px solid var(--warn);
+  border-radius: 8px 8px 0 0;
+  background: color-mix(in srgb, var(--warn) 18%, var(--bg-elevated));
+  font-size: 0.75rem;
+  font-weight: 700;
+  transform-origin: 50% 0;
+  transition:
+    transform 0.6s ease,
+    opacity 0.6s;
+}
+.mj-box:not(.is-open) .mj-lid {
+  height: calc(100% - 0.1rem);
+  border-radius: 8px;
+}
+.mj-box.is-open .mj-lid {
+  opacity: 0;
+  pointer-events: none;
+  transform: rotateX(110deg);
+}
+.mj-flylayer {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+.mj-flyer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 0.1rem 0.5rem;
+  border: 1.5px solid var(--accent-2);
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  box-shadow: var(--glow);
+  color: var(--accent-2);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.mj-flyer.is-warn {
+  border-color: var(--warn);
+  color: var(--warn);
+}
+.mj-error {
+  max-width: 28rem;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--danger) 55%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--danger) 8%, transparent);
+  color: var(--danger);
+  overflow-wrap: anywhere;
+}
+.mj-error p {
+  margin: 0.3rem 0 0;
+  color: var(--text);
+}
+.mj-direction {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.mj-direction.is-spread {
+  color: var(--accent);
+}
+.mj-direction.is-rest {
+  color: var(--warn);
+}
+.mj-literal {
+  align-self: center;
+  padding: 0.2rem 0.5rem;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+}
+.mj-columns {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+@container (min-width: 40rem) {
+  .mj-columns {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.mj-column {
+  min-width: 0;
+}
+.mj-call,
+.mj-compare {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+.mj-compare {
+  margin: 0.5rem 0;
+}
+.mj-arg {
+  min-width: 2.4rem;
+  padding: 0.2rem 0.5rem;
+  border: 1.5px dashed var(--border);
+  border-radius: 8px;
+  text-align: center;
+}
+.mj-arg.is-filled {
+  border-style: solid;
+  border-color: var(--accent);
+}
+.mj-arg.is-whole {
+  border-style: solid;
+  border-color: var(--danger);
+}
+.mj-reduce {
+  margin: 0.5rem 0;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+}
+.mj-reduce th,
+.mj-reduce td {
+  padding: 0.2rem 0.7rem;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+}
+.mj-reduce th {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.mj-react {
+  position: relative;
+  display: grid;
+  gap: 0.75rem;
+}
+.mj-react > .viz-panel > * + * {
+  margin-top: 0.5rem;
+}
+
+/* ─── #2 ModuleMap ──────────────────────────────────────────────────── */
+.mj-files {
+  position: relative;
+  display: grid;
+  gap: 1rem 3.5rem;
+}
+@container (min-width: 44rem) {
+  .mj-files {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    align-items: start;
+  }
+}
+.mj-file {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-elevated);
+}
+/* A faint "room" outline: each module has its own scope (article #8). */
+.mj-file.is-room {
+  outline: 2px dashed color-mix(in srgb, var(--violet) 30%, transparent);
+  outline-offset: 4px;
+}
+.mj-file.has-error {
+  border-color: var(--danger);
+}
+.mj-file-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+}
+.mj-file-code {
+  margin: 0;
+  overflow-x: auto;
+  font-size: 11.5px;
+  line-height: 1.55;
+}
+.mj-exports {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.3rem;
+}
+.mj-imports {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.mj-badge.is-named {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.mj-badge.is-default {
+  border-color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 14%, var(--surface));
+  color: var(--warn);
+}
+.mj-badge.is-error,
+.mj-badge.is-missing {
+  border-style: dashed;
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.mj-from {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+.mj-editor {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.mj-arrows {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.mj-arrows path {
+  fill: none;
+  stroke: var(--text-muted);
+  stroke-width: 1.5;
+}
+.mj-arrows .is-named path,
+.mj-arrows .is-out path {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+.mj-arrows .is-default path {
+  stroke: var(--warn);
+  stroke-width: 2;
+}
+.mj-arrows .is-in path {
+  stroke: var(--warn);
+  stroke-width: 2;
+}
+.mj-arrows .is-plain path {
+  opacity: 0.35;
+}
+.mj-arrows .is-missing path {
+  stroke: var(--danger);
+  stroke-dasharray: 5 4;
+}
+/* On narrow screens the files stack: the arrows give way to "← from math.js" labels. */
+@container (max-width: 43.99rem) {
+  .mj-files .mj-arrows {
+    display: none;
+  }
+}
+@container (min-width: 44rem) {
+  .mj-files .mj-from {
+    display: none;
+  }
+}
+.mj-console {
+  margin-top: 0.75rem;
+}
+.mj-console p {
+  margin: 0.2rem 0 0;
+  overflow-wrap: anywhere;
+}
+.mj-out {
+  color: var(--accent-2);
+}
+.mj-project {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(9rem, 1fr));
+  gap: 0.75rem 2rem;
+  padding: 0.5rem 0;
+  overflow-x: auto;
+}
+.mj-col {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  align-content: center;
+  gap: 0.75rem;
+}
+.mj-pfile {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.5rem 0.6rem;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-elevated);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8rem;
+  text-align: left;
+  cursor: default;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.mj-pfile:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.mj-pfile.is-pkg {
+  border-style: dashed;
+  background: var(--surface);
+}
+.mj-pfile.is-active {
+  border-color: var(--text);
+}
+.mj-pfile.is-out {
+  border-color: var(--accent);
+}
+.mj-pfile.is-in {
+  border-color: var(--warn);
+}
+.mj-pfile.is-visited {
+  border-color: var(--success);
+}
+.mj-pfile.is-current {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--success) 40%, transparent);
+}
+.mj-deps {
+  display: grid;
+  gap: 0.1rem;
+}
+.mj-dep {
+  justify-self: end;
+  color: var(--text-muted);
+  font-size: 10.5px;
+}
+.mj-shaken {
+  color: var(--danger);
+  font-size: 10.5px;
+  text-decoration: line-through;
+}
+/* Bundling: the visited files stack up in 3D, then squash into one file. */
+.mj-bundle {
+  display: grid;
+  justify-items: center;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+}
+.mj-stack {
+  position: relative;
+  width: 12rem;
+  height: 6rem;
+  perspective: 600px;
+}
+.mj-sheet {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  font-size: 11px;
+  transform: rotateX(50deg) translateZ(calc(var(--i) * 8px));
+  transition:
+    transform 0.6s ease,
+    opacity 0.6s;
+}
+.mj-bundle.is-squashed .mj-sheet {
+  opacity: 0.2;
+  transform: rotateX(50deg) translateZ(0) scale(0.7);
+}
+.mj-output {
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+  padding: 0.5rem 0.8rem;
+  border: 2px solid var(--success);
+  border-radius: 10px;
+  text-align: center;
+}
+
+/* ─── #3 OldVsNew ───────────────────────────────────────────────────── */
+.mj-cards {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(17rem, 88%);
+  gap: 0.75rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  border-radius: 10px;
+}
+@container (min-width: 46rem) {
+  .mj-cards {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
+  }
+}
+.mj-card {
+  display: grid;
+  align-content: start;
+  gap: 0.5rem;
+  min-width: 0;
+  scroll-snap-align: start;
+}
+.mj-card .cm-code {
+  font-size: 12.5px;
+}
+.mj-card .viz-caption {
+  margin: 0;
+  font-size: 0.85rem;
+}
+.mj-runboth {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: 0.15rem 0.5rem;
+  margin: 0;
+  font-size: 12px;
+}
+.mj-runboth dt {
+  color: var(--text-muted);
+}
+.mj-runboth dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.mj-celebrate {
+  margin: 0 0 0.75rem;
+  font-weight: 600;
+}
+.mj-timeline {
+  display: flex;
+  gap: 0.3rem;
+  padding: 0.5rem 0.2rem 0.6rem;
+  overflow-x: auto;
+  border-bottom: 2px solid var(--border);
+}
+.mj-year {
+  display: grid;
+  flex: none;
+  justify-items: center;
+  gap: 0.15rem;
+  min-width: 4.6rem;
+  padding: 0.35rem 0.4rem;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.mj-year:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.mj-year.is-on {
+  border-color: var(--accent);
+  color: var(--text);
+}
+.mj-dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: var(--border);
+}
+.mj-year.is-on .mj-dot {
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+.mj-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.75rem 0;
+}
+.mj-feature {
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.mj-feature.is-learned {
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+}
+.mj-feature.is-on {
+  border-color: var(--accent-2);
+  background: color-mix(in srgb, var(--accent-2) 14%, var(--surface));
+}
+.mj-feature:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.mj-feature-card p {
+  margin: 0.35rem 0;
+}
+.mj-stages {
+  margin-top: 0.9rem;
+}
+.mj-stages ol {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.82rem;
+}
+.mj-stage-n {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2.2rem;
+  margin-right: 0.35rem;
+  padding: 0.05rem 0.3rem;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mj-var,
+  .mj-rest {
+    animation: none;
+  }
+  .mj-lid,
+  .mj-sheet,
+  .mj-pfile {
+    transition: none;
+  }
+  /* The lid simply disappears instead of flipping; the stack doesn't tilt. */
+  .mj-box.is-open .mj-lid {
+    transform: none;
+    opacity: 0;
+  }
+  .mj-sheet,
+  .mj-bundle.is-squashed .mj-sheet {
+    transform: translateY(calc(var(--i) * -4px));
+  }
+}
+
+/* Grid children may shrink below their longest code line (which then scrolls inside its own box). */
+.mj-react > *,
+.mj-columns > *,
+.mj-card > * {
+  min-width: 0;
+}
