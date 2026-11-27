@@ -2,7 +2,8 @@
  * Reading history: which notes you've opened, and the last one in each
  * collection, so a learning path can say "continue where you left off".
  *
- * It lives only in this browser (localStorage). Nothing is sent anywhere.
+ * It lives only in this browser (localStorage). The list itself is never sent
+ * anywhere (analytics only hears "a note was opened", see lib/analytics.ts).
  * Every read and write is wrapped in try/catch, because storage can be
  * blocked (private windows, strict settings) and the site must still work.
  */
@@ -36,11 +37,15 @@ function read(): History {
   return cache;
 }
 
-/** Remember that a note was opened. Called once when a note page mounts. */
-export function markVisited(track: Track, slug: string) {
+/**
+ * Remember that a note was opened. Called once when a note page mounts.
+ * Returns true the first time this note is ever opened in this browser.
+ */
+export function markVisited(track: Track, slug: string): boolean {
   const id = `${track}/${slug}`;
   const now = read();
-  if (now.last[track] === slug && now.visited.includes(id)) return;
+  const isNew = !now.visited.includes(id);
+  if (now.last[track] === slug && !isNew) return false;
   cache = {
     visited: now.visited.includes(id) ? now.visited : [...now.visited, id],
     last: { ...now.last, [track]: slug },
@@ -51,6 +56,7 @@ export function markVisited(track: Track, slug: string) {
     /* storage blocked: keep it in memory for this visit */
   }
   listeners.forEach((l) => l());
+  return isNew;
 }
 
 function subscribe(onChange: () => void) {
@@ -62,6 +68,9 @@ function subscribe(onChange: () => void) {
 export function useReadingHistory(): History {
   return useSyncExternalStore(subscribe, read, () => EMPTY);
 }
+
+/** The history right now, outside React (for one-off checks in event code). */
+export const readHistory = (): History => read();
 
 export const wasVisited = (h: History, track: Track, slug: string) =>
   h.visited.includes(`${track}/${slug}`);

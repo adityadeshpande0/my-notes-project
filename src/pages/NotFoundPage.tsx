@@ -1,6 +1,11 @@
-import { Link } from 'react-router';
+import { useEffect } from 'react';
+import { Link, useLocation } from 'react-router';
+import { track } from '../lib/analytics';
 
 export function NotFoundPage() {
+  const { pathname } = useLocation();
+  // Broken links are worth knowing about: record which URL was missing.
+  useEffect(() => track('page_not_found', { path: pathname }), [pathname]);
   return (
     <div className="py-16 text-center">
       <p className="font-mono text-sm text-danger">404</p>

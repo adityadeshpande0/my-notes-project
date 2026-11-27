@@ -1,10 +1,11 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Link } from 'react-router';
 import { LevelChip } from '../components/LevelChip';
 import { topics } from '../lib/content';
 import { outlineFor, pathFor, pathPosition, type PathStep } from '../lib/curriculum';
 import { useMediaQuery, useReveal } from '../lib/hooks';
 import { useReadingHistory, wasVisited } from '../lib/readingHistory';
+import { track as trackEvent } from '../lib/analytics';
 import { snakeCell, type SnakeCell } from '../lib/snake';
 import { TRACKS, type Track } from '../lib/types';
 
@@ -34,6 +35,12 @@ export function TrackPage({ track }: { track: Track }) {
   const ready = path.filter((s) => s.href);
   const readCount = ready.filter((s) => wasVisited(history, track, s.slug)).length;
   const firstWritten = ready[0];
+  // Once per visit to this page: which collection, and how far along the reader is.
+  useEffect(() => {
+    trackEvent('track_viewed', { track, read: readCount, total: ready.length });
+    // Only on arrival: reading progress doesn't change while you're on this page.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [track]);
   // "Up next": the written step after the last one you opened here, or step 1.
   // If you've already reached the newest written step, there is no "up next";
   // the button offers to read it again instead.
