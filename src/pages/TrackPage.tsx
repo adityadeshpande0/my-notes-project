@@ -71,7 +71,15 @@ export function TrackPage({ track }: { track: Track }) {
           {readCount > 0 ? (
             <div className="mt-8 max-w-md">
               <div className="flex items-baseline justify-between text-sm">
-                <span className="text-muted">Your progress</span>
+                <span className="text-muted">
+                  Your progress
+                  {/* Every step written and read: the whole collection is done. */}
+                  {readCount === path.length && ready.length === path.length && (
+                    <span className="ml-2 rounded-full border border-success px-2 py-0.5 font-mono text-xs text-success">
+                      ✓ Completed
+                    </span>
+                  )}
+                </span>
                 <span className="font-mono text-xs text-muted">
                   {readCount} of {ready.length} read
                 </span>
